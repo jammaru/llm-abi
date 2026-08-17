@@ -22,8 +22,11 @@ jobs:
           persist-credentials: false
       - uses: ./.github/actions/setup
       - run: pnpm --filter @llm-abi/playground build
-      - uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          workingDirectory: packages/playground
-          command: pages deploy dist --project-name=llm-abi --commit-dirty=true
+      - name: Deploy to Cloudflare Pages
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: >-
+          pnpm dlx wrangler@4 pages deploy packages/playground/dist
+          --project-name=llm-abi
+          --commit-dirty=true
+          --config packages/playground/wrangler.toml
