@@ -1,0 +1,57 @@
+import { defineTarget } from "./types.ts";
+import type { TargetProfile } from "./types.ts";
+
+const FORMATS = new Set(["date-time", "date", "time"]);
+
+export const googleGeminiStructured: TargetProfile = defineTarget({
+  id: "google/gemini/structured",
+  aliases: ["gemini", "google", "google/gemini", "gemini/structured"],
+  vendor: "google",
+  mode: "structured",
+  revision: "2026-08",
+  dialect: "2020-12",
+  evidence: "documented",
+  capabilities: {
+    anyOf: "unsupported",
+    oneOf: "unsupported",
+    allOf: "unsupported",
+    not: "unsupported",
+    refs: "supported",
+    recursiveRefs: "supported",
+    defs: "lossy",
+    nullableTypeArray: "supported",
+    optionalProperties: "supported",
+    additionalPropertiesTrue: "supported",
+    additionalPropertiesSchema: "supported",
+    pattern: "runtime-only",
+    format: "supported",
+    minLength: "runtime-only",
+    maxLength: "runtime-only",
+    minimum: "supported",
+    maximum: "supported",
+    exclusiveMinimum: "runtime-only",
+    exclusiveMaximum: "runtime-only",
+    multipleOf: "runtime-only",
+    minItems: "supported",
+    maxItems: "supported",
+    uniqueItems: "runtime-only",
+    prefixItems: "supported",
+    minProperties: "runtime-only",
+    maxProperties: "runtime-only",
+    enum: "supported",
+    const: "unsupported",
+    integer: "supported",
+    nullType: "supported",
+  },
+  formats: FORMATS,
+  limits: {
+    maxDepth: 16,
+  },
+  objectPolicy: {
+    additionalProperties: "preserve",
+    requireAllProperties: false,
+    optionalAsNullable: false,
+  },
+  rootMustBeObject: true,
+  rootAnyOf: "unsupported",
+});

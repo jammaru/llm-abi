@@ -1,0 +1,10 @@
+{
+  "type": "object",
+  "properties": {
+    "ratio": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    }
+  },
+  "required": ["ratio"]
+}

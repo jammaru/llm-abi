@@ -1,0 +1,10 @@
+{
+  "type": "object",
+  "properties": {
+    "bio": {
+      "type": "string",
+      "maxLength": 280
+    }
+  },
+  "required": ["bio"]
+}

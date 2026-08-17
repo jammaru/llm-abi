@@ -1,0 +1,9 @@
+{
+  "type": "object",
+  "properties": {
+    "other": {
+      "$ref": "https://example.com/schema.json"
+    }
+  },
+  "required": ["other"]
+}

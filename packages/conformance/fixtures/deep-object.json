@@ -1,0 +1,25 @@
+{
+  "type": "object",
+  "properties": {
+    "user": {
+      "type": "object",
+      "properties": {
+        "profile": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "age": {
+              "type": "number",
+              "minimum": 0
+            }
+          },
+          "required": ["name"]
+        }
+      },
+      "required": ["profile"]
+    }
+  },
+  "required": ["user"]
+}

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://unpkg.com/@changesets/config@3.1.1/schema.json",
+  "changelog": ["@changesets/changelog-github", { "repo": "jammaru/sabi" }],
+  "commit": false,
+  "fixed": [],
+  "linked": [],
+  "access": "public",
+  "baseBranch": "main",
+  "updateInternalDependencies": "patch",
+  "ignore": [
+    "@sabi/conformance",
+    "@sabi/example-openai",
+    "@sabi/example-anthropic",
+    "@sabi/example-gemini",
+    "@sabi/example-standard-schema"
+  ]
+}

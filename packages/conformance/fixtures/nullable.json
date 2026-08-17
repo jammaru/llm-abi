@@ -1,0 +1,10 @@
+{
+  "type": "object",
+  "properties": {
+    "nickname": {
+      "type": "string",
+      "nullable": true
+    }
+  },
+  "required": ["nickname"]
+}

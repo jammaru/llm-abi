@@ -1,0 +1,17 @@
+---
+description: Sabi compiler and OSS conventions
+alwaysApply: true
+---
+
+# Sabi
+
+Sabi is a schema compatibility compiler for LLM providers. Core stays zero-dependency and provider-SDK-free.
+
+- Public API: `compile`, `check`, `analyze`, `fingerprint`
+- Compatibility is `lossless | runtime-safe | lossy | unsupported` — never a percentage
+- Provider rules belong in `packages/core/src/targets/`, not `if (provider === ...)`
+- `compile()` is pure: no network, filesystem, time, or randomness
+- Untrusted schema input must hit depth / node / `$ref` limits
+- Use `Map` for dictionaries keyed by user property names
+- Named exports only
+- English for docs, issues, and commit messages

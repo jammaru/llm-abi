@@ -1,0 +1,10 @@
+{
+  "type": "object",
+  "properties": {
+    "cents": {
+      "type": "number",
+      "multipleOf": 0.01
+    }
+  },
+  "required": ["cents"]
+}

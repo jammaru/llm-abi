@@ -1,0 +1,55 @@
+{
+  "name": "sabi-monorepo",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "build": "pnpm --filter sabijs build",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "oxlint .",
+    "lint:fix": "oxlint . --fix",
+    "fmt": "oxfmt .",
+    "fmt:check": "oxfmt --check .",
+    "check": "pnpm fmt:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm pack:check",
+    "pack:check": "pnpm --filter sabijs pack:check",
+    "consumer": "node scripts/consumer-pack.mjs",
+    "size": "pnpm --filter sabijs size",
+    "bench": "vitest bench --run",
+    "changeset": "changeset",
+    "version": "changeset version",
+    "release": "pnpm build && changeset publish"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.5",
+    "@changesets/changelog-github": "^0.5.1",
+    "@changesets/cli": "^3.0.0",
+    "@types/node": "^24.3.0",
+    "@vitest/coverage-v8": "^4.1.10",
+    "oxfmt": "^0.63.0",
+    "oxlint": "^1.78.0",
+    "publint": "^0.3.23",
+    "tsdown": "^0.22.14",
+    "typescript": "~6.0.3",
+    "unrun": "^0.3.1",
+    "vitest": "^4.1.10"
+  },
+  "optionalDependencies": {
+    "@oxfmt/binding-darwin-arm64": "0.63.0",
+    "@oxfmt/binding-linux-x64-gnu": "0.63.0",
+    "@oxfmt/binding-win32-x64-msvc": "0.63.0",
+    "@oxlint/binding-darwin-arm64": "1.78.0",
+    "@oxlint/binding-linux-x64-gnu": "1.78.0",
+    "@oxlint/binding-win32-x64-msvc": "1.78.0",
+    "@rolldown/binding-darwin-arm64": "1.2.4",
+    "@rolldown/binding-darwin-x64": "1.2.4",
+    "@rolldown/binding-linux-x64-gnu": "1.2.4",
+    "@rolldown/binding-win32-x64-msvc": "1.2.4"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "packageManager": "pnpm@10.11.0"
+}
