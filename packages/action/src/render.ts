@@ -43,7 +43,9 @@ export function renderReport(results: ResultsOutput, includeMarker = false): str
         (target) => target.id === targetId,
       )?.compatibility;
       const base = report.base?.targets.find((target) => target.id === targetId)?.compatibility;
-      return current ? renderChange(base, current, false) : "—";
+      const tokens = report.current.targets.find((target) => target.id === targetId)?.tokens;
+      const cell = current ? renderChange(base, current, false) : "—";
+      return tokens === undefined ? cell : `${cell} · ${String(tokens)}`;
     });
     lines.push(`| \`${escapeMarkdown(report.path)}\` | ${fingerprint} | ${targets.join(" | ")} |`);
   }

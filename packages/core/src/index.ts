@@ -24,6 +24,7 @@ export type {
   LossReport,
   ResolvedTarget,
   SchemaInput,
+  SchemaSize,
   Support,
   TargetId,
   ValidationIssue,

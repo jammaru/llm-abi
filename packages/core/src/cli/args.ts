@@ -5,6 +5,7 @@ export interface CliArgs {
   readonly json: boolean;
   readonly ci: boolean;
   readonly strict: boolean;
+  readonly optimize: boolean;
   readonly help: boolean;
   readonly version: boolean;
 }
@@ -17,6 +18,7 @@ export function parseArgs(argv: readonly string[]): CliArgs {
   let json = false;
   let ci = false;
   let strict = false;
+  let optimize = false;
   let help = false;
   let version = false;
 
@@ -42,6 +44,10 @@ export function parseArgs(argv: readonly string[]): CliArgs {
       strict = true;
       continue;
     }
+    if (token === "--optimize") {
+      optimize = true;
+      continue;
+    }
     if (token === "--target" || token === "-t") {
       target = rest[index + 1];
       index += 1;
@@ -60,7 +66,7 @@ export function parseArgs(argv: readonly string[]): CliArgs {
     }
     if (
       command === "help" &&
-      ["check", "compile", "explain", "doctor", "help", "version"].includes(token)
+      ["check", "compile", "explain", "analyze", "doctor", "help", "version"].includes(token)
     ) {
       command = token;
       continue;
@@ -74,5 +80,5 @@ export function parseArgs(argv: readonly string[]): CliArgs {
   if (help) {
     command = "help";
   }
-  return { command, file, target, json, ci, strict, help, version };
+  return { command, file, target, json, ci, strict, optimize, help, version };
 }

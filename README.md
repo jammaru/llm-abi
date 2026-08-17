@@ -29,6 +29,7 @@ result.schema;
 result.diagnostics;
 result.loss;
 result.fingerprint;
+result.size;
 result.validate;
 ```
 
@@ -39,11 +40,11 @@ npx llm-abi check schema.json
 ```text
 Schema compatibility
 
-Target                                 Result
-────────────────────────────────────────────────
-openai/responses/structured            PASS*
-anthropic/messages/structured          PASS*
-google/gemini/structured               PASS
+Target                                 Result   Tokens
+────────────────────────────────────────────────────────
+openai/responses/structured            PASS*    142
+anthropic/messages/structured          PASS*    168
+google/gemini/structured               PASS     155
 
 2 constraints require runtime validation.
 ```
@@ -58,7 +59,7 @@ LLM providers all say they accept JSON Schema. They do not accept the same JSON 
 | Anthropic | Unsupported constraints are stripped and moved to descriptions |
 | Gemini    | Officially a subset; large or deep schemas can be rejected     |
 
-llm-abi is not another Zod-to-JSON-Schema converter. It is a **schema compatibility compiler**: one input schema, provider-aware lowering, diagnostics, loss reporting, runtime validation, and a CI checker.
+llm-abi is not another Zod-to-JSON-Schema converter. It is a **schema compatibility compiler**: one input schema, provider-aware lowering, diagnostics, loss reporting, conservative size/token hints, runtime validation, and a CI checker.
 
 ## Install
 
@@ -142,6 +143,7 @@ DeepSeek, xAI, Qwen, Mistral, Cohere, OpenRouter, Groq, Together, and MCP are pl
 npx llm-abi check schema.json
 npx llm-abi compile schema.json --target anthropic
 npx llm-abi explain schema.json --target gemini
+npx llm-abi analyze schema.json
 npx llm-abi doctor
 ```
 
@@ -210,7 +212,7 @@ JSON Schema / Standard Schema
             ↓
  Analyze → Lower → Emit
             ↓
- Provider schema + diagnostics + fingerprint + validate()
+ Provider schema + diagnostics + fingerprint + size + validate()
 ```
 
 Provider differences live in **profiles**, not scattered `if (provider === "anthropic")` branches.

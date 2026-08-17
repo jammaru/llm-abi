@@ -14,6 +14,9 @@ describe("analyze", () => {
     });
     expect(result.stats.nodes).toBeGreaterThan(1);
     expect(result.stats.constraints).toBeGreaterThan(0);
+    expect(result.stats.bytes).toBeGreaterThan(0);
+    expect(result.stats.tokens).toBeGreaterThan(0);
+    expect(result.stats.unusedDefs).toBe(0);
     expect(result.fingerprint.startsWith("sha256:")).toBe(true);
   });
 

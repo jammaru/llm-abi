@@ -2,13 +2,18 @@ import type { Diagnostic } from "./types.ts";
 import type { SchemaDocument, SchemaNode } from "./ir/types.ts";
 import { fingerprint } from "./fingerprint.ts";
 import { parseInput } from "./input.ts";
+import { measureSchema } from "./size.ts";
 import type { Analysis, SchemaInput } from "./types.ts";
 
 export function analyze(schema: SchemaInput): Analysis {
   const parsed = parseInput(schema);
   const stats = measure(parsed.document);
+  const size = measureSchema(parsed.jsonSchema);
+  const unusedDefs = parsed.document.notes.filter(
+    (note) => note.code === "unused-def-removed",
+  ).length;
   const notes: Diagnostic[] = parsed.document.notes.map((note) => ({
-    code: "unsupported-keyword",
+    code: note.code ?? "unsupported-keyword",
     severity: "info",
     path: note.path,
     keyword: note.keyword,
@@ -16,12 +21,19 @@ export function analyze(schema: SchemaInput): Analysis {
   }));
   return {
     fingerprint: fingerprint(schema),
-    stats,
+    stats: {
+      ...stats,
+      unusedDefs,
+      bytes: size.bytes,
+      tokens: size.tokens,
+    },
     notes,
   };
 }
 
-function measure(document: SchemaDocument): Analysis["stats"] {
+function measure(
+  document: SchemaDocument,
+): Pick<Analysis["stats"], "nodes" | "depth" | "properties" | "defs" | "constraints"> {
   let nodes = 0;
   let depth = 0;
   let properties = 0;

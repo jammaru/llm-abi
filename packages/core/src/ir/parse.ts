@@ -1,7 +1,7 @@
 import { SchemaLimitError } from "../errors.ts";
 import { createRecord, isPlainObject, setRecord } from "../json/safe-record.ts";
 import { MAX_DEPTH, MAX_ENUM_VALUES, MAX_NODES, MAX_PROPERTIES, MAX_REFS } from "../limits.ts";
-import type { JsonValue } from "../types.ts";
+import type { DiagnosticCode, JsonValue } from "../types.ts";
 import type { ParseNote, SchemaDocument, SchemaNode } from "./types.ts";
 
 const IGNORED_KEYS = new Set([
@@ -103,12 +103,34 @@ export function parseJsonSchema(input: unknown): SchemaDocument {
   }
 
   const root = parseNode(input, [], "#", ctx, 0);
+  noteUnusedRootDefs(input, ctx);
   return {
     root,
     defs: ctx.defs,
     dialect: dialectOf(input),
     notes: ctx.notes,
   };
+}
+
+function noteUnusedRootDefs(input: Record<string, unknown>, ctx: ParseContext): void {
+  for (const keyword of ["$defs", "definitions"] as const) {
+    const bag = input[keyword];
+    if (!isPlainObject(bag)) {
+      continue;
+    }
+    for (const name of Object.keys(bag).toSorted()) {
+      const pointer = `#/${keyword}/${escapePointer(name)}`;
+      if (ctx.defs.has(pointer)) {
+        continue;
+      }
+      ctx.notes.push({
+        path: [keyword, name],
+        keyword,
+        code: "unused-def-removed" satisfies DiagnosticCode,
+        message: `Unused ${keyword} "${name}" was not compiled.`,
+      });
+    }
+  }
 }
 
 function dialectOf(schema: Record<string, unknown>): SchemaDocument["dialect"] {

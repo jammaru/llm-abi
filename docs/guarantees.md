@@ -10,7 +10,7 @@ Given the same:
 - target id
 - package version (which pins the profile revision)
 
-`compile()` returns the same `schema`, `diagnostics`, `loss`, and `fingerprint`.
+`compile()` returns the same `schema`, `diagnostics`, `loss`, `fingerprint`, and `size`.
 
 `result.validate(value)` validates against the **original** schema (or the original Standard Schema validator), not the lowered provider schema.
 
@@ -31,3 +31,5 @@ Given the same:
 | unsupported  | Cannot represent a construct    | Still defined; do not send blindly  |
 
 `strict: true` throws when compatibility is `unsupported`.
+
+`size.tokens` is a conservative overhead hint (`ceil(UTF-8 bytes / 3)`). It is not a provider billing API and not a compatibility percentage. Exceeding a profile `maxStringBudget` adds `string-budget-exceeded` without changing the compatibility level.

@@ -1,4 +1,4 @@
-import type { CheckResult, CompileResult, Diagnostic } from "../types.ts";
+import type { Analysis, CheckResult, CompileResult, Diagnostic } from "../types.ts";
 
 const MARK: Record<string, string> = {
   lossless: "PASS",
@@ -11,12 +11,12 @@ export function renderCheck(result: CheckResult): string {
   const lines = [
     "Schema compatibility",
     "",
-    "Target                                 Result",
-    "────────────────────────────────────────────────",
+    "Target                                 Result   Tokens",
+    "────────────────────────────────────────────────────────",
   ];
   for (const row of result.results) {
     const mark = MARK[row.compatibility] ?? row.compatibility;
-    lines.push(`${pad(row.target.id, 38)} ${mark}`);
+    lines.push(`${pad(row.target.id, 38)} ${pad(mark, 8)}${String(row.size.tokens)}`);
   }
   const warnings = result.results.flatMap((row) =>
     row.diagnostics.filter((item) => item.severity !== "info"),
@@ -40,6 +40,7 @@ export function renderExplain(result: CompileResult): string {
     `Target          ${result.target.id}`,
     `Revision        ${result.target.revision}`,
     `Compatibility   ${result.compatibility}`,
+    `Size            ${String(result.size.bytes)} bytes  (~${String(result.size.tokens)} tokens)`,
     `Fingerprint     ${result.fingerprint}`,
     "",
   ];
@@ -60,6 +61,29 @@ export function renderExplain(result: CompileResult): string {
   return lines.join("\n").trimEnd();
 }
 
+export function renderAnalyze(result: Analysis): string {
+  const lines = [
+    "Schema analysis",
+    "",
+    `Nodes          ${String(result.stats.nodes)}`,
+    `Depth          ${String(result.stats.depth)}`,
+    `Properties     ${String(result.stats.properties)}`,
+    `Defs           ${String(result.stats.defs)}`,
+    `Unused defs    ${String(result.stats.unusedDefs)}`,
+    `Constraints    ${String(result.stats.constraints)}`,
+    `Size           ${String(result.stats.bytes)} bytes`,
+    `Tokens         ${String(result.stats.tokens)}  (conservative, UTF-8 bytes / 3)`,
+    `Fingerprint    ${result.fingerprint}`,
+  ];
+  if (result.notes.length > 0) {
+    lines.push("", "Notes");
+    for (const note of result.notes) {
+      lines.push(formatDiagnostic(note));
+    }
+  }
+  return lines.join("\n");
+}
+
 export function formatDiagnostic(diagnostic: Diagnostic): string {
   const path = diagnostic.path.length === 0 ? "<root>" : diagnostic.path.join(".");
   const keyword = diagnostic.keyword ? ` \`${diagnostic.keyword}\`` : "";
@@ -73,6 +97,7 @@ Usage:
   llm-abi check <schema.json> [--ci]
   llm-abi compile <schema.json> --target <id>
   llm-abi explain <schema.json> --target <id>
+  llm-abi analyze <schema.json>
   llm-abi doctor
 
 Targets:
@@ -83,6 +108,7 @@ Targets:
 Options:
   --target, -t      Target profile id or alias
   --strict          Fail when the schema is unsupported
+  --optimize        Drop redundant titles and duplicate descriptions
   --json            Machine-readable output
   --ci              Exit 1 when any target is unsupported
   --help, -h

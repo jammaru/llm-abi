@@ -88,6 +88,20 @@ describe("action CLI wrapper", () => {
     });
   });
 
+  it("forwards conservative token counts from check JSON", () => {
+    const directory = createTemporaryDirectory();
+    const cli = join(directory, "cli.mjs");
+    writeFileSync(
+      cli,
+      `process.stdout.write(JSON.stringify({ fingerprint: "abc", results: [{ target: { id: "openai/responses/structured" }, compatibility: "runtime-safe", size: { bytes: 426, tokens: 142 } }] }));`,
+      "utf8",
+    );
+    expect(runCheck(cli, "schema.json", directory)).toEqual({
+      fingerprint: "abc",
+      targets: [{ id: "openai/responses/structured", compatibility: "runtime-safe", tokens: 142 }],
+    });
+  });
+
   it("treats an unparseable CLI failure as an operational error", () => {
     const directory = createTemporaryDirectory();
     const cli = join(directory, "cli.mjs");
@@ -145,6 +159,24 @@ describe("action report", () => {
     expect(report).toContain(COMMENT_MARKER);
     expect(report).toContain("lossless → lossy");
     expect(report).toContain("`old` → `new`");
+    expect(report).not.toContain("%");
+  });
+
+  it("appends conservative token counts when the CLI reports them", () => {
+    const report = renderReport(
+      buildResults([
+        {
+          path: "schema.json",
+          current: {
+            fingerprint: "fp",
+            targets: [
+              { id: "openai/responses/structured", compatibility: "runtime-safe", tokens: 142 },
+            ],
+          },
+        },
+      ]),
+    );
+    expect(report).toContain("runtime-safe · 142");
     expect(report).not.toContain("%");
   });
 

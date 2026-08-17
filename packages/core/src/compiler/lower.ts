@@ -34,6 +34,17 @@ export function lowerDocument(
     level: "lossless",
   };
   for (const note of document.notes) {
+    if (note.code === "unused-def-removed") {
+      ctx.diagnostics.push({
+        code: "unused-def-removed",
+        severity: "info",
+        path: note.path,
+        keyword: note.keyword,
+        message: note.message,
+        action: "Omitted from the provider schema because nothing referenced it.",
+      });
+      continue;
+    }
     if (note.keyword === "not" || note.keyword === "if" || note.keyword === "patternProperties") {
       push(
         ctx,

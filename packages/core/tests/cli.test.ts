@@ -48,6 +48,32 @@ describe("cli", () => {
     expect(chunks.join("")).toContain("runtime-only-constraint");
   });
 
+  it("prints conservative token counts for check and analyze", () => {
+    const file = withSchema({
+      type: "object",
+      properties: { age: { type: "number", minimum: 0 } },
+      required: ["age"],
+    });
+    const chunks: string[] = [];
+    const original = process.stdout.write.bind(process.stdout);
+    process.stdout.write = ((chunk: string | Uint8Array) => {
+      chunks.push(String(chunk));
+      return true;
+    }) as typeof process.stdout.write;
+    try {
+      expect(run(["node", "llm-abi", "check", file])).toBe(0);
+      expect(run(["node", "llm-abi", "analyze", file])).toBe(0);
+      expect(run(["node", "llm-abi", "explain", file, "--target", "openai"])).toBe(0);
+    } finally {
+      process.stdout.write = original;
+    }
+    const output = chunks.join("");
+    expect(output).toContain("Tokens");
+    expect(output).toContain("UTF-8 bytes / 3");
+    expect(output).toContain("bytes  (~");
+    expect(output).not.toContain("%");
+  });
+
   it("fails --ci when a target is unsupported", () => {
     const file = withSchema({
       type: "object",
@@ -105,6 +131,7 @@ describe("cli", () => {
       json: true,
       ci: true,
       strict: false,
+      optimize: false,
       help: false,
       version: false,
     });
