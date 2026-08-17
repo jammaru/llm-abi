@@ -1,4 +1,3 @@
 name = "llm-abi"
-account_id = "0ec81dbbaae1f46788680a0276fe1fd7"
 compatibility_date = "2026-08-18"
 pages_build_output_dir = "./dist"
