@@ -9,6 +9,7 @@
   "updateInternalDependencies": "patch",
   "ignore": [
     "@llm-abi/conformance",
+    "@llm-abi/playground",
     "@llm-abi/example-openai",
     "@llm-abi/example-anthropic",
     "@llm-abi/example-gemini",

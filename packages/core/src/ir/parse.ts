@@ -22,6 +22,7 @@ const KNOWN_KEYS = new Set([
   "$comment",
   "$ref",
   "$defs",
+  "$def",
   "definitions",
   "id",
   "title",
@@ -113,7 +114,7 @@ export function parseJsonSchema(input: unknown): SchemaDocument {
 }
 
 function noteUnusedRootDefs(input: Record<string, unknown>, ctx: ParseContext): void {
-  for (const keyword of ["$defs", "definitions"] as const) {
+  for (const keyword of ["$defs", "$def", "definitions"] as const) {
     const bag = input[keyword];
     if (!isPlainObject(bag)) {
       continue;

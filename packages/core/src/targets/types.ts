@@ -62,6 +62,11 @@ export interface TargetProfile {
   readonly objectPolicy: ObjectPolicy;
   readonly rootMustBeObject: boolean;
   readonly rootAnyOf: Support;
+  /**
+   * Keyword used when emitting reusable definitions.
+   * DeepSeek strict tools document `$def` rather than `$defs`.
+   */
+  readonly defsKeyword?: "$defs" | "$def";
 }
 
 export function defineTarget(profile: TargetProfile): TargetProfile {

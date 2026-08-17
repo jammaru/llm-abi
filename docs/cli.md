@@ -19,13 +19,13 @@ npx llm-abi doctor
 | `analyze` | Node counts plus conservative size/token hint  |
 | `doctor`  | Version, runtime, and profile revisions        |
 
-| Flag       | Meaning                                               |
-| ---------- | ----------------------------------------------------- |
-| `--target` | Profile id or alias (`openai`, `anthropic`, `gemini`) |
-| `--strict` | Fail when the schema is unsupported                   |
-| `--type`   | Type or interface name when the input is TypeScript   |
-| `--json`   | Machine-readable output                               |
-| `--ci`     | Exit 1 when any target is `unsupported`               |
+| Flag       | Meaning                                                           |
+| ---------- | ----------------------------------------------------------------- |
+| `--target` | Profile id or alias (`openai`, `anthropic`, `gemini`, `deepseek`) |
+| `--strict` | Fail when the schema is unsupported                               |
+| `--type`   | Type or interface name when the input is TypeScript               |
+| `--json`   | Machine-readable output                                           |
+| `--ci`     | Exit 1 when any target is `unsupported`                           |
 
 `llm-abi doctor --json` is intended for bug reports.
 
