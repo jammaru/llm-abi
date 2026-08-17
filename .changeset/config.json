@@ -13,6 +13,8 @@
     "@llm-abi/example-openai",
     "@llm-abi/example-anthropic",
     "@llm-abi/example-gemini",
-    "@llm-abi/example-standard-schema"
+    "@llm-abi/example-standard-schema",
+    "@llm-abi/example-ai-sdk",
+    "@llm-abi/example-mcp"
   ]
 }

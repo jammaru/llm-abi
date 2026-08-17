@@ -13,7 +13,7 @@
     "lint:fix": "oxlint . --fix",
     "fmt": "oxfmt .",
     "fmt:check": "oxfmt --check .",
-    "examples": "tsc --noEmit -p examples/openai/tsconfig.json && tsc --noEmit -p examples/anthropic/tsconfig.json && tsc --noEmit -p examples/gemini/tsconfig.json && tsc --noEmit -p examples/standard-schema/tsconfig.json && pnpm --filter=@llm-abi/example-* start",
+    "examples": "tsc --noEmit -p examples/openai/tsconfig.json && tsc --noEmit -p examples/anthropic/tsconfig.json && tsc --noEmit -p examples/gemini/tsconfig.json && tsc --noEmit -p examples/standard-schema/tsconfig.json && tsc --noEmit -p examples/ai-sdk/tsconfig.json && tsc --noEmit -p examples/mcp/tsconfig.json && pnpm --filter=@llm-abi/example-* start",
     "check": "pnpm fmt:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm pack:check && pnpm examples && pnpm --filter @llm-abi/playground typecheck",
     "playground": "pnpm --filter @llm-abi/playground dev",
     "pack:check": "pnpm --filter llm-abi pack:check",

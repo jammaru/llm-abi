@@ -14,6 +14,7 @@ The public description is the schema ABI between TypeScript and LLM providers. J
 
 - `type` aliases and `interface` bodies (including interface merging)
 - primitives, literals, arrays, tuples, unions, intersections
+- string / number / boolean literal unions emit `enum`, not `anyOf` of `const`
 - optional properties, nested objects
 - `Array<T>`, `ReadonlyArray<T>`, `Record<string, T>`
 

@@ -106,6 +106,8 @@ compile(UserSchema, {
 });
 ```
 
+Copy-paste recipes under [`examples/`](examples/README.md) place `result.schema` in the OpenAI, Anthropic, Gemini, Vercel AI SDK, and MCP fields those SDKs already document. They do not call those APIs, and they do not add those SDKs to `packages/core`.
+
 ### Compatibility
 
 Every compile result has a discrete compatibility level. There is no invented percentage score.
@@ -248,7 +250,7 @@ Provider differences live in **profiles**, not scattered `if (provider === "anth
 packages/core          compiler + CLI (published as llm-abi)
 packages/conformance   fixture corpus
 packages/playground    browser compatibility playground
-examples/              copy-paste recipes
+examples/              copy-paste SDK recipes (no network, no core SDK deps)
 ```
 
 ## Contributing
@@ -261,6 +263,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). Adding a provider should be a profile fi
 - [CLI](docs/cli.md)
 - [Architecture](docs/architecture.md)
 - [Target profiles](docs/targets/README.md)
+- [Examples](examples/README.md)
 - [Playground](https://jammaru.github.io/llm-abi/)
 
 ## License

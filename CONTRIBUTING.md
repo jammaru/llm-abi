@@ -18,7 +18,7 @@ Node.js 22+ and pnpm 10 are required. `pnpm check` is what GitHub Actions runs o
 - `packages/conformance` — JSON Schema fixtures
 - `packages/action` — reusable GitHub Action that runs the CLI
 - `packages/playground` — static browser playground (`pnpm playground`)
-- `examples` — copy-paste recipes, typechecked and executed in CI
+- `examples` — copy-paste recipes under existing SDKs (OpenAI, Anthropic, Gemini, AI SDK, MCP). Typechecked and executed in CI. No provider API calls.
 - `docs` — guarantees, API, CLI, and architecture
 - `AGENTS.md` — product boundaries for humans and coding agents
 - `.agents/skills` — shared agent checklists

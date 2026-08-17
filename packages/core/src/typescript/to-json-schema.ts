@@ -237,9 +237,43 @@ function unionSchema(variants: readonly TsType[], names: ReadonlySet<string>): J
   if (meaningful.length === 1) {
     return typeToSchema(meaningful[0]!, names);
   }
+  const literals = literalEnum(meaningful);
+  if (literals) {
+    return {
+      type: literals.type,
+      enum: literals.values,
+    } as JsonSchemaObject;
+  }
   return {
     anyOf: meaningful.map((variant) => typeToSchema(variant, names)),
   } as JsonSchemaObject;
+}
+
+function literalEnum(
+  variants: readonly TsType[],
+):
+  | { type: "string" | "number" | "boolean"; values: readonly (string | number | boolean)[] }
+  | undefined {
+  if (variants.length < 2) {
+    return undefined;
+  }
+  const values: (string | number | boolean)[] = [];
+  let jsonType: "string" | "number" | "boolean" | undefined;
+  for (const variant of variants) {
+    if (variant.kind !== "literal") {
+      return undefined;
+    }
+    const value = variant.value;
+    const nextType =
+      typeof value === "string" ? "string" : typeof value === "number" ? "number" : "boolean";
+    if (jsonType === undefined) {
+      jsonType = nextType;
+    } else if (jsonType !== nextType) {
+      return undefined;
+    }
+    values.push(value);
+  }
+  return jsonType ? { type: jsonType, values } : undefined;
 }
 
 function stripUndefined(type: TsType): { type: TsType; optional: boolean } {
