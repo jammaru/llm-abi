@@ -25,7 +25,9 @@ describe("cli", () => {
     } finally {
       process.stdout.write = original;
     }
-    expect(chunks.join("")).toContain("llm-abi 0.1.0");
+    const output = chunks.join("");
+    expect(output).toContain("llm-abi 0.1.0");
+    expect(output).toContain("mcp/2026-06/tools");
   });
 
   it("explains anthropic runtime-only constraints", () => {

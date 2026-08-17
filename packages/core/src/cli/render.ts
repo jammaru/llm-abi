@@ -109,6 +109,7 @@ Targets:
   qwen              alibaba/qwen/tools
   mistral           mistral/chat/structured
   openrouter        openrouter/structured
+  mcp               mcp/2026-06/tools
 
 Options:
   --target, -t      Target profile id or alias

@@ -55,11 +55,12 @@ google/gemini/structured               PASS     155
 
 LLM providers all say they accept JSON Schema. They do not accept the same JSON Schema.
 
-| Provider  | What actually happens                                          |
-| --------- | -------------------------------------------------------------- |
-| OpenAI    | Strict structured outputs use a JSON Schema subset             |
-| Anthropic | Unsupported constraints are stripped and moved to descriptions |
-| Gemini    | Officially a subset; large or deep schemas can be rejected     |
+| Provider  | What actually happens                                           |
+| --------- | --------------------------------------------------------------- |
+| OpenAI    | Strict structured outputs use a JSON Schema subset              |
+| Anthropic | Unsupported constraints are stripped and moved to descriptions  |
+| Gemini    | Officially a subset; large or deep schemas can be rejected      |
+| MCP hosts | Tool `inputSchema` is an object subset; `$ref` and `oneOf` fail |
 
 llm-abi is not another Zod-to-JSON-Schema converter. It is a **schema compatibility compiler**: one input schema, provider-aware lowering, diagnostics, loss reporting, conservative size/token hints, runtime validation, and a CI checker.
 
@@ -157,8 +158,9 @@ Zod, Valibot, ArkType, and other Standard Schema libraries work when they expose
 | `qwen`       | `alibaba/qwen/tools`            | Verified     |
 | `mistral`    | `mistral/chat/structured`       | Experimental |
 | `openrouter` | `openrouter/structured`         | Partial      |
+| `mcp`        | `mcp/2026-06/tools`             | Partial      |
 
-Cohere, Groq, Together, and MCP are planned. New providers are data: add a target profile, fixtures, and expected diagnostics.
+Cohere, Groq, and Together are planned. New providers are data: add a target profile, fixtures, and expected diagnostics.
 
 ## CLI
 
