@@ -54,6 +54,12 @@ Input → IR → analyze → lower(profile) → emit → diagnostics
 5. Document evidence (`documented` | `sdk-observed` | `empirical`)
 6. Update README target table honestly (`Verified` / `Partial` / `Experimental`)
 
+## Agent files
+
+- `AGENTS.md` (this file) is the cross-tool guide
+- `.agents/skills/` holds task checklists (`add-target`, `review-compiler`)
+- `CLAUDE.md` points here so Claude Code uses the same rules
+
 ## Commands
 
 ```bash
