@@ -16,4 +16,4 @@ body:
       required: true
   - type: markdown
     attributes:
-      value: Sabi is a compiler under existing SDKs. Please do not propose an agent framework or a provider SDK wrapper as the core product.
+      value: llm-abi is a compiler under existing SDKs. Please do not propose an agent framework or a provider SDK wrapper as the core product.

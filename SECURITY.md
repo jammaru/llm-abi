@@ -2,13 +2,13 @@
 
 ## Supported versions
 
-Security fixes are accepted against the latest published `sabijs` release.
+Security fixes are accepted against the latest published `llm-abi` release.
 
 ## Reporting a vulnerability
 
 Please email **jammaru.lab@gmail.com** with:
 
-- Sabi / `sabijs` version
+- `llm-abi` version
 - A minimal schema that triggers the issue
 - Impact (crash, unbounded memory, prototype pollution, etc.)
 
@@ -16,7 +16,7 @@ Do not open a public GitHub issue for unfixed vulnerabilities.
 
 ## Scope
 
-Sabi compiles untrusted JSON Schema-like input. The following are in scope:
+llm-abi compiles untrusted JSON Schema-like input. The following are in scope:
 
 - Unbounded recursion or memory growth
 - Prototype pollution through property names

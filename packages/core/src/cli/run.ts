@@ -89,7 +89,7 @@ function readSchema(file: string): JsonSchema {
 
 function doctor(json: boolean): number {
   const info = {
-    name: "sabijs",
+    name: "llm-abi",
     version: VERSION,
     runtime: `node ${process.version}`,
     targets: listTargets(),
@@ -99,7 +99,7 @@ function doctor(json: boolean): number {
   } else {
     process.stdout.write(
       [
-        `sabijs ${VERSION}`,
+        `llm-abi ${VERSION}`,
         `Runtime   ${info.runtime}`,
         "Targets",
         ...info.targets.map((target) => `  ${target.id}  (${target.revision})`),

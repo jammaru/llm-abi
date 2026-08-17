@@ -13,17 +13,17 @@ if (!tarballName) {
   throw new Error("pnpm pack did not write a tarball.");
 }
 const tarball = join(core, tarballName);
-const directory = mkdtempSync(join(tmpdir(), "sabi-consumer-"));
+const directory = mkdtempSync(join(tmpdir(), "llm-abi-consumer-"));
 
 try {
   writeFileSync(
     join(directory, "package.json"),
-    JSON.stringify({ name: "sabi-consumer", type: "module", private: true }, null, 2),
+    JSON.stringify({ name: "llm-abi-consumer", type: "module", private: true }, null, 2),
   );
   execSync(`npm install "${tarball}"`, { cwd: directory, stdio: "inherit" });
   writeFileSync(
     join(directory, "index.mjs"),
-    `import { compile, check, listTargets } from "sabijs";
+    `import { compile, check, listTargets } from "llm-abi";
 const schema = { type: "object", properties: { ok: { type: "boolean" } }, required: ["ok"] };
 const result = compile(schema, "openai");
 if (result.compatibility !== "lossless" && result.compatibility !== "runtime-safe") {

@@ -16,7 +16,7 @@ body:
   - type: input
     id: version
     attributes:
-      label: sabijs version
+      label: llm-abi version
     validations:
       required: true
   - type: textarea
@@ -41,5 +41,5 @@ body:
   - type: textarea
     id: doctor
     attributes:
-      label: sabijs doctor --json
+      label: llm-abi doctor --json
       render: json

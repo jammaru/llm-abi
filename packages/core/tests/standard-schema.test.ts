@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { compile } from "../src/compile.ts";
-import { SabiError } from "../src/errors.ts";
+import { LlmAbiError } from "../src/errors.ts";
 import type { StandardJSONSchemaV1, StandardSchemaV1 } from "../src/standard-schema.ts";
 
 describe("standard schema input", () => {
@@ -33,6 +33,6 @@ describe("standard schema input", () => {
         validate: (value) => ({ value }),
       },
     };
-    expect(() => compile(schema, "openai")).toThrow(SabiError);
+    expect(() => compile(schema, "openai")).toThrow(LlmAbiError);
   });
 });

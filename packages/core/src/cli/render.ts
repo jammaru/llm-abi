@@ -67,13 +67,13 @@ export function formatDiagnostic(diagnostic: Diagnostic): string {
   return `[${diagnostic.severity}] ${diagnostic.code}${keyword}\n  ${path}\n  ${diagnostic.message}${action}`;
 }
 
-export const HELP: string = `sabijs — schema compatibility compiler for LLM providers
+export const HELP: string = `llm-abi — schema compatibility compiler for LLM providers
 
 Usage:
-  sabijs check <schema.json> [--ci]
-  sabijs compile <schema.json> --target <id>
-  sabijs explain <schema.json> --target <id>
-  sabijs doctor
+  llm-abi check <schema.json> [--ci]
+  llm-abi compile <schema.json> --target <id>
+  llm-abi explain <schema.json> --target <id>
+  llm-abi doctor
 
 Targets:
   openai            openai/responses/structured

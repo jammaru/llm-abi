@@ -1,6 +1,6 @@
 {
   "$schema": "https://unpkg.com/@changesets/config@3.1.1/schema.json",
-  "changelog": ["@changesets/changelog-github", { "repo": "jammaru/sabi" }],
+  "changelog": ["@changesets/changelog-github", { "repo": "jammaru/llm-abi" }],
   "commit": false,
   "fixed": [],
   "linked": [],
@@ -8,10 +8,10 @@
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
   "ignore": [
-    "@sabi/conformance",
-    "@sabi/example-openai",
-    "@sabi/example-anthropic",
-    "@sabi/example-gemini",
-    "@sabi/example-standard-schema"
+    "@llm-abi/conformance",
+    "@llm-abi/example-openai",
+    "@llm-abi/example-anthropic",
+    "@llm-abi/example-gemini",
+    "@llm-abi/example-standard-schema"
   ]
 }

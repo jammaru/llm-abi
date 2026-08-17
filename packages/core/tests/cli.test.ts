@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 import { run } from "../src/cli/run.ts";
 
 function withSchema(schema: unknown): string {
-  const directory = mkdtempSync(join(tmpdir(), "sabi-"));
+  const directory = mkdtempSync(join(tmpdir(), "llm-abi-"));
   const file = join(directory, "schema.json");
   writeFileSync(file, JSON.stringify(schema));
   return file;
@@ -20,11 +20,11 @@ describe("cli", () => {
       return true;
     }) as typeof process.stdout.write;
     try {
-      expect(run(["node", "sabijs", "doctor"])).toBe(0);
+      expect(run(["node", "llm-abi", "doctor"])).toBe(0);
     } finally {
       process.stdout.write = original;
     }
-    expect(chunks.join("")).toContain("sabijs 0.1.0");
+    expect(chunks.join("")).toContain("llm-abi 0.1.0");
   });
 
   it("explains anthropic runtime-only constraints", () => {
@@ -40,7 +40,7 @@ describe("cli", () => {
       return true;
     }) as typeof process.stdout.write;
     try {
-      expect(run(["node", "sabijs", "explain", file, "--target", "anthropic"])).toBe(0);
+      expect(run(["node", "llm-abi", "explain", file, "--target", "anthropic"])).toBe(0);
     } finally {
       process.stdout.write = original;
     }
@@ -58,7 +58,7 @@ describe("cli", () => {
     const original = process.stdout.write.bind(process.stdout);
     process.stdout.write = (() => true) as typeof process.stdout.write;
     try {
-      expect(run(["node", "sabijs", "check", file, "--ci"])).toBe(1);
+      expect(run(["node", "llm-abi", "check", file, "--ci"])).toBe(1);
     } finally {
       process.stdout.write = original;
     }

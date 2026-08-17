@@ -1,12 +1,12 @@
 # CLI
 
-The published binary is `sabijs`. Node.js 22+ is required.
+The published binary is `llm-abi`. Node.js 22+ is required.
 
 ```bash
-npx sabijs check schema.json
-npx sabijs compile schema.json --target anthropic
-npx sabijs explain schema.json --target gemini
-npx sabijs doctor
+npx llm-abi check schema.json
+npx llm-abi compile schema.json --target anthropic
+npx llm-abi explain schema.json --target gemini
+npx llm-abi doctor
 ```
 
 | Command   | Purpose                                        |
@@ -23,4 +23,4 @@ npx sabijs doctor
 | `--json`   | Machine-readable output                               |
 | `--ci`     | Exit 1 when any target is `unsupported`               |
 
-`sabijs doctor --json` is intended for bug reports.
+`llm-abi doctor --json` is intended for bug reports.

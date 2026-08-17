@@ -1,9 +1,9 @@
 ---
 name: review-compiler
-description: Review Sabi compiler changes for IR purity, diagnostics stability, determinism, and schema safety. Use when reviewing PRs, lowering changes, or target profile updates.
+description: Review llm-abi compiler changes for IR purity, diagnostics stability, determinism, and schema safety. Use when reviewing PRs, lowering changes, or target profile updates.
 ---
 
-# Review a Sabi compiler change
+# Review llm-abi compiler changes
 
 Check, then fix:
 

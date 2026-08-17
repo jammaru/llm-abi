@@ -50,9 +50,9 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter sabijs build
+      - run: pnpm --filter llm-abi build
       - run: pnpm exec tsc --noEmit -p examples/openai/tsconfig.json
       - run: pnpm exec tsc --noEmit -p examples/anthropic/tsconfig.json
       - run: pnpm exec tsc --noEmit -p examples/gemini/tsconfig.json
       - run: pnpm exec tsc --noEmit -p examples/standard-schema/tsconfig.json
-      - run: pnpm --filter "@sabi/example-*" start
+      - run: pnpm --filter "@llm-abi/example-*" start
