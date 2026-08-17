@@ -41,6 +41,7 @@ describe("TypeScript type input", () => {
         tags: string[];
         pair: [string, number];
         status: "on" | "off";
+        value: string | number;
         bag: Record<string, number>;
         flags: Array<boolean>;
       };
@@ -50,6 +51,32 @@ describe("TypeScript type input", () => {
     expect(json).toContain("prefixItems");
     expect(json).toContain("anyOf");
     expect(json).toContain("additionalProperties");
+    const schema = result.schema as {
+      properties: { status?: { enum?: string[] }; value?: { anyOf?: unknown } };
+    };
+    expect(schema.properties.status?.enum).toEqual(["on", "off"]);
+    expect(schema.properties.value?.anyOf).toBeDefined();
+  });
+
+  it("compiles string literal unions to enum so MCP hosts stay on the object subset", () => {
+    const result = compile(
+      `
+        export interface GetWeather {
+          location: string;
+          unit?: "celsius" | "fahrenheit";
+        }
+      `,
+      { target: "mcp", typeName: "GetWeather" },
+    );
+    const schema = result.schema as {
+      required: string[];
+      properties: { unit?: { enum?: string[]; anyOf?: unknown } };
+    };
+    expect(result.compatibility).toBe("lossless");
+    expect(schema.required).toEqual(["location"]);
+    expect(schema.properties.unit?.enum).toEqual(["celsius", "fahrenheit"]);
+    expect(schema.properties.unit?.anyOf).toBeUndefined();
+    expect(JSON.stringify(result.schema)).not.toContain("$ref");
   });
 
   it("treats T | undefined as an optional property", () => {

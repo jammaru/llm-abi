@@ -36,7 +36,7 @@ const same = compile(schema, { target: "anthropic/messages/structured" });
 
 `typeName` selects which `type` or `interface` to compile from TypeScript source. Default: the last exported declaration, otherwise the last declaration.
 
-TypeScript input is a closed subset: `type` / `interface`, primitives, literals, arrays, tuples, unions, intersections, optional properties, nested objects, `Array<T>`, `ReadonlyArray<T>`, and `Record<string, T>`. There is no `typescript` compiler dependency, no import resolution, and no generic type declarations. Unsupported syntax throws instead of being dropped silently.
+TypeScript input is a closed subset: `type` / `interface`, primitives, literals, arrays, tuples, unions, intersections, optional properties, nested objects, `Array<T>`, `ReadonlyArray<T>`, and `Record<string, T>`. String, number, and boolean literal unions emit `enum`. There is no `typescript` compiler dependency, no import resolution, and no generic type declarations. Unsupported syntax throws instead of being dropped silently.
 
 ## `check(schema, options?)`
 

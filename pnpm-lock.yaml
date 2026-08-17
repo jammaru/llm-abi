@@ -76,6 +76,12 @@ importers:
         specifier: 1.2.4
         version: 1.2.4
 
+  examples/ai-sdk:
+    dependencies:
+      llm-abi:
+        specifier: workspace:*
+        version: link:../../packages/core
+
   examples/anthropic:
     dependencies:
       llm-abi:
@@ -83,6 +89,12 @@ importers:
         version: link:../../packages/core
 
   examples/gemini:
+    dependencies:
+      llm-abi:
+        specifier: workspace:*
+        version: link:../../packages/core
+
+  examples/mcp:
     dependencies:
       llm-abi:
         specifier: workspace:*

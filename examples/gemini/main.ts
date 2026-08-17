@@ -11,5 +11,18 @@ const schema = {
 
 const result = compile(schema, "gemini");
 
+const interactionsCreate = {
+  model: "gemini-3-flash",
+  input: "Score this title.",
+  response_format: {
+    type: "text",
+    mime_type: "application/json",
+    schema: result.schema,
+  },
+};
+
 console.log(result.compatibility);
-console.log(result.schema);
+console.log(result.diagnostics.map((item) => item.code));
+console.log(interactionsCreate.response_format);
+console.log(result.validate({ title: "Ada", score: 0.9 }));
+console.log(result.validate({ title: "Ada", score: 2 }));
