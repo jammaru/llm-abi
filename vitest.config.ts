@@ -2,7 +2,11 @@ import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   test: {
-    include: ["packages/core/tests/**/*.test.ts", "packages/conformance/src/**/*.test.ts"],
+    include: [
+      "packages/action/tests/**/*.test.ts",
+      "packages/core/tests/**/*.test.ts",
+      "packages/conformance/src/**/*.test.ts",
+    ],
     benchmark: {
       include: ["benchmarks/**/*.bench.ts"],
     },

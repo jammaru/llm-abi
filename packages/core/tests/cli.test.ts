@@ -2,6 +2,7 @@ import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { parseArgs } from "../src/cli/args.ts";
 import { run } from "../src/cli/run.ts";
 
 function withSchema(schema: unknown): string {
@@ -62,5 +63,50 @@ describe("cli", () => {
     } finally {
       process.stdout.write = original;
     }
+  });
+
+  it("passes --ci when constraints require runtime validation", () => {
+    const file = withSchema({
+      type: "object",
+      properties: { age: { type: "number", minimum: 0 } },
+      required: ["age"],
+    });
+    const original = process.stdout.write.bind(process.stdout);
+    process.stdout.write = (() => true) as typeof process.stdout.write;
+    try {
+      expect(run(["node", "llm-abi", "check", file, "--ci"])).toBe(0);
+    } finally {
+      process.stdout.write = original;
+    }
+  });
+
+  it("passes --ci when a target is lossy but supported", () => {
+    const file = withSchema({
+      type: "object",
+      minProperties: 1,
+      additionalProperties: {
+        type: "string",
+      },
+    });
+    const original = process.stdout.write.bind(process.stdout);
+    process.stdout.write = (() => true) as typeof process.stdout.write;
+    try {
+      expect(run(["node", "llm-abi", "check", file, "--ci"])).toBe(0);
+    } finally {
+      process.stdout.write = original;
+    }
+  });
+
+  it("accepts a schema path after --", () => {
+    expect(parseArgs(["node", "llm-abi", "check", "--ci", "--json", "--", "-weird.json"])).toEqual({
+      command: "check",
+      file: "-weird.json",
+      target: undefined,
+      json: true,
+      ci: true,
+      strict: false,
+      help: false,
+      version: false,
+    });
   });
 });

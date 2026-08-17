@@ -20,5 +20,35 @@ jobs:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
+      - id: supported
+        uses: ./
+        with:
+          schema-files: packages/conformance/fixtures/object-basic.json
+          changed-only: "false"
+      - id: unsupported
+        continue-on-error: true
+        uses: ./
+        with:
+          schema-files: packages/conformance/fixtures/any-of.json
+          changed-only: "false"
+      - id: invalid
+        continue-on-error: true
+        uses: ./
+        with:
+          schema-files: packages/conformance/fixtures/object-basic.json
+          changed-only: "bogus"
+      - name: Verify Action outcomes
+        env:
+          SUPPORTED_CONCLUSION: ${{ steps.supported.outputs.conclusion }}
+          UNSUPPORTED_CONCLUSION: ${{ steps.unsupported.outputs.conclusion }}
+          UNSUPPORTED_OUTCOME: ${{ steps.unsupported.outcome }}
+          INVALID_CONCLUSION: ${{ steps.invalid.outputs.conclusion }}
+          INVALID_OUTCOME: ${{ steps.invalid.outcome }}
+        run: |
+          test "$SUPPORTED_CONCLUSION" = passed
+          test "$UNSUPPORTED_CONCLUSION" = unsupported
+          test "$UNSUPPORTED_OUTCOME" = failure
+          test "$INVALID_CONCLUSION" = error
+          test "$INVALID_OUTCOME" = failure
       - uses: ./.github/actions/setup
       - run: pnpm check

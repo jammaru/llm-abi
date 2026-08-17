@@ -147,6 +147,43 @@ npx llm-abi doctor
 
 `--ci` exits with status 1 when any target is `unsupported`.
 
+### GitHub Action
+
+The reusable Action checks schema files changed by a pull request. It writes a job summary and can
+update one pull request comment with fingerprint and compatibility changes against the base branch.
+
+```yaml
+name: Schema compatibility
+
+on:
+  pull_request:
+    paths:
+      - "schemas/**/*.json"
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  llm-abi:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: jammaru/llm-abi@main
+        with:
+          schema-files: "schemas/**/*.json"
+          comment: "true"
+```
+
+Pin the Action to a release tag or commit SHA in production. The compatibility check fails only
+when a current target is `unsupported`. Invalid input or an Action runtime failure uses exit
+status 2. Pull requests from forks still run the check, but GitHub may restrict their token to
+read-only; in that case the Action leaves the job summary and skips the comment without changing
+the compatibility result.
+
 ## Guarantees
 
 llm-abi **does**:

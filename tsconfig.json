@@ -22,6 +22,8 @@
   "include": [
     "packages/core/src/**/*.ts",
     "packages/core/tests/**/*.ts",
+    "packages/action/src/**/*.ts",
+    "packages/action/tests/**/*.ts",
     "packages/conformance/src/**/*.ts",
     "benchmarks/**/*.ts"
   ],
