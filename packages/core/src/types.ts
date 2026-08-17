@@ -29,6 +29,8 @@ export type DiagnosticCode =
   | "optional-to-nullable"
   | "optional-to-required"
   | "additional-properties-forced"
+  | "additional-properties-omitted"
+  | "boolean-schema-rewritten"
   | "one-of-to-any-of"
   | "all-of-merged"
   | "root-must-be-object"

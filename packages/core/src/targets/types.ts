@@ -6,10 +6,26 @@ export interface TargetLimits {
   readonly maxEnumValues?: number;
   readonly maxStringBudget?: number;
   readonly maxOptionalProperties?: number;
+  /**
+   * Provider-enforced ceilings. Values above the bound stay in
+   * `result.validate` and are stripped from the emitted schema.
+   */
+  readonly enforced?: {
+    readonly minLength?: number;
+    readonly maxLength?: number;
+    readonly minItems?: number;
+    readonly maxItems?: number;
+    readonly minProperties?: number;
+    readonly maxProperties?: number;
+  };
 }
 
 export interface ObjectPolicy {
-  readonly additionalProperties: false | true | "preserve";
+  /**
+   * `omit-false`: do not emit `additionalProperties: false` (xAI defaults to
+   * false and rejects boolean schema `false`). Keep explicit `true`.
+   */
+  readonly additionalProperties: false | true | "preserve" | "omit-false";
   readonly requireAllProperties: boolean;
   readonly optionalAsNullable: boolean;
 }

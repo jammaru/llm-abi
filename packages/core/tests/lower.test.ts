@@ -195,4 +195,146 @@ describe("lowering", () => {
     expect(when.format).toBe("date-time");
     expect(result.compatibility).toBe("lossless");
   });
+
+  it("omits additionalProperties false on xAI and keeps explicit true", () => {
+    const closed = compile(
+      {
+        type: "object",
+        properties: { id: { type: "string" } },
+        required: ["id"],
+        additionalProperties: false,
+      },
+      "xai",
+    );
+    const closedSchema = closed.schema as { additionalProperties?: unknown };
+    expect(closedSchema.additionalProperties).toBeUndefined();
+    expect(closed.diagnostics.some((item) => item.code === "additional-properties-omitted")).toBe(
+      true,
+    );
+    expect(closed.compatibility).toBe("lossless");
+
+    const open = compile(
+      {
+        type: "object",
+        properties: { id: { type: "string" } },
+        required: ["id"],
+        additionalProperties: true,
+      },
+      "xai",
+    );
+    expect((open.schema as { additionalProperties?: unknown }).additionalProperties).toBe(true);
+    expect(open.compatibility).toBe("lossless");
+  });
+
+  it("rejects recursive $ref on xAI structured outputs", () => {
+    const result = compile(
+      {
+        type: "object",
+        properties: { node: { $ref: "#/$defs/Node" } },
+        required: ["node"],
+        $defs: {
+          Node: {
+            type: "object",
+            properties: {
+              name: { type: "string" },
+              child: { $ref: "#/$defs/Node" },
+            },
+            required: ["name"],
+          },
+        },
+      },
+      "xai",
+    );
+    expect(result.compatibility).toBe("unsupported");
+    expect(result.diagnostics.some((item) => item.code === "recursive-ref")).toBe(true);
+  });
+
+  it("rewrites tuple items false to maxItems on xAI", () => {
+    const result = compile(
+      {
+        type: "object",
+        properties: {
+          point: {
+            type: "array",
+            prefixItems: [{ type: "number" }, { type: "number" }],
+            items: false,
+          },
+        },
+        required: ["point"],
+      },
+      "xai",
+    );
+    const point = (
+      result.schema as {
+        properties: { point: { items?: unknown; maxItems?: number; prefixItems?: unknown } };
+      }
+    ).properties.point;
+    expect(point.items).toBeUndefined();
+    expect(point.maxItems).toBe(2);
+    expect(point.prefixItems).toHaveLength(2);
+    expect(result.diagnostics.some((item) => item.code === "boolean-schema-rewritten")).toBe(true);
+  });
+
+  it("keeps xAI minLength under the documented ceiling and strips above it", () => {
+    const ok = compile(
+      {
+        type: "object",
+        properties: { name: { type: "string", minLength: 1 } },
+        required: ["name"],
+      },
+      "xai",
+    );
+    const name = (ok.schema as { properties: { name: { minLength?: number } } }).properties.name;
+    expect(name.minLength).toBe(1);
+    expect(ok.compatibility).toBe("lossless");
+
+    const over = compile(
+      {
+        type: "object",
+        properties: { name: { type: "string", minLength: 2049 } },
+        required: ["name"],
+      },
+      "xai",
+    );
+    const long = (over.schema as { properties: { name: { minLength?: number } } }).properties.name;
+    expect(long.minLength).toBeUndefined();
+    expect(over.compatibility).toBe("runtime-safe");
+    expect(over.diagnostics.some((item) => item.code === "runtime-only-constraint")).toBe(true);
+  });
+
+  it("keeps optional properties optional on xAI", () => {
+    const result = compile(
+      {
+        type: "object",
+        properties: {
+          name: { type: "string" },
+          nickname: { type: "string" },
+        },
+        required: ["name"],
+      },
+      "xai",
+    );
+    const schema = result.schema as { required: string[] };
+    expect(schema.required).toEqual(["name"]);
+    expect(schema.required).not.toContain("nickname");
+  });
+
+  it("drops hostname format on xAI and keeps email", () => {
+    const result = compile(
+      {
+        type: "object",
+        properties: {
+          email: { type: "string", format: "email" },
+          host: { type: "string", format: "hostname" },
+        },
+        required: ["email", "host"],
+      },
+      "xai",
+    );
+    const properties = (result.schema as { properties: Record<string, { format?: string }> })
+      .properties;
+    expect(properties["email"]?.format).toBe("email");
+    expect(properties["host"]?.format).toBeUndefined();
+    expect(result.compatibility).toBe("runtime-safe");
+  });
 });

@@ -28,7 +28,7 @@ A profile is data:
 - evidence (`documented` | `sdk-observed` | `empirical`)
 - revision string shipped with the package
 
-The lowering pass reads the profile. Adding DeepSeek should not require a new compiler.
+The lowering pass reads the profile. Adding a vendor should not require a new compiler.
 
 ## Safety
 

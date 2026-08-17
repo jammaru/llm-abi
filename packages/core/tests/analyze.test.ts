@@ -39,13 +39,15 @@ describe("targets", () => {
     expect(resolveTarget("claude").id).toBe("anthropic/messages/structured");
     expect(resolveTarget("google").id).toBe("google/gemini/structured");
     expect(resolveTarget("deepseek").id).toBe("deepseek/chat/strict-tools");
+    expect(resolveTarget("grok").id).toBe("xai/grok/structured");
   });
 
   it("lists registered targets", () => {
     const ids = listTargets().map((target) => target.id);
     expect(ids).toContain("openai/responses/structured");
     expect(ids).toContain("deepseek/chat/strict-tools");
-    expect(ids.length).toBeGreaterThanOrEqual(4);
+    expect(ids).toContain("xai/grok/structured");
+    expect(ids.length).toBeGreaterThanOrEqual(5);
   });
 
   it("throws on unknown targets", () => {
