@@ -17,7 +17,7 @@ Given the same:
 ## What v0.1 does not guarantee
 
 - Bit-identical JSON across future minor versions if a provider profile is corrected
-- That a provider API will accept every emitted schema (live APIs change)
+- That a provider API will accept every emitted schema (live APIs change; nightly checks record accepted / rejected / skipped)
 - That every model behind OpenRouter / Groq / Together behaves like the named vendor
 - That every MCP host has shipped SEP-2106 full JSON Schema 2020-12
 - 100% identical validation results between providers

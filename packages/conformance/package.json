@@ -2,5 +2,8 @@
   "name": "@llm-abi/conformance",
   "version": "0.1.0",
   "private": true,
-  "type": "module"
+  "type": "module",
+  "scripts": {
+    "live": "node --experimental-strip-types ./src/live.ts"
+  }
 }

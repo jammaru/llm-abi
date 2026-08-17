@@ -10,12 +10,12 @@ pnpm test
 pnpm check
 ```
 
-Node.js 22+ and pnpm 10 are required. `pnpm check` is what GitHub Actions runs on every PR (one job, Node 22). Coverage, gzip size, and Node 24 are a manual `Extra` workflow, not a PR gate.
+Coverage, gzip size, and Node 24 are a manual `Extra` workflow, not a PR gate. Live provider checks are the `Live` workflow (`schedule` + `workflow_dispatch` only). They skip when secrets are missing and never run on pull requests.
 
 ## Project layout
 
 - `packages/core` — compiler, public API, CLI
-- `packages/conformance` — JSON Schema fixtures
+- `packages/conformance` — JSON Schema fixtures and the secret-gated live runner
 - `packages/action` — reusable GitHub Action that runs the CLI
 - `packages/playground` — static browser playground (`pnpm playground`)
 - `examples` — copy-paste recipes under existing SDKs (OpenAI, Anthropic, Gemini, AI SDK, MCP). Typechecked and executed in CI. No provider API calls.
@@ -49,3 +49,7 @@ pnpm playground
 ```
 
 The app is static. Compilation uses the `llm-abi` workspace package in the browser. GitHub Pages deploys `packages/playground/dist` from `main` (Pages source: GitHub Actions).
+
+## Live checks
+
+`pnpm live` sends compiled fixtures to OpenAI, Anthropic, and Gemini. Pull requests never run it. Missing `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, or `GEMINI_API_KEY` / `GOOGLE_API_KEY` skips that vendor. Do not add those keys to the repository.
