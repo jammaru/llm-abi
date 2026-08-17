@@ -10,7 +10,7 @@ pnpm test
 pnpm check
 ```
 
-Node.js 22+ and pnpm 10 are required.
+Node.js 22+ and pnpm 10 are required. `pnpm check` is what GitHub Actions runs on every PR (one job, Node 22). Coverage, gzip size, and Node 24 are a manual `Extra` workflow, not a PR gate.
 
 ## Project layout
 

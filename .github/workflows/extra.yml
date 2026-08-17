@@ -1,0 +1,23 @@
+name: Extra
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  extra:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+        with:
+          node-version: "24"
+      - run: pnpm build
+      - run: pnpm test:coverage
+      - run: pnpm size
+      - run: node scripts/consumer-pack.mjs
