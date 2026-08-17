@@ -1,5 +1,7 @@
 # Changelog
 
-All notable changes are documented in GitHub releases and Changesets.
+Published versions are listed in [`packages/core/CHANGELOG.md`](./packages/core/CHANGELOG.md) and in GitHub releases.
 
-The first published version will be **llm-abi 0.1.0**.
+## 0.1.0
+
+First public `llm-abi` release: compiler, CLI, and reusable GitHub Action.

@@ -18,9 +18,11 @@ jobs:
       - uses: ./.github/actions/setup
       - run: pnpm build
       - uses: changesets/action@v2
+        id: changesets
         with:
           publish-script: pnpm release
           pr-title: Release
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: Version packages
         env:
-          NPM_CONFIG_PROVENANCE: true
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
