@@ -52,6 +52,9 @@
     },
     "./package.json": "./package.json"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "tsdown",
     "prepack": "node ../../scripts/copy-license.mjs",
