@@ -36,7 +36,7 @@ export function emitSchema(
       const name = defName(pointer);
       setRecord(defs, name, emitNode(node, profile, options, diagnostics));
     }
-    setRecord(schema as Record<string, unknown>, "$defs", defs);
+    setRecord(schema as Record<string, unknown>, defsKeywordOf(profile), defs);
   }
   return { schema, diagnostics };
 }
@@ -153,7 +153,7 @@ function emitNode(
       );
       return object as JsonSchemaObject;
     case "ref":
-      setRecord(object, "$ref", toEmitRef(node.ref));
+      setRecord(object, "$ref", toEmitRef(node.ref, profile));
       return object as JsonSchemaObject;
   }
 }
@@ -304,12 +304,16 @@ function collectRefs(
   }
 }
 
-function toEmitRef(ref: string): string {
-  const match = /^#\/(?:\$defs|definitions)\/(.+)$/.exec(ref);
+function toEmitRef(ref: string, profile: TargetProfile): string {
+  const match = /^#\/(?:\$defs|\$def|definitions)\/(.+)$/.exec(ref);
   if (match?.[1]) {
-    return `#/$defs/${match[1]}`;
+    return `#/${defsKeywordOf(profile)}/${match[1]}`;
   }
   return ref;
+}
+
+function defsKeywordOf(profile: TargetProfile): "$defs" | "$def" {
+  return profile.defsKeyword ?? "$defs";
 }
 
 function defName(pointer: string): string {

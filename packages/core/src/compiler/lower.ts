@@ -153,9 +153,27 @@ function lowerString(node: Extract<SchemaNode, { kind: "string" }>, ctx: LowerCo
   if (node.format) {
     const formats = ctx.profile.formats;
     if (formats !== "any" && !formats.has(node.format)) {
-      applyConstraint(ctx, node, "format", node.format, () => {
-        node.format = undefined;
-      });
+      const value = node.format;
+      push(
+        ctx,
+        {
+          code: "runtime-only-constraint",
+          severity: "warning",
+          path: node.path,
+          keyword: "format",
+          message: `${ctx.profile.id} does not document format "${value}".`,
+          action: "Constraint moved to runtime validation.",
+        },
+        "runtime-safe",
+        {
+          path: node.path,
+          keyword: "format",
+          value,
+          fallback: "runtime-validation",
+        },
+      );
+      appendConstraint(ctx, node, constraintText("format", value));
+      node.format = undefined;
     }
   }
   return node;
@@ -274,6 +292,25 @@ function lowerObject(node: Extract<SchemaNode, { kind: "object" }>, ctx: LowerCo
             action: "Treat null as missing at runtime.",
           },
           "runtime-safe",
+          {
+            path: [...node.path, key],
+            keyword: "optional",
+            fallback: "rewritten",
+          },
+        );
+      } else {
+        node.required.add(key);
+        push(
+          ctx,
+          {
+            code: "optional-to-required",
+            severity: "warning",
+            path: [...node.path, key],
+            keyword: "required",
+            message: `Optional property "${key}" became required for ${ctx.profile.id}.`,
+            action: "Always send this property; the provider does not document optional-as-null.",
+          },
+          "lossy",
           {
             path: [...node.path, key],
             keyword: "optional",

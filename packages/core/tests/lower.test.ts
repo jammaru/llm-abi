@@ -124,4 +124,75 @@ describe("lowering", () => {
     );
     expect((result.schema as { type?: string }).type).toBe("object");
   });
+
+  it("emits $def for recursive refs on DeepSeek strict tools", () => {
+    const result = compile(
+      {
+        type: "object",
+        properties: {
+          name: { type: "string", minLength: 1 },
+          nickname: { type: "string" },
+          child: { $ref: "#/$defs/Node" },
+        },
+        required: ["name"],
+        $defs: {
+          Node: {
+            type: "object",
+            properties: {
+              name: { type: "string" },
+              child: { $ref: "#/$defs/Node" },
+            },
+            required: ["name"],
+          },
+        },
+      },
+      "deepseek",
+    );
+    const schema = result.schema as {
+      required: string[];
+      $def?: Record<string, unknown>;
+      $defs?: unknown;
+    };
+    expect(result.compatibility).toBe("lossy");
+    expect(schema.required).toContain("nickname");
+    expect(schema.required).toContain("child");
+    expect(schema.$def).toBeTypeOf("object");
+    expect(schema.$defs).toBeUndefined();
+    expect(JSON.stringify(result.schema)).toContain("#/$def/");
+    expect(result.diagnostics.some((item) => item.code === "optional-to-required")).toBe(true);
+    expect(result.diagnostics.some((item) => item.code === "runtime-only-constraint")).toBe(true);
+  });
+
+  it("keeps documented DeepSeek formats and drops date-time", () => {
+    const result = compile(
+      {
+        type: "object",
+        properties: {
+          email: { type: "string", format: "email" },
+          when: { type: "string", format: "date-time" },
+        },
+        required: ["email", "when"],
+      },
+      "deepseek",
+    );
+    const properties = (result.schema as { properties: Record<string, { format?: string }> })
+      .properties;
+    expect(properties["email"]?.format).toBe("email");
+    expect(properties["when"]?.format).toBeUndefined();
+    expect(result.compatibility).toBe("runtime-safe");
+  });
+
+  it("keeps OpenAI documented date-time format after the allowlist check", () => {
+    const result = compile(
+      {
+        type: "object",
+        properties: { when: { type: "string", format: "date-time" } },
+        required: ["when"],
+      },
+      "openai",
+    );
+    const when = (result.schema as { properties: { when: { format?: string } } }).properties.when;
+    expect(when.format).toBe("date-time");
+    expect(result.compatibility).toBe("lossless");
+  });
 });

@@ -104,6 +104,7 @@ Targets:
   openai            openai/responses/structured
   anthropic         anthropic/messages/structured
   gemini            google/gemini/structured
+  deepseek          deepseek/chat/strict-tools
 
 Options:
   --target, -t      Target profile id or alias

@@ -1,6 +1,7 @@
 import { LlmAbiError } from "../errors.ts";
 import type { ResolvedTarget, TargetId } from "../types.ts";
 import { anthropicMessagesStructured } from "./anthropic.ts";
+import { deepseekChatStrictTools } from "./deepseek.ts";
 import { googleGeminiStructured } from "./gemini.ts";
 import { openaiResponsesStructured } from "./openai.ts";
 import type { TargetProfile } from "./types.ts";
@@ -9,6 +10,7 @@ const PROFILES: readonly TargetProfile[] = [
   openaiResponsesStructured,
   anthropicMessagesStructured,
   googleGeminiStructured,
+  deepseekChatStrictTools,
 ];
 
 const BY_ID = new Map<string, TargetProfile>();
@@ -43,5 +45,10 @@ export function toResolved(profile: TargetProfile): ResolvedTarget {
   };
 }
 
-export { openaiResponsesStructured, anthropicMessagesStructured, googleGeminiStructured };
+export {
+  openaiResponsesStructured,
+  anthropicMessagesStructured,
+  googleGeminiStructured,
+  deepseekChatStrictTools,
+};
 export type { TargetProfile, TargetCapabilities } from "./types.ts";

@@ -27,6 +27,7 @@ export type DiagnosticCode =
   | "schema-too-deep"
   | "schema-too-large"
   | "optional-to-nullable"
+  | "optional-to-required"
   | "additional-properties-forced"
   | "one-of-to-any-of"
   | "all-of-merged"
