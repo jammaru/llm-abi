@@ -67,8 +67,12 @@ export function parseTypeScript(source: string): readonly TsDecl[] {
 
 class Parser {
   private index = 0;
+  private readonly tokens: readonly TsToken[];
 
-  constructor(private readonly tokens: readonly TsToken[]) {}
+  // Node 24 strip-only (GitHub Action) cannot erase constructor parameter properties.
+  constructor(tokens: readonly TsToken[]) {
+    this.tokens = tokens;
+  }
 
   parseSource(): TsDecl[] {
     const decls: TsDecl[] = [];
