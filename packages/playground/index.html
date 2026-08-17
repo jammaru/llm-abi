@@ -5,26 +5,85 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="Compile a TypeScript type or JSON Schema against OpenAI, Anthropic, and Gemini. See diagnostics, loss, and conservative size — not a compatibility percentage."
+      content="Compile a TypeScript type or JSON Schema against OpenAI, Anthropic, Gemini, and more. See diagnostics, loss, and conservative size — not a compatibility percentage."
     />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#ffffff" />
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
     <title>llm-abi playground</title>
+    <script src="./theme-boot.js"></script>
   </head>
   <body>
     <a class="skip" href="#results">Skip to results</a>
     <header class="site-header">
       <div class="brand">
-        <strong>llm-abi</strong>
+        <a class="wordmark" href="./">llm-abi</a>
         <p class="tagline">
           One schema. Every model. The schema ABI between TypeScript and LLM providers.
         </p>
       </div>
-      <nav class="nav" aria-label="Project">
-        <a href="https://github.com/jammaru/llm-abi">GitHub</a>
-        <a href="https://www.npmjs.com/package/llm-abi">npm</a>
-      </nav>
+      <div class="header-actions">
+        <nav class="nav" aria-label="Project">
+          <a
+            class="icon-link"
+            href="https://github.com/jammaru/llm-abi"
+            aria-label="GitHub repository"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                fill="currentColor"
+                d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.45-1.16-1.1-1.47-1.1-1.47-.9-.62.07-.6.07-.6 1 .07 1.52 1.03 1.52 1.03.89 1.52 2.34 1.08 2.91.83.09-.65.35-1.08.63-1.33-2.22-.25-4.56-1.11-4.56-4.95 0-1.1.39-1.99 1.03-2.69-.1-.25-.45-1.27.1-2.64 0 0 .84-.27 2.75 1.02A9.56 9.56 0 0 1 12 6.8c.85 0 1.71.11 2.51.33 1.9-1.29 2.74-1.02 2.74-1.02.55 1.37.2 2.39.1 2.64.64.7 1.03 1.6 1.03 2.69 0 3.85-2.34 4.7-4.57 4.95.36.31.68.92.68 1.85v2.74c0 .27.18.58.69.48A10 10 0 0 0 12 2Z"
+              />
+            </svg>
+          </a>
+          <a
+            class="icon-link"
+            href="https://www.npmjs.com/package/llm-abi"
+            aria-label="npm package"
+          >
+            <span>npm</span>
+          </a>
+        </nav>
+        <div class="theme-toggle" data-theme-toggle>
+          <button
+            id="theme-toggle"
+            type="button"
+            aria-label="Switch to dark theme"
+            aria-pressed="false"
+          >
+            <span class="theme-track" aria-hidden="true">
+              <span class="theme-thumb">
+                <svg class="theme-icon theme-sun" viewBox="0 0 24 24" fill="none">
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="3.25"
+                    stroke="currentColor"
+                    stroke-width="1.6"
+                  ></circle>
+                  <path
+                    d="M12 3.5v1.6M12 18.9v1.6M3.5 12h1.6M18.9 12h1.6M6.05 6.05l1.13 1.13M16.82 16.82l1.13 1.13M6.05 17.95l1.13-1.13M16.82 7.18l1.13-1.13"
+                    stroke="currentColor"
+                    stroke-width="1.6"
+                    stroke-linecap="round"
+                  ></path>
+                </svg>
+                <svg class="theme-icon theme-moon" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M16.5 14.2A6.7 6.7 0 0 1 9.8 7.5a6.2 6.2 0 1 0 6.7 6.7Z"
+                    stroke="currentColor"
+                    stroke-width="1.6"
+                    stroke-linejoin="round"
+                  ></path>
+                </svg>
+              </span>
+            </span>
+          </button>
+        </div>
+      </div>
     </header>
     <main class="layout">
-      <section class="panel" aria-labelledby="input-heading">
+      <section class="panel panel-input" aria-labelledby="input-heading">
         <h2 id="input-heading">Input</h2>
         <div class="row">
           <label>
@@ -32,16 +91,18 @@
             <select id="example"></select>
           </label>
         </div>
-        <fieldset class="checks">
+        <fieldset class="segmented">
           <legend class="legend">Kind</legend>
-          <label>
-            <input id="kind-ts" name="kind" type="radio" value="typescript" checked />
-            <span>TypeScript subset</span>
-          </label>
-          <label>
-            <input id="kind-json" name="kind" type="radio" value="json" />
-            <span>JSON Schema</span>
-          </label>
+          <div class="segmented-list">
+            <label class="segmented-option">
+              <input id="kind-ts" name="kind" type="radio" value="typescript" checked />
+              <span>TypeScript</span>
+            </label>
+            <label class="segmented-option">
+              <input id="kind-json" name="kind" type="radio" value="json" />
+              <span>JSON Schema</span>
+            </label>
+          </div>
         </fieldset>
         <label>
           Source
@@ -75,10 +136,10 @@
           not a score.
         </p>
       </section>
-      <section class="panel" id="results" aria-labelledby="results-heading">
+      <section class="panel panel-results" id="results" aria-labelledby="results-heading">
         <h2 id="results-heading">Results</h2>
         <p id="error" class="error" hidden></p>
-        <p>
+        <p class="fingerprint-row">
           Input fingerprint
           <span id="fingerprint" class="fingerprint"></span>
         </p>
@@ -104,13 +165,13 @@
           JSON instance
           <textarea id="instance" spellcheck="false"></textarea>
         </label>
-        <p>
-          <button id="validate" type="button">Validate</button>
+        <p class="actions">
+          <button id="validate" class="btn btn-primary" type="button">Validate</button>
         </p>
         <div id="validate-out"></div>
         <h2>Share</h2>
-        <p>
-          <button id="share" class="secondary" type="button">Copy share URL</button>
+        <p class="actions">
+          <button id="share" class="btn btn-ghost" type="button">Copy share URL</button>
         </p>
         <p id="share-status" class="muted" aria-live="polite"></p>
       </section>

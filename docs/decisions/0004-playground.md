@@ -16,4 +16,4 @@ The library's unique value is provider-aware lowering plus loss diagnostics, inc
 - Do not fetch provider docs or profiles at runtime
 - Do not invent compatibility percentages
 - Do not send the user's schema to a server
-- GitHub Pages is a static upload of the Vite build (`base: "./"`)
+- Cloudflare Pages is a static upload of the Vite build (`base: "./"`). Compilation stays in the browser; the host never receives the schema.

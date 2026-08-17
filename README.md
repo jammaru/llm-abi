@@ -10,7 +10,7 @@ Compile TypeScript and JSON Schema into provider-safe schemas for OpenAI, Claude
 [![npm](https://img.shields.io/npm/v/llm-abi)](https://www.npmjs.com/package/llm-abi)
 [![license](https://img.shields.io/npm/l/llm-abi)](./LICENSE)
 
-[Playground](https://jammaru.github.io/llm-abi/) — paste a TypeScript type or JSON Schema, then compare OpenAI, Anthropic, and Gemini output, diagnostics, loss, and size.
+[Playground](https://llm-abi.pages.dev/) — paste a TypeScript type or JSON Schema, then compare OpenAI, Anthropic, and Gemini output, diagnostics, loss, and size.
 
 Your JSON Schema works on OpenAI.
 
@@ -64,7 +64,7 @@ LLM providers all say they accept JSON Schema. They do not accept the same JSON 
 
 llm-abi is not another Zod-to-JSON-Schema converter. It is a **schema compatibility compiler**: one input schema, provider-aware lowering, diagnostics, loss reporting, conservative size/token hints, runtime validation, and a CI checker.
 
-Try that loop in the [compatibility playground](https://jammaru.github.io/llm-abi/). Compilation runs in the browser. Profiles ship with the package. There is no compatibility percentage.
+Try that loop in the [compatibility playground](https://llm-abi.pages.dev/). Compilation runs in the browser. Profiles ship with the package. There is no compatibility percentage.
 
 ## Install
 
@@ -268,7 +268,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). Adding a provider should be a profile fi
 - [Architecture](docs/architecture.md)
 - [Target profiles](docs/targets/README.md)
 - [Examples](examples/README.md)
-- [Playground](https://jammaru.github.io/llm-abi/)
+- [Playground](https://llm-abi.pages.dev/)
 
 ## License
 
