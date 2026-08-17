@@ -16,6 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
+      - run: npm install -g npm@^11.5.1
       - run: pnpm build
       - uses: changesets/action@v2
         id: changesets
@@ -25,4 +26,3 @@ jobs:
           commit-message: Version packages
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
