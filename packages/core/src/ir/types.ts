@@ -1,4 +1,4 @@
-import type { JsonValue } from "../types.ts";
+import type { DiagnosticCode, JsonValue } from "../types.ts";
 
 export type SchemaNode =
   | AnyNode
@@ -113,6 +113,7 @@ export interface ParseNote {
   path: readonly string[];
   keyword: string;
   message: string;
+  code?: DiagnosticCode;
 }
 
 export interface SchemaDocument {
@@ -181,6 +182,7 @@ export function cloneDocument(document: SchemaDocument): SchemaDocument {
       path: [...note.path],
       keyword: note.keyword,
       message: note.message,
+      code: note.code,
     })),
   };
 }

@@ -62,13 +62,27 @@ function normalizeCheck(value: unknown, schemaPath: string): NormalizedCheck {
     ) {
       throw new OperationalError(`llm-abi returned an invalid target result for ${schemaPath}`);
     }
-    return { id: row.target.id, compatibility: row.compatibility };
+    return {
+      id: row.target.id,
+      compatibility: row.compatibility,
+      ...tokensFrom(row),
+    };
   });
   return { fingerprint: value.fingerprint, targets };
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function tokensFrom(row: Record<string, unknown>): { tokens: number } | Record<string, never> {
+  if (!isRecord(row.size) || typeof row.size.tokens !== "number") {
+    return {};
+  }
+  if (!Number.isFinite(row.size.tokens) || row.size.tokens < 0) {
+    return {};
+  }
+  return { tokens: row.size.tokens };
 }
 
 function isCompatibility(value: unknown): value is Compatibility {

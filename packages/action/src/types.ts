@@ -33,6 +33,7 @@ export interface SelectionResult {
 export interface TargetCheck {
   readonly id: string;
   readonly compatibility: Compatibility;
+  readonly tokens?: number;
 }
 
 export interface NormalizedCheck {

@@ -8,11 +8,12 @@ export function check(schema: SchemaInput, options: CheckOptions = {}): CheckRes
   return {
     fingerprint: fingerprint(schema),
     results: targets.map((target) => {
-      const compiled = compile(schema, { target, strict: false });
+      const compiled = compile(schema, { target, strict: false, optimize: options.optimize });
       return {
         target: compiled.target,
         compatibility: compiled.compatibility,
         diagnostics: compiled.diagnostics,
+        size: compiled.size,
       };
     }),
   };

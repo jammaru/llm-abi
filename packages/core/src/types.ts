@@ -32,7 +32,9 @@ export type DiagnosticCode =
   | "all-of-merged"
   | "root-must-be-object"
   | "complex-pattern"
-  | "unused-def-removed";
+  | "unused-def-removed"
+  | "redundant-annotation-removed"
+  | "string-budget-exceeded";
 
 export interface Diagnostic {
   readonly code: DiagnosticCode;
@@ -99,6 +101,11 @@ export interface CompileOptions {
   readonly constraintFallback?: "description" | "strip";
 }
 
+export interface SchemaSize {
+  readonly bytes: number;
+  readonly tokens: number;
+}
+
 export interface CompileResult {
   readonly schema: JsonSchema;
   readonly diagnostics: readonly Diagnostic[];
@@ -106,6 +113,7 @@ export interface CompileResult {
   readonly fingerprint: string;
   readonly target: ResolvedTarget;
   readonly compatibility: Compatibility;
+  readonly size: SchemaSize;
   readonly validate: (value: unknown) => ValidationResult;
 }
 
@@ -113,10 +121,12 @@ export interface CheckRow {
   readonly target: ResolvedTarget;
   readonly compatibility: Compatibility;
   readonly diagnostics: readonly Diagnostic[];
+  readonly size: SchemaSize;
 }
 
 export interface CheckOptions {
   readonly targets?: readonly TargetId[];
+  readonly optimize?: boolean;
 }
 
 export interface CheckResult {
@@ -129,7 +139,10 @@ export interface AnalysisStats {
   readonly depth: number;
   readonly properties: number;
   readonly defs: number;
+  readonly unusedDefs: number;
   readonly constraints: number;
+  readonly bytes: number;
+  readonly tokens: number;
 }
 
 export interface Analysis {

@@ -5,10 +5,12 @@ import { validateDocument } from "./compiler/validate.ts";
 import { fingerprintJson } from "./fingerprint.ts";
 import { cloneDocument } from "./ir/types.ts";
 import { parseInput } from "./input.ts";
+import { budgetDiagnostic, measureSchema } from "./size.ts";
 import { resolveTarget, toResolved } from "./targets/registry.ts";
 import type {
   CompileOptions,
   CompileResult,
+  Diagnostic,
   SchemaInput,
   TargetId,
   ValidationResult,
@@ -26,10 +28,18 @@ export function compile(
   const lowered = lowerDocument(working, profile, {
     constraintFallback: options.constraintFallback ?? "description",
   });
+  const emitted = emitSchema(lowered.document, profile, {
+    optimize: options.optimize ?? false,
+  });
+  const size = measureSchema(emitted.schema);
+  const diagnostics: Diagnostic[] = [...lowered.diagnostics, ...emitted.diagnostics];
+  const budget = budgetDiagnostic(size, profile);
+  if (budget) {
+    diagnostics.push(budget);
+  }
 
   if (options.strict && lowered.loss.level === "unsupported") {
-    const first =
-      lowered.diagnostics.find((item) => item.severity === "error") ?? lowered.diagnostics[0];
+    const first = diagnostics.find((item) => item.severity === "error") ?? diagnostics[0];
     throw new SchemaCompatibilityError({
       message: first?.message ?? `Schema is unsupported on ${profile.id}.`,
       targetId: profile.id,
@@ -38,14 +48,14 @@ export function compile(
     });
   }
 
-  const emitted = emitSchema(lowered.document, profile);
   const result: CompileResult = {
-    schema: emitted,
-    diagnostics: lowered.diagnostics,
+    schema: emitted.schema,
+    diagnostics,
     loss: lowered.loss,
-    fingerprint: fingerprintJson(emitted),
+    fingerprint: fingerprintJson(emitted.schema),
     target: toResolved(profile),
     compatibility: lowered.loss.level,
+    size,
     validate: (value: unknown): ValidationResult => {
       if (parsed.validateStandard) {
         const standard = parsed.validateStandard(value);

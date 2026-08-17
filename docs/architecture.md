@@ -9,7 +9,7 @@ JSON Schema / Standard JSON Schema
               ↓
    analyze  →  lower(profile)  →  emit
               ↓
- provider JSON Schema + diagnostics + fingerprint
+ provider JSON Schema + diagnostics + fingerprint + size
 ```
 
 ## IR

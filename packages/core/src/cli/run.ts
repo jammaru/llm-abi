@@ -1,11 +1,12 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import { analyze } from "../analyze.ts";
 import { check } from "../check.ts";
 import { compile } from "../compile.ts";
 import { listTargets } from "../targets/registry.ts";
 import type { JsonSchema } from "../types.ts";
 import { parseArgs } from "./args.ts";
-import { HELP, renderCheck, renderCompile, renderExplain } from "./render.ts";
+import { HELP, renderAnalyze, renderCheck, renderCompile, renderExplain } from "./render.ts";
 
 const VERSION = "0.1.0";
 
@@ -46,8 +47,17 @@ function runInner(argv: readonly string[]): number {
   }
 
   const schema = readSchema(args.file);
+  if (args.command === "analyze") {
+    const result = analyze(schema);
+    if (args.json) {
+      process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+    } else {
+      process.stdout.write(`${renderAnalyze(result)}\n`);
+    }
+    return 0;
+  }
   if (args.command === "check") {
-    const result = check(schema);
+    const result = check(schema, { optimize: args.optimize });
     if (args.json) {
       process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
     } else {
@@ -60,7 +70,11 @@ function runInner(argv: readonly string[]): number {
   }
 
   const target = args.target ?? "openai";
-  const compiled = compile(schema, { target, strict: args.strict });
+  const compiled = compile(schema, {
+    target,
+    strict: args.strict,
+    optimize: args.optimize,
+  });
   if (args.command === "compile") {
     if (args.json) {
       process.stdout.write(`${JSON.stringify(compiled, null, 2)}\n`);

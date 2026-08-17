@@ -14,5 +14,6 @@ describe("check", () => {
         .map((target) => target.id)
         .toSorted(),
     );
+    expect(result.results.every((row) => row.size.tokens > 0)).toBe(true);
   });
 });

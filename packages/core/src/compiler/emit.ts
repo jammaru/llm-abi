@@ -1,12 +1,26 @@
 import { createRecord, setRecord } from "../json/safe-record.ts";
-import type { JsonSchema, JsonSchemaObject, JsonValue } from "../types.ts";
+import type { Diagnostic, JsonSchema, JsonSchemaObject, JsonValue } from "../types.ts";
 import type { SchemaDocument, SchemaNode } from "../ir/types.ts";
 import type { TargetProfile } from "../targets/types.ts";
 
-export function emitSchema(document: SchemaDocument, profile: TargetProfile): JsonSchema {
+export interface EmitOptions {
+  readonly optimize: boolean;
+}
+
+export interface EmitResult {
+  readonly schema: JsonSchema;
+  readonly diagnostics: Diagnostic[];
+}
+
+export function emitSchema(
+  document: SchemaDocument,
+  profile: TargetProfile,
+  options: EmitOptions = { optimize: false },
+): EmitResult {
+  const diagnostics: Diagnostic[] = [];
   const usedDefs = new Set<string>();
   collectRefs(document.root, usedDefs, document.defs, new Set());
-  const schema = emitNode(document.root, profile);
+  const schema = emitNode(document.root, profile, options, diagnostics);
   if (
     usedDefs.size > 0 &&
     profile.capabilities.defs !== "unsupported" &&
@@ -20,20 +34,48 @@ export function emitSchema(document: SchemaDocument, profile: TargetProfile): Js
         continue;
       }
       const name = defName(pointer);
-      setRecord(defs, name, emitNode(node, profile));
+      setRecord(defs, name, emitNode(node, profile, options, diagnostics));
     }
     setRecord(schema as Record<string, unknown>, "$defs", defs);
   }
-  return schema;
+  return { schema, diagnostics };
 }
 
-function emitNode(node: SchemaNode, profile: TargetProfile): JsonSchema {
+function emitNode(
+  node: SchemaNode,
+  profile: TargetProfile,
+  options: EmitOptions,
+  diagnostics: Diagnostic[],
+): JsonSchema {
   const object = createRecord();
+  const propertyName = node.path[node.path.length - 1];
   if (node.title) {
-    setRecord(object, "title", node.title);
+    if (options.optimize && propertyName !== undefined && node.title === propertyName) {
+      diagnostics.push({
+        code: "redundant-annotation-removed",
+        severity: "info",
+        path: node.path,
+        keyword: "title",
+        message: `Title "${node.title}" duplicated the property name and was omitted.`,
+        action: "Safe metadata-only optimization.",
+      });
+    } else {
+      setRecord(object, "title", node.title);
+    }
   }
   if (node.description) {
-    setRecord(object, "description", node.description);
+    if (options.optimize && node.description === node.title) {
+      diagnostics.push({
+        code: "redundant-annotation-removed",
+        severity: "info",
+        path: node.path,
+        keyword: "description",
+        message: "Description duplicated the title and was omitted.",
+        action: "Safe metadata-only optimization.",
+      });
+    } else {
+      setRecord(object, "description", node.description);
+    }
   }
   if (node.deprecated) {
     setRecord(object, "deprecated", true);
@@ -70,10 +112,10 @@ function emitNode(node: SchemaNode, profile: TargetProfile): JsonSchema {
       copyIf(object, "multipleOf", node.multipleOf);
       return object as JsonSchemaObject;
     case "object":
-      return emitObject(object, node, profile);
+      return emitObject(object, node, profile, options, diagnostics);
     case "array":
       setRecord(object, "type", "array");
-      setRecord(object, "items", emitNode(node.items, profile));
+      setRecord(object, "items", emitNode(node.items, profile, options, diagnostics));
       copyIf(object, "minItems", node.minItems);
       copyIf(object, "maxItems", node.maxItems);
       if (node.uniqueItems) {
@@ -85,12 +127,12 @@ function emitNode(node: SchemaNode, profile: TargetProfile): JsonSchema {
       setRecord(
         object,
         "prefixItems",
-        node.prefixItems.map((item) => emitNode(item, profile)),
+        node.prefixItems.map((item) => emitNode(item, profile, options, diagnostics)),
       );
       if (node.rest === false) {
         setRecord(object, "items", false);
       } else if (node.rest) {
-        setRecord(object, "items", emitNode(node.rest, profile));
+        setRecord(object, "items", emitNode(node.rest, profile, options, diagnostics));
       }
       copyIf(object, "minItems", node.minItems);
       copyIf(object, "maxItems", node.maxItems);
@@ -102,12 +144,12 @@ function emitNode(node: SchemaNode, profile: TargetProfile): JsonSchema {
       setRecord(object, "const", node.value);
       return object as JsonSchemaObject;
     case "union":
-      return emitUnion(object, node, profile);
+      return emitUnion(object, node, profile, options, diagnostics);
     case "intersection":
       setRecord(
         object,
         "allOf",
-        node.parts.map((part) => emitNode(part, profile)),
+        node.parts.map((part) => emitNode(part, profile, options, diagnostics)),
       );
       return object as JsonSchemaObject;
     case "ref":
@@ -120,18 +162,24 @@ function emitObject(
   object: Record<string, unknown>,
   node: Extract<SchemaNode, { kind: "object" }>,
   profile: TargetProfile,
+  options: EmitOptions,
+  diagnostics: Diagnostic[],
 ): JsonSchemaObject {
   setRecord(object, "type", "object");
   const properties = createRecord();
   for (const [key, value] of node.properties) {
-    setRecord(properties, key, emitNode(value, profile));
+    setRecord(properties, key, emitNode(value, profile, options, diagnostics));
   }
   setRecord(object, "properties", properties);
   setRecord(object, "required", [...node.required]);
   if (typeof node.additionalProperties === "boolean") {
     setRecord(object, "additionalProperties", node.additionalProperties);
   } else {
-    setRecord(object, "additionalProperties", emitNode(node.additionalProperties, profile));
+    setRecord(
+      object,
+      "additionalProperties",
+      emitNode(node.additionalProperties, profile, options, diagnostics),
+    );
   }
   copyIf(object, "minProperties", node.minProperties);
   copyIf(object, "maxProperties", node.maxProperties);
@@ -142,6 +190,8 @@ function emitUnion(
   object: Record<string, unknown>,
   node: Extract<SchemaNode, { kind: "union" }>,
   profile: TargetProfile,
+  options: EmitOptions,
+  diagnostics: Diagnostic[],
 ): JsonSchemaObject {
   if (
     node.discriminant === "type-array" &&
@@ -150,7 +200,7 @@ function emitUnion(
     const types = node.variants.map((variant) => variant.kind);
     const nonNull = node.variants.filter((variant) => variant.kind !== "null");
     if (nonNull.length === 1) {
-      const emitted = emitNode(nonNull[0]!, profile);
+      const emitted = emitNode(nonNull[0]!, profile, options, diagnostics);
       if (typeof emitted === "object" && emitted !== null) {
         const record = emitted as Record<string, unknown>;
         const currentType = record["type"];
@@ -171,7 +221,7 @@ function emitUnion(
   setRecord(
     object,
     key,
-    node.variants.map((variant) => emitNode(variant, profile)),
+    node.variants.map((variant) => emitNode(variant, profile, options, diagnostics)),
   );
   return object as JsonSchemaObject;
 }
