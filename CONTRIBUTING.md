@@ -29,7 +29,7 @@ Coverage, gzip size, and Node 24 are a manual `Extra` workflow, not a PR gate. L
 2. Do not add runtime dependencies to `packages/core`.
 3. Provider behavior belongs in a target profile, not in `if (provider === ...)` branches.
 4. Add or update fixtures when you change lowering.
-5. Run `pnpm changeset` for user-facing changes.
+5. Run `pnpm changeset` for user-facing compiler changes.
 6. Write English commit messages.
 
 ## Adding a provider
@@ -49,6 +49,12 @@ pnpm playground
 ```
 
 The app is static. Compilation uses the `llm-abi` workspace package in the browser. Cloudflare Pages deploys `packages/playground/dist` from `main` with `pnpm dlx wrangler`. The workflow needs the `CLOUDFLARE_API_TOKEN` repository secret.
+
+## Release
+
+User-facing compiler changes (public API, new targets, diagnostics) need a file in `.changeset/`. Merging those PRs to `main` opens a Release PR. Merging the Release PR publishes `llm-abi` to npm, creates a GitHub release, and tags `vX.Y.Z` for the GitHub Action.
+
+Playground, docs, and CI-only changes do not need a changeset.
 
 ## Live checks
 

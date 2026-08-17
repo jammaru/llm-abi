@@ -45,6 +45,7 @@ Input → IR → analyze → lower(profile) → emit → diagnostics
 - Deterministic `compile()`: same input + target = same output
 - Tests for every lowering rule and every fixture × target
 - English for public docs, issue text, and commit messages
+- A changeset for user-facing compiler changes (`pnpm changeset`)
 
 ## Adding a target
 

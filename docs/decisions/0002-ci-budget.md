@@ -12,7 +12,7 @@ Coverage, gzip size, the consumer pack, and Node 24 are `workflow_dispatch` only
 
 Live provider HTTP checks are `schedule` + `workflow_dispatch` only (`Live`). They skip when secrets are missing. They are not a pull-request job.
 
-Release is `workflow_dispatch` only until the first npm publish is intentional.
+Release runs on `main` after the first npm publish. See [0012-automatic-release.md](./0012-automatic-release.md).
 
 Dependabot is monthly, grouped, and ignores TypeScript / `@types/node` majors.
 
