@@ -9,6 +9,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "google/gemini/structured": "lossless",
     "mistral/chat/structured": "lossless",
     "openai/responses/structured": "lossless",
+    "openrouter/structured": "runtime-safe",
     "xai/grok/structured": "lossless",
   },
   "additional-properties-true.json": {
@@ -18,6 +19,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "google/gemini/structured": "lossless",
     "mistral/chat/structured": "lossless",
     "openai/responses/structured": "lossless",
+    "openrouter/structured": "runtime-safe",
     "xai/grok/structured": "lossless",
   },
   "all-of.json": {
@@ -27,6 +29,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "google/gemini/structured": "lossless",
     "mistral/chat/structured": "lossless",
     "openai/responses/structured": "lossless",
+    "openrouter/structured": "runtime-safe",
     "xai/grok/structured": "lossless",
   },
   "any-of.json": {
@@ -36,6 +39,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "google/gemini/structured": "unsupported",
     "mistral/chat/structured": "lossless",
     "openai/responses/structured": "lossless",
+    "openrouter/structured": "runtime-safe",
     "xai/grok/structured": "lossless",
   },
   "array.json": {
@@ -45,6 +49,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "google/gemini/structured": "lossless",
     "mistral/chat/structured": "lossless",
     "openai/responses/structured": "lossless",
+    "openrouter/structured": "runtime-safe",
     "xai/grok/structured": "lossless",
   },
   "boolean.json": {
@@ -54,6 +59,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "google/gemini/structured": "lossless",
     "mistral/chat/structured": "lossless",
     "openai/responses/structured": "lossless",
+    "openrouter/structured": "runtime-safe",
     "xai/grok/structured": "lossless",
   },
   "complex-pattern.json": {
@@ -63,6 +69,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "google/gemini/structured": "runtime-safe",
     "mistral/chat/structured": "runtime-safe",
     "openai/responses/structured": "runtime-safe",
+    "openrouter/structured": "runtime-safe",
     "xai/grok/structured": "runtime-safe",
   },
   "const.json": {
@@ -72,6 +79,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "google/gemini/structured": "runtime-safe",
     "mistral/chat/structured": "lossless",
     "openai/responses/structured": "lossless",
+    "openrouter/structured": "runtime-safe",
     "xai/grok/structured": "lossless",
   },
   "deep-object.json": {
@@ -81,6 +89,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "google/gemini/structured": "lossless",
     "mistral/chat/structured": "lossless",
     "openai/responses/structured": "runtime-safe",
+    "openrouter/structured": "runtime-safe",
     "xai/grok/structured": "lossless",
   },
   "defs-ref.json": {
@@ -90,6 +99,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "google/gemini/structured": "lossless",
     "mistral/chat/structured": "lossless",
     "openai/responses/structured": "lossless",
+    "openrouter/structured": "runtime-safe",
     "xai/grok/structured": "lossless",
   },
   "discriminated-union.json": {
@@ -99,6 +109,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "google/gemini/structured": "unsupported",
     "mistral/chat/structured": "lossless",
     "openai/responses/structured": "lossy",
+    "openrouter/structured": "runtime-safe",
     "xai/grok/structured": "lossy",
   },
   "empty-object.json": {
@@ -108,6 +119,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "google/gemini/structured": "lossless",
     "mistral/chat/structured": "lossless",
     "openai/responses/structured": "lossless",
+    "openrouter/structured": "runtime-safe",
     "xai/grok/structured": "lossless",
   },
   "enum.json": {
@@ -117,6 +129,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "google/gemini/structured": "lossless",
     "mistral/chat/structured": "lossless",
     "openai/responses/structured": "lossless",
+    "openrouter/structured": "runtime-safe",
     "xai/grok/structured": "lossless",
   },
   "exclusive-min.json": {
@@ -126,6 +139,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "google/gemini/structured": "runtime-safe",
     "mistral/chat/structured": "lossless",
     "openai/responses/structured": "lossless",
+    "openrouter/structured": "runtime-safe",
     "xai/grok/structured": "lossless",
   },
   "external-ref.json": {
@@ -135,6 +149,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "google/gemini/structured": "unsupported",
     "mistral/chat/structured": "unsupported",
     "openai/responses/structured": "unsupported",
+    "openrouter/structured": "unsupported",
     "xai/grok/structured": "unsupported",
   },
   "format.json": {
@@ -144,6 +159,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "google/gemini/structured": "runtime-safe",
     "mistral/chat/structured": "lossless",
     "openai/responses/structured": "lossless",
+    "openrouter/structured": "runtime-safe",
     "xai/grok/structured": "lossless",
   },
   "integer.json": {
@@ -153,6 +169,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "google/gemini/structured": "lossless",
     "mistral/chat/structured": "lossless",
     "openai/responses/structured": "lossless",
+    "openrouter/structured": "runtime-safe",
     "xai/grok/structured": "lossless",
   },
   "max-items.json": {
@@ -162,6 +179,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "google/gemini/structured": "lossless",
     "mistral/chat/structured": "lossless",
     "openai/responses/structured": "lossless",
+    "openrouter/structured": "runtime-safe",
     "xai/grok/structured": "lossless",
   },
   "max-length.json": {
@@ -171,6 +189,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "google/gemini/structured": "runtime-safe",
     "mistral/chat/structured": "lossless",
     "openai/responses/structured": "runtime-safe",
+    "openrouter/structured": "runtime-safe",
     "xai/grok/structured": "lossless",
   },
   "maximum.json": {
@@ -180,6 +199,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "google/gemini/structured": "lossless",
     "mistral/chat/structured": "lossless",
     "openai/responses/structured": "lossless",
+    "openrouter/structured": "runtime-safe",
     "xai/grok/structured": "lossless",
   },
   "min-items.json": {
@@ -189,6 +209,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "google/gemini/structured": "lossless",
     "mistral/chat/structured": "lossless",
     "openai/responses/structured": "lossless",
+    "openrouter/structured": "runtime-safe",
     "xai/grok/structured": "lossless",
   },
   "min-length.json": {
@@ -198,6 +219,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "google/gemini/structured": "runtime-safe",
     "mistral/chat/structured": "lossless",
     "openai/responses/structured": "runtime-safe",
+    "openrouter/structured": "runtime-safe",
     "xai/grok/structured": "lossless",
   },
   "min-properties.json": {
@@ -207,6 +229,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "google/gemini/structured": "runtime-safe",
     "mistral/chat/structured": "lossy",
     "openai/responses/structured": "lossy",
+    "openrouter/structured": "runtime-safe",
     "xai/grok/structured": "lossy",
   },
   "minimum.json": {
@@ -216,6 +239,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "google/gemini/structured": "lossless",
     "mistral/chat/structured": "lossless",
     "openai/responses/structured": "lossless",
+    "openrouter/structured": "runtime-safe",
     "xai/grok/structured": "lossless",
   },
   "multiple-of.json": {
@@ -225,6 +249,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "google/gemini/structured": "runtime-safe",
     "mistral/chat/structured": "lossless",
     "openai/responses/structured": "lossless",
+    "openrouter/structured": "runtime-safe",
     "xai/grok/structured": "lossless",
   },
   "not-keyword.json": {
@@ -234,6 +259,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "google/gemini/structured": "lossy",
     "mistral/chat/structured": "lossy",
     "openai/responses/structured": "lossy",
+    "openrouter/structured": "lossy",
     "xai/grok/structured": "lossy",
   },
   "nullable.json": {
@@ -243,6 +269,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "google/gemini/structured": "lossless",
     "mistral/chat/structured": "lossless",
     "openai/responses/structured": "lossless",
+    "openrouter/structured": "runtime-safe",
     "xai/grok/structured": "lossless",
   },
   "object-basic.json": {
@@ -252,6 +279,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "google/gemini/structured": "lossless",
     "mistral/chat/structured": "lossless",
     "openai/responses/structured": "lossless",
+    "openrouter/structured": "runtime-safe",
     "xai/grok/structured": "lossless",
   },
   "one-of.json": {
@@ -261,6 +289,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "google/gemini/structured": "unsupported",
     "mistral/chat/structured": "lossless",
     "openai/responses/structured": "lossy",
+    "openrouter/structured": "runtime-safe",
     "xai/grok/structured": "lossy",
   },
   "optional.json": {
@@ -270,6 +299,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "google/gemini/structured": "runtime-safe",
     "mistral/chat/structured": "lossless",
     "openai/responses/structured": "runtime-safe",
+    "openrouter/structured": "runtime-safe",
     "xai/grok/structured": "lossless",
   },
   "pattern.json": {
@@ -279,6 +309,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "google/gemini/structured": "runtime-safe",
     "mistral/chat/structured": "lossless",
     "openai/responses/structured": "lossless",
+    "openrouter/structured": "runtime-safe",
     "xai/grok/structured": "lossless",
   },
   "record.json": {
@@ -288,6 +319,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "google/gemini/structured": "lossless",
     "mistral/chat/structured": "lossy",
     "openai/responses/structured": "lossy",
+    "openrouter/structured": "runtime-safe",
     "xai/grok/structured": "lossy",
   },
   "recursive-ref.json": {
@@ -297,6 +329,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "google/gemini/structured": "lossless",
     "mistral/chat/structured": "lossless",
     "openai/responses/structured": "runtime-safe",
+    "openrouter/structured": "runtime-safe",
     "xai/grok/structured": "unsupported",
   },
   "tuple.json": {
@@ -306,6 +339,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "google/gemini/structured": "lossless",
     "mistral/chat/structured": "lossless",
     "openai/responses/structured": "lossy",
+    "openrouter/structured": "runtime-safe",
     "xai/grok/structured": "lossless",
   },
   "type-array-nullable.json": {
@@ -315,6 +349,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "google/gemini/structured": "lossless",
     "mistral/chat/structured": "lossless",
     "openai/responses/structured": "lossless",
+    "openrouter/structured": "runtime-safe",
     "xai/grok/structured": "lossless",
   },
   "union-root.json": {
@@ -324,6 +359,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "google/gemini/structured": "unsupported",
     "mistral/chat/structured": "unsupported",
     "openai/responses/structured": "unsupported",
+    "openrouter/structured": "unsupported",
     "xai/grok/structured": "unsupported",
   },
   "unique-items.json": {
@@ -333,6 +369,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "google/gemini/structured": "runtime-safe",
     "mistral/chat/structured": "lossless",
     "openai/responses/structured": "runtime-safe",
+    "openrouter/structured": "runtime-safe",
     "xai/grok/structured": "runtime-safe",
   },
 }

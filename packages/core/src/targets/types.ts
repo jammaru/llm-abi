@@ -1,4 +1,4 @@
-import type { Evidence, Support } from "../types.ts";
+import type { Compatibility, Evidence, Support } from "../types.ts";
 
 export interface TargetLimits {
   readonly maxDepth?: number;
@@ -83,6 +83,11 @@ export interface TargetProfile {
    * DeepSeek strict tools document `$def` rather than `$defs`.
    */
   readonly defsKeyword?: "$defs" | "$def";
+  /**
+   * Gateways cannot promise every routed model will enforce the schema.
+   * Floors lossless compiles to this level and emits `gateway-enforcement-varies`.
+   */
+  readonly compatibilityCeiling?: Compatibility;
 }
 
 export function defineTarget(profile: TargetProfile): TargetProfile {

@@ -4,6 +4,7 @@ import { anthropicMessagesStructured } from "./anthropic.ts";
 import { deepseekChatStrictTools } from "./deepseek.ts";
 import { googleGeminiStructured } from "./gemini.ts";
 import { mistralChatStructured } from "./mistral.ts";
+import { openrouterStructured } from "./openrouter.ts";
 import { openaiResponsesStructured } from "./openai.ts";
 import { alibabaQwenTools } from "./qwen.ts";
 import type { TargetProfile } from "./types.ts";
@@ -17,6 +18,7 @@ const PROFILES: readonly TargetProfile[] = [
   xaiGrokStructured,
   alibabaQwenTools,
   mistralChatStructured,
+  openrouterStructured,
 ];
 
 const BY_ID = new Map<string, TargetProfile>();
@@ -59,5 +61,6 @@ export {
   xaiGrokStructured,
   alibabaQwenTools,
   mistralChatStructured,
+  openrouterStructured,
 };
 export type { TargetProfile, TargetCapabilities } from "./types.ts";
