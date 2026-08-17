@@ -39,4 +39,6 @@ export const vendor = defineTarget({
 });
 ```
 
+See [docs/targets/README.md](../../../docs/targets/README.md) for field meanings, evidence, and README status.
+
 Do not add the vendor SDK as a dependency.

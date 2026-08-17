@@ -34,6 +34,6 @@ Node.js 22+ and pnpm 10 are required. `pnpm check` is what GitHub Actions runs o
 2. Register the profile in `registry.ts`.
 3. Add fixtures and tests.
 4. Record evidence: `documented`, `sdk-observed`, or `empirical`.
-5. Mark the README status honestly.
+5. Mark the README status honestly (`Verified` / `Partial` / `Experimental`).
 
-See `.cursor/skills/add-target/SKILL.md` for the full checklist.
+See [docs/targets/README.md](docs/targets/README.md) for the profile fields and evidence rules. `.cursor/skills/add-target/SKILL.md` is the same checklist for agents.

@@ -195,7 +195,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). Adding a provider should be a profile fi
 - [API](docs/api.md)
 - [CLI](docs/cli.md)
 - [Architecture](docs/architecture.md)
-- [Target evidence](docs/targets/README.md)
+- [Target profiles](docs/targets/README.md)
 
 ## License
 
