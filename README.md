@@ -124,6 +124,20 @@ result.loss;
 
 - JSON Schema objects (draft-07 / 2020-12)
 - [Standard JSON Schema](https://standardschema.dev/json-schema) (`~standard.jsonSchema`)
+- A closed TypeScript type subset (`type` / `interface` syntax). No `tsc`, no imports.
+
+```ts
+compile(
+  `
+    type User = {
+      name: string;
+      age: number;
+      nickname?: string;
+    }
+  `,
+  "openai",
+);
+```
 
 Zod, Valibot, ArkType, and other Standard Schema libraries work when they expose JSON Schema conversion. Validation-only Standard Schema objects are rejected with a clear error. llm-abi does not depend on Zod.
 
@@ -206,7 +220,7 @@ See [docs/guarantees.md](docs/guarantees.md), [docs/api.md](docs/api.md), and [d
 ## How it works
 
 ```text
-JSON Schema / Standard Schema
+JSON Schema / Standard Schema / TypeScript type subset
             ↓
       Normalized IR
             ↓

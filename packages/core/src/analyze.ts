@@ -3,10 +3,10 @@ import type { SchemaDocument, SchemaNode } from "./ir/types.ts";
 import { fingerprint } from "./fingerprint.ts";
 import { parseInput } from "./input.ts";
 import { measureSchema } from "./size.ts";
-import type { Analysis, SchemaInput } from "./types.ts";
+import type { Analysis, AnalyzeOptions, SchemaInput } from "./types.ts";
 
-export function analyze(schema: SchemaInput): Analysis {
-  const parsed = parseInput(schema);
+export function analyze(schema: SchemaInput, options: AnalyzeOptions = {}): Analysis {
+  const parsed = parseInput(schema, { typeName: options.typeName });
   const stats = measure(parsed.document);
   const size = measureSchema(parsed.jsonSchema);
   const unusedDefs = parsed.document.notes.filter(
@@ -20,7 +20,7 @@ export function analyze(schema: SchemaInput): Analysis {
     message: note.message,
   }));
   return {
-    fingerprint: fingerprint(schema),
+    fingerprint: fingerprint(schema, { typeName: options.typeName }),
     stats: {
       ...stats,
       unusedDefs,

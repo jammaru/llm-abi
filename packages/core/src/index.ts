@@ -5,6 +5,7 @@ export { fingerprint } from "./fingerprint.ts";
 export { listTargets, resolveTarget } from "./targets/registry.ts";
 export { LlmAbiError, SchemaCompatibilityError, SchemaLimitError } from "./errors.ts";
 export type {
+  AnalyzeOptions,
   Analysis,
   AnalysisStats,
   CheckOptions,

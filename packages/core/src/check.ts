@@ -6,9 +6,14 @@ import type { CheckOptions, CheckResult, SchemaInput } from "./types.ts";
 export function check(schema: SchemaInput, options: CheckOptions = {}): CheckResult {
   const targets = options.targets ?? listTargets().map((target) => target.id);
   return {
-    fingerprint: fingerprint(schema),
+    fingerprint: fingerprint(schema, { typeName: options.typeName }),
     results: targets.map((target) => {
-      const compiled = compile(schema, { target, strict: false, optimize: options.optimize });
+      const compiled = compile(schema, {
+        target,
+        strict: false,
+        optimize: options.optimize,
+        typeName: options.typeName,
+      });
       return {
         target: compiled.target,
         compatibility: compiled.compatibility,

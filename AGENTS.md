@@ -39,6 +39,7 @@ Input → IR → analyze → lower(profile) → emit → diagnostics
 ## Implementation rules
 
 - Explicit return types on exported functions (`isolatedDeclarations`)
+- Source TypeScript must be Node strip-only compatible (the GitHub Action loads `.ts` on Node 24): no parameter properties, enums, or namespaces
 - `Map` / `Set` for dictionaries keyed by user input
 - Depth, node, and `$ref` limits on untrusted schemas
 - Deterministic `compile()`: same input + target = same output

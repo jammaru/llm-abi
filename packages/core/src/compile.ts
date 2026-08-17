@@ -22,7 +22,7 @@ export function compile(
 ): CompileResult {
   const options = normalizeOptions(targetOrOptions);
   const profile = resolveTarget(options.target);
-  const parsed = parseInput(schema);
+  const parsed = parseInput(schema, { typeName: options.typeName });
   const original = parsed.document;
   const working = cloneDocument(original);
   const lowered = lowerDocument(working, profile, {
