@@ -213,6 +213,10 @@ status 2. Pull requests from forks still run the check, but GitHub may restrict 
 read-only; in that case the Action leaves the job summary and skips the comment without changing
 the compatibility result.
 
+### Nightly live checks
+
+A scheduled workflow sends **compiled** schemas to OpenAI, Anthropic, and Gemini when repository secrets exist. It never runs on pull requests. Missing secrets skip that vendor. Outcomes are `accepted`, `rejected`, or `skipped` — never a percentage. A rejection means the live API disagreed with the profile; mark evidence `empirical` and add a fixture.
+
 ## Guarantees
 
 llm-abi **does**:
@@ -248,7 +252,7 @@ Provider differences live in **profiles**, not scattered `if (provider === "anth
 
 ```text
 packages/core          compiler + CLI (published as llm-abi)
-packages/conformance   fixture corpus
+packages/conformance   fixture corpus and secret-gated live runner
 packages/playground    browser compatibility playground
 examples/              copy-paste SDK recipes (no network, no core SDK deps)
 ```

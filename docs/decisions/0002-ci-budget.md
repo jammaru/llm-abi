@@ -10,6 +10,8 @@ That job runs `pnpm check`: format, lint, typecheck, tests, build, pack, and exa
 
 Coverage, gzip size, the consumer pack, and Node 24 are `workflow_dispatch` only (`Extra`).
 
+Live provider HTTP checks are `schedule` + `workflow_dispatch` only (`Live`). They skip when secrets are missing. They are not a pull-request job.
+
 Release is `workflow_dispatch` only until the first npm publish is intentional.
 
 Dependabot is monthly, grouped, and ignores TypeScript / `@types/node` majors.
