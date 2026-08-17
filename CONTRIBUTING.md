@@ -52,7 +52,13 @@ The app is static. Compilation uses the `llm-abi` workspace package in the brows
 
 ## Release
 
-User-facing compiler changes (public API, new targets, diagnostics) need a file in `.changeset/`. Merging those PRs to `main` opens a Release PR. Merging the Release PR publishes `llm-abi` to npm, creates a GitHub release, and tags `vX.Y.Z` for the GitHub Action.
+User-facing compiler changes (public API, new targets, diagnostics) need a file in `.changeset/`. An agent cuts the npm release (see `.agents/skills/release/SKILL.md`):
+
+1. `pnpm changeset version` on current `main`
+2. Open and squash-merge a `Release` PR
+3. Tag `vX.Y.Z` on that merge commit and push it
+
+The Release workflow publishes `llm-abi` to npm via OIDC (no `NPM_TOKEN`), creates the GitHub Release, and that tag is what the reusable GitHub Action pins to.
 
 Playground, docs, and CI-only changes do not need a changeset.
 
