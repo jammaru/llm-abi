@@ -32,9 +32,9 @@ export function readEvent(environment: NodeJS.ProcessEnv = process.env): GithubE
   }
   try {
     return JSON.parse(readFileSync(eventPath, "utf8")) as GithubEvent;
-  } catch (error) {
+  } catch (caught) {
     throw new OperationalError(
-      `Unable to read GITHUB_EVENT_PATH: ${error instanceof Error ? error.message : String(error)}`,
+      `Unable to read GITHUB_EVENT_PATH: ${caught instanceof Error ? caught.message : String(caught)}`,
     );
   }
 }

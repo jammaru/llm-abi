@@ -3,7 +3,16 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import { runCheck } from "../src/cli.ts";
-import { matchesPatterns, parseDiffOutput } from "../src/git.ts";
+import {
+  assertGitRef,
+  isInsideWorkspace,
+  matchesPatterns,
+  parseDiffOutput,
+  unmatchedLiteralPatterns,
+  workspaceRelativeDirectory,
+} from "../src/git.ts";
+import { assertIssueNumber, assertRepository, resolveGithubApiUrl } from "../src/github.ts";
+import { readInputs } from "../src/io.ts";
 import { buildResults, COMMENT_MARKER, exitCodeFor, renderReport } from "../src/render.ts";
 
 const temporaryDirectories: string[] = [];
@@ -30,6 +39,37 @@ describe("action file selection", () => {
         status: "renamed",
       },
     ]);
+  });
+
+  it("parses copied files and ignores incomplete renames", () => {
+    expect(parseDiffOutput("C80\tschemas/src.json\tschemas/copy.json\nR100\tbroken\n")).toEqual([
+      {
+        path: "schemas/copy.json",
+        basePath: "schemas/src.json",
+        status: "copied",
+      },
+    ]);
+  });
+
+  it("rejects a working-directory outside the workspace", () => {
+    expect(() => workspaceRelativeDirectory("/workspace", "..")).toThrow(
+      /working-directory must be inside/,
+    );
+    expect(isInsideWorkspace("/workspace", "/workspace/schemas")).toBe(true);
+    expect(isInsideWorkspace("/workspace", "/workspace-other/schemas")).toBe(false);
+  });
+
+  it("rejects git refs that look like options or path traversal", () => {
+    expect(() => assertGitRef("--upload-pack=evil", "base-ref")).toThrow(/Invalid base-ref/);
+    expect(() => assertGitRef("abc..def", "base-ref")).toThrow(/Invalid base-ref/);
+    expect(assertGitRef("origin/main", "base-ref")).toBe("origin/main");
+  });
+
+  it("treats missing literal schema paths as an error", () => {
+    expect(unmatchedLiteralPatterns(["schema.json", "schemas/**/*.json"], [])).toEqual([
+      "schema.json",
+    ]);
+    expect(unmatchedLiteralPatterns(["schema.json"], ["schema.json"])).toEqual([]);
   });
 });
 
@@ -106,6 +146,65 @@ describe("action report", () => {
     expect(report).toContain("lossless → lossy");
     expect(report).toContain("`old` → `new`");
     expect(report).not.toContain("%");
+  });
+
+  it("keeps colliding vendor labels unique", () => {
+    const report = renderReport(
+      buildResults([
+        {
+          path: "schema.json",
+          current: {
+            fingerprint: "fp",
+            targets: [
+              { id: "openai/responses/structured", compatibility: "lossless" },
+              { id: "openai/chat/structured", compatibility: "lossy" },
+            ],
+          },
+        },
+      ]),
+    );
+    expect(report).toContain("openai/responses/structured");
+    expect(report).toContain("openai/chat/structured");
+    expect(report).not.toContain("| OpenAI | OpenAI |");
+  });
+});
+
+describe("action inputs", () => {
+  it("reads hyphenated GitHub Action inputs", () => {
+    expect(
+      readInputs({
+        "INPUT_SCHEMA-FILES": "schemas/a.json\nschemas/b.json",
+        "INPUT_CHANGED-ONLY": "false",
+        "INPUT_WORKING-DIRECTORY": "schemas",
+        "INPUT_BASE-REF": "abc123",
+        INPUT_COMMENT: "true",
+        "INPUT_GITHUB-TOKEN": "tok",
+      }),
+    ).toEqual({
+      patterns: ["schemas/a.json", "schemas/b.json"],
+      changedOnly: false,
+      workingDirectory: "schemas",
+      baseRef: "abc123",
+      comment: true,
+      githubToken: "tok",
+    });
+  });
+
+  it("rejects invalid boolean inputs", () => {
+    expect(() => readInputs({ "INPUT_CHANGED-ONLY": "bogus" })).toThrow(
+      /changed-only must be true or false/,
+    );
+  });
+});
+
+describe("action GitHub client", () => {
+  it("accepts only https API URLs and owner/repo names", () => {
+    expect(resolveGithubApiUrl(undefined)).toBe("https://api.github.com");
+    expect(resolveGithubApiUrl("https://ghe.example/api/v3/")).toBe("https://ghe.example/api/v3");
+    expect(() => resolveGithubApiUrl("http://example.com")).toThrow(/https/);
+    expect(() => assertRepository("../evil/repo")).toThrow(/GITHUB_REPOSITORY/);
+    expect(assertRepository("jammaru/llm-abi")).toBe("jammaru/llm-abi");
+    expect(() => assertIssueNumber(0)).toThrow(/pull request number/);
   });
 });
 

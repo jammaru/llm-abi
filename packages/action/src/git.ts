@@ -13,18 +13,18 @@ interface SelectOptions {
 }
 
 export function selectFiles(options: SelectOptions): SelectionResult {
-  const workingDirectory = resolve(options.workspace, options.workingDirectory);
-  const relativeWorkingDirectory = normalizePath(relative(options.workspace, workingDirectory));
-  if (relativeWorkingDirectory === ".." || relativeWorkingDirectory.startsWith("../")) {
-    throw new OperationalError("working-directory must be inside GITHUB_WORKSPACE");
-  }
+  const relativeWorkingDirectory = workspaceRelativeDirectory(
+    options.workspace,
+    options.workingDirectory,
+  );
 
   const pullRequest = options.event.pull_request;
   const baseRef = options.baseRef ?? pullRequest?.base.sha;
   if (options.changedOnly && pullRequest) {
-    const headRef = pullRequest.head.sha;
+    const resolvedBase = assertGitRef(baseRef, "base-ref");
+    const resolvedHead = assertGitRef(pullRequest.head.sha, "pull request head SHA");
     const diff = runGit(
-      ["diff", "--name-status", "-M", `${baseRef}...${headRef}`, "--"],
+      ["diff", "--name-status", "-M", `${resolvedBase}...${resolvedHead}`, "--"],
       options.workspace,
     );
     return {
@@ -36,7 +36,7 @@ export function selectFiles(options: SelectOptions): SelectionResult {
           ),
         )
         .toSorted((left, right) => left.path.localeCompare(right.path)),
-      baseRef,
+      baseRef: resolvedBase,
     };
   }
 
@@ -52,6 +52,15 @@ export function selectFiles(options: SelectOptions): SelectionResult {
     )
     .map((path): SelectedFile => ({ path, basePath: path, status: "existing" }))
     .toSorted((left, right) => left.path.localeCompare(right.path));
+  if (!options.changedOnly) {
+    const relativePaths = files
+      .map((file) => pathInsideWorkingDirectory(file.path, relativeWorkingDirectory))
+      .filter((path): path is string => path !== undefined);
+    const missing = unmatchedLiteralPatterns(options.patterns, relativePaths);
+    if (missing[0]) {
+      throw new OperationalError(`schema file not found: ${missing[0]}`);
+    }
+  }
   return { files, baseRef };
 }
 
@@ -65,12 +74,15 @@ export function parseDiffOutput(output: string): readonly SelectedFile[] {
     if (!rawStatus || !firstPath || rawStatus.startsWith("D")) {
       continue;
     }
-    if (rawStatus.startsWith("R") && secondPath) {
-      files.push({ path: secondPath, basePath: firstPath, status: "renamed" });
-      continue;
-    }
-    if (rawStatus.startsWith("C") && secondPath) {
-      files.push({ path: secondPath, basePath: firstPath, status: "copied" });
+    if (rawStatus.startsWith("R") || rawStatus.startsWith("C")) {
+      if (!secondPath) {
+        continue;
+      }
+      files.push({
+        path: secondPath,
+        basePath: firstPath,
+        status: rawStatus.startsWith("R") ? "renamed" : "copied",
+      });
       continue;
     }
     if (rawStatus.startsWith("A")) {
@@ -80,6 +92,23 @@ export function parseDiffOutput(output: string): readonly SelectedFile[] {
     files.push({ path: firstPath, basePath: firstPath, status: "modified" });
   }
   return files;
+}
+
+export function isGlobPattern(pattern: string): boolean {
+  return /[*?[{]/u.test(normalizePattern(pattern));
+}
+
+export function unmatchedLiteralPatterns(
+  patterns: readonly string[],
+  relativePaths: readonly string[],
+): readonly string[] {
+  const present = new Set(relativePaths);
+  return patterns.filter(
+    (pattern) =>
+      !pattern.startsWith("!") &&
+      !isGlobPattern(pattern) &&
+      !present.has(normalizePattern(pattern)),
+  );
 }
 
 export function matchesPatterns(
@@ -107,12 +136,23 @@ export function readBaseSchema(
   if (!baseRef || file.status === "added") {
     return undefined;
   }
+  const resolvedBase = assertGitRef(baseRef, "base-ref");
   const basePath = file.basePath ?? file.path;
-  const result = spawnSync("git", ["show", `${baseRef}:${basePath}`], {
-    cwd: workspace,
-    encoding: "utf8",
-    maxBuffer: 10 * 1024 * 1024,
-  });
+  assertGitPath(basePath);
+  const result = spawnSync(
+    "git",
+    ["-c", "core.quotepath=false", "show", `${resolvedBase}:${basePath}`],
+    {
+      cwd: workspace,
+      encoding: "utf8",
+      maxBuffer: 10 * 1024 * 1024,
+      timeout: 30_000,
+      windowsHide: true,
+    },
+  );
+  if (result.error) {
+    throw new OperationalError(result.error.message);
+  }
   if (result.status === 0) {
     return result.stdout;
   }
@@ -124,12 +164,54 @@ export function readBaseSchema(
   );
 }
 
+export function isInsideWorkspace(workspace: string, candidate: string): boolean {
+  const root = resolve(workspace);
+  const resolved = resolve(candidate);
+  const prefix = root.endsWith(sep) ? root : `${root}${sep}`;
+  return resolved === root || resolved.startsWith(prefix);
+}
+
+export function workspaceRelativeDirectory(workspace: string, workingDirectory: string): string {
+  const resolved = resolve(workspace, workingDirectory);
+  if (!isInsideWorkspace(workspace, resolved)) {
+    throw new OperationalError("working-directory must be inside GITHUB_WORKSPACE");
+  }
+  const relativeDirectory = normalizePath(relative(workspace, resolved));
+  return relativeDirectory === "" ? "." : relativeDirectory;
+}
+
+export function assertGitRef(value: string | undefined, label: string): string {
+  if (!value || value.startsWith("-") || /[\s:~^\\]/u.test(value) || value.includes("..")) {
+    throw new OperationalError(`Invalid ${label}`);
+  }
+  if (!/^[A-Za-z0-9._/+-]+$/u.test(value)) {
+    throw new OperationalError(`Invalid ${label}`);
+  }
+  return value;
+}
+
+function assertGitPath(value: string): void {
+  if (
+    value.startsWith("-") ||
+    value.includes(":") ||
+    value.includes("\0") ||
+    value.split(/[/\\]/u).includes("..")
+  ) {
+    throw new OperationalError(`Invalid path ${value}`);
+  }
+}
+
 function runGit(arguments_: readonly string[], cwd: string): string {
-  const result = spawnSync("git", arguments_, {
+  const result = spawnSync("git", ["-c", "core.quotepath=false", ...arguments_], {
     cwd,
     encoding: "utf8",
     maxBuffer: 10 * 1024 * 1024,
+    timeout: 30_000,
+    windowsHide: true,
   });
+  if (result.error) {
+    throw new OperationalError(result.error.message);
+  }
   if (result.status !== 0) {
     throw new OperationalError(result.stderr.trim() || `git ${arguments_.join(" ")} failed`);
   }

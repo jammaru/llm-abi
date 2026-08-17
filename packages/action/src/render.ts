@@ -33,7 +33,7 @@ export function renderReport(results: ResultsOutput, includeMarker = false): str
     ),
   ];
   lines.push(
-    `| Schema | Fingerprint | ${targetIds.map(shortTarget).join(" | ")} |`,
+    `| Schema | Fingerprint | ${columnLabels(targetIds).join(" | ")} |`,
     `| --- | --- | ${targetIds.map(() => "---").join(" | ")} |`,
   );
   for (const report of results.files) {
@@ -62,6 +62,13 @@ function renderChange(base: string | undefined, current: string, code: boolean):
     return format(current);
   }
   return `${format(base)} → ${format(current)}`;
+}
+
+function columnLabels(targetIds: readonly string[]): readonly string[] {
+  const labels = targetIds.map(shortTarget);
+  return labels.map((label, index) =>
+    labels.filter((item) => item === label).length > 1 ? escapeMarkdown(targetIds[index]!) : label,
+  );
 }
 
 function shortTarget(target: string): string {

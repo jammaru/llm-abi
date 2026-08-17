@@ -172,16 +172,17 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
-      - uses: jammaru/llm-abi@v1
+      - uses: jammaru/llm-abi@main
         with:
           schema-files: "schemas/**/*.json"
           comment: "true"
 ```
 
-The compatibility check fails only when a current target is `unsupported`. Invalid input or an
-Action runtime failure uses exit status 2. Pull requests from forks still run the check, but GitHub
-may restrict their token to read-only; in that case the Action leaves the job summary and skips the
-comment without changing the compatibility result.
+Pin the Action to a release tag or commit SHA in production. The compatibility check fails only
+when a current target is `unsupported`. Invalid input or an Action runtime failure uses exit
+status 2. Pull requests from forks still run the check, but GitHub may restrict their token to
+read-only; in that case the Action leaves the job summary and skips the comment without changing
+the compatibility result.
 
 ## Guarantees
 

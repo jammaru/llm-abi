@@ -2,6 +2,7 @@ import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { parseArgs } from "../src/cli/args.ts";
 import { run } from "../src/cli/run.ts";
 
 function withSchema(schema: unknown): string {
@@ -94,5 +95,18 @@ describe("cli", () => {
     } finally {
       process.stdout.write = original;
     }
+  });
+
+  it("accepts a schema path after --", () => {
+    expect(parseArgs(["node", "llm-abi", "check", "--ci", "--json", "--", "-weird.json"])).toEqual({
+      command: "check",
+      file: "-weird.json",
+      target: undefined,
+      json: true,
+      ci: true,
+      strict: false,
+      help: false,
+      version: false,
+    });
   });
 });

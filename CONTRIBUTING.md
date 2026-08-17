@@ -16,6 +16,7 @@ Node.js 22+ and pnpm 10 are required. `pnpm check` is what GitHub Actions runs o
 
 - `packages/core` — compiler, public API, CLI
 - `packages/conformance` — JSON Schema fixtures
+- `packages/action` — reusable GitHub Action that runs the CLI
 - `examples` — copy-paste recipes, typechecked and executed in CI
 - `docs` — guarantees, API, CLI, and architecture
 

@@ -36,15 +36,15 @@ each selected schema. By default it checks pull request changes matching `**/*.s
   with:
     fetch-depth: 0
     persist-credentials: false
-- uses: jammaru/llm-abi@v1
+- uses: jammaru/llm-abi@main
   with:
     schema-files: "schemas/**/*.json"
     comment: "true"
 ```
 
-Set `pull-requests: write` on the job or workflow when `comment` is enabled. The comment is optional;
-the Action always writes the compatibility table to the job summary. Repeated runs update the same
-bot-authored comment.
+Pin the Action to a release tag or commit SHA in production. Set `pull-requests: write` on the job
+or workflow when `comment` is enabled. The comment is optional; the Action always writes the
+compatibility table to the job summary. Repeated runs update the same bot-authored comment.
 
 Action outputs are `conclusion`, `checked-files`, `unsupported-count`, `results-json`, and
 `comment-url`. Conclusions are `passed`, `unsupported`, `skipped`, or `error`.

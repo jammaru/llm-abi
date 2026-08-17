@@ -51,6 +51,10 @@ export function parseArgs(argv: readonly string[]): CliArgs {
       target = token.slice("--target=".length);
       continue;
     }
+    if (token === "--") {
+      file = rest[index + 1];
+      break;
+    }
     if (token.startsWith("-")) {
       throw new Error(`Unknown option ${token}`);
     }

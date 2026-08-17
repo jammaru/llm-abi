@@ -3,11 +3,11 @@ import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { runCheck } from "./cli.ts";
-import { readBaseSchema, selectFiles } from "./git.ts";
+import { isInsideWorkspace, readBaseSchema, selectFiles } from "./git.ts";
 import { upsertComment } from "./github.ts";
 import { error, readEvent, readInputs, warning, writeOutput, writeSummary } from "./io.ts";
 import { buildResults, exitCodeFor, renderReport } from "./render.ts";
-import type { FileReport, NormalizedCheck } from "./types.ts";
+import { OperationalError, type FileReport, type NormalizedCheck } from "./types.ts";
 
 export async function main(): Promise<void> {
   const reports: FileReport[] = [];
@@ -17,6 +17,11 @@ export async function main(): Promise<void> {
     const event = readEvent();
     const workspace = process.env.GITHUB_WORKSPACE ?? process.cwd();
     const workingDirectory = resolve(workspace, inputs.workingDirectory);
+    if (inputs.changedOnly && !event.pull_request) {
+      warning(
+        "changed-only is enabled without pull request context; checking every matching schema file",
+      );
+    }
     const selection = selectFiles({
       workspace,
       workingDirectory: inputs.workingDirectory,
@@ -29,7 +34,13 @@ export async function main(): Promise<void> {
     const temporaryDirectory = mkdtempSync(join(tmpdir(), "llm-abi-action-"));
     try {
       for (const file of selection.files) {
-        const current = runCheck(cliPath, resolve(workspace, file.path), workingDirectory);
+        const schemaPath = resolve(workspace, file.path);
+        if (!isInsideWorkspace(workspace, schemaPath)) {
+          throw new OperationalError(
+            `Refusing to check a file outside GITHUB_WORKSPACE: ${file.path}`,
+          );
+        }
+        const current = runCheck(cliPath, schemaPath, workingDirectory);
         const baseSource = readBaseSchema(file, selection.baseRef, workspace);
         let base: NormalizedCheck | undefined;
         if (baseSource !== undefined) {

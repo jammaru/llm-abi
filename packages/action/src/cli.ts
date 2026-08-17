@@ -10,13 +10,24 @@ const COMPATIBILITIES = new Set<Compatibility>([
 ]);
 
 export function runCheck(cliPath: string, schemaPath: string, cwd: string): NormalizedCheck {
-  const result = spawnSync(process.execPath, [cliPath, "check", schemaPath, "--ci", "--json"], {
-    cwd,
-    encoding: "utf8",
-    maxBuffer: 10 * 1024 * 1024,
-  });
+  const result = spawnSync(
+    process.execPath,
+    [cliPath, "check", "--ci", "--json", "--", schemaPath],
+    {
+      cwd,
+      encoding: "utf8",
+      maxBuffer: 10 * 1024 * 1024,
+      timeout: 30_000,
+      windowsHide: true,
+    },
+  );
   if (result.error) {
     throw new OperationalError(`Unable to start llm-abi: ${result.error.message}`);
+  }
+  if (result.signal) {
+    throw new OperationalError(
+      `llm-abi was terminated by signal ${result.signal} for ${schemaPath}`,
+    );
   }
   let parsed: unknown;
   try {
@@ -57,7 +68,7 @@ function normalizeCheck(value: unknown, schemaPath: string): NormalizedCheck {
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null;
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 function isCompatibility(value: unknown): value is Compatibility {
