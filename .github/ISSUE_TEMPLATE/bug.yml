@@ -1,0 +1,45 @@
+name: Bug report
+description: Something compiled incorrectly or crashed
+labels: ["bug"]
+body:
+  - type: dropdown
+    id: target
+    attributes:
+      label: Target
+      options:
+        - openai/responses/structured
+        - anthropic/messages/structured
+        - google/gemini/structured
+        - other
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: sabijs version
+    validations:
+      required: true
+  - type: textarea
+    id: schema
+    attributes:
+      label: Input schema
+      render: json
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual
+    validations:
+      required: true
+  - type: textarea
+    id: doctor
+    attributes:
+      label: sabijs doctor --json
+      render: json

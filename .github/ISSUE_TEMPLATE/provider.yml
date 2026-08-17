@@ -1,0 +1,34 @@
+name: Provider report
+description: A target profile does not match provider behavior
+labels: ["provider"]
+body:
+  - type: input
+    id: provider
+    attributes:
+      label: Provider / API / mode
+      placeholder: anthropic / messages / structured
+    validations:
+      required: true
+  - type: dropdown
+    id: evidence
+    attributes:
+      label: Evidence
+      options:
+        - documented
+        - sdk-observed
+        - empirical
+    validations:
+      required: true
+  - type: textarea
+    id: schema
+    attributes:
+      label: Input schema
+      render: json
+    validations:
+      required: true
+  - type: textarea
+    id: provider-error
+    attributes:
+      label: Provider error or observed output
+    validations:
+      required: true

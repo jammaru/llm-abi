@@ -1,0 +1,19 @@
+name: Feature request
+description: Propose a target, diagnostic, or CLI improvement
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: Sabi is a compiler under existing SDKs. Please do not propose an agent framework or a provider SDK wrapper as the core product.

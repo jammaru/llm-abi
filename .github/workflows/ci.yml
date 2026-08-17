@@ -1,0 +1,58 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [22, 24]
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm fmt:check
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm build
+      - run: pnpm pack:check
+      - run: pnpm size
+      - run: pnpm test:coverage
+        if: matrix.node == 24
+      - run: node scripts/consumer-pack.mjs
+        if: matrix.node == 24
+
+  examples:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter sabijs build
+      - run: pnpm exec tsc --noEmit -p examples/openai/tsconfig.json
+      - run: pnpm exec tsc --noEmit -p examples/anthropic/tsconfig.json
+      - run: pnpm exec tsc --noEmit -p examples/gemini/tsconfig.json
+      - run: pnpm exec tsc --noEmit -p examples/standard-schema/tsconfig.json
+      - run: pnpm --filter "@sabi/example-*" start

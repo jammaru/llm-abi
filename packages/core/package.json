@@ -1,0 +1,63 @@
+{
+  "name": "sabijs",
+  "version": "0.1.0",
+  "description": "One schema. Every model. Compile TypeScript and JSON Schema into provider-safe schemas for OpenAI, Claude, Gemini, and more.",
+  "keywords": [
+    "anthropic",
+    "compiler",
+    "gemini",
+    "json-schema",
+    "llm",
+    "openai",
+    "standard-schema",
+    "structured-outputs",
+    "tool-calling",
+    "typescript"
+  ],
+  "homepage": "https://github.com/jammaru/sabi#readme",
+  "bugs": {
+    "url": "https://github.com/jammaru/sabi/issues"
+  },
+  "license": "MIT",
+  "author": "jammaru",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jammaru/sabi.git",
+    "directory": "packages/core"
+  },
+  "bin": {
+    "sabijs": "./dist/cli.mjs"
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "prepack": "node ../../scripts/copy-license.mjs",
+    "pack:check": "publint && attw --pack . --profile node16",
+    "size": "node ../../scripts/size.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "type": "object",
+  "properties": {
+    "event": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "click"
+            },
+            "x": {
+              "type": "number"
+            }
+          },
+          "required": ["type", "x"]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "key"
+            },
+            "code": {
+              "type": "string"
+            }
+          },
+          "required": ["type", "code"]
+        }
+      ]
+    }
+  },
+  "required": ["event"]
+}
