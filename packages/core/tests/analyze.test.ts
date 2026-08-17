@@ -40,6 +40,7 @@ describe("targets", () => {
     expect(resolveTarget("google").id).toBe("google/gemini/structured");
     expect(resolveTarget("deepseek").id).toBe("deepseek/chat/strict-tools");
     expect(resolveTarget("grok").id).toBe("xai/grok/structured");
+    expect(resolveTarget("qwen").id).toBe("alibaba/qwen/tools");
   });
 
   it("lists registered targets", () => {
@@ -47,7 +48,8 @@ describe("targets", () => {
     expect(ids).toContain("openai/responses/structured");
     expect(ids).toContain("deepseek/chat/strict-tools");
     expect(ids).toContain("xai/grok/structured");
-    expect(ids.length).toBeGreaterThanOrEqual(5);
+    expect(ids).toContain("alibaba/qwen/tools");
+    expect(ids.length).toBeGreaterThanOrEqual(6);
   });
 
   it("throws on unknown targets", () => {

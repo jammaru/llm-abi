@@ -154,8 +154,9 @@ Zod, Valibot, ArkType, and other Standard Schema libraries work when they expose
 | `gemini`    | `google/gemini/structured`      | Verified |
 | `deepseek`  | `deepseek/chat/strict-tools`    | Verified |
 | `xai`       | `xai/grok/structured`           | Verified |
+| `qwen`      | `alibaba/qwen/tools`            | Verified |
 
-Qwen, Mistral, Cohere, OpenRouter, Groq, Together, and MCP are planned. New providers are data: add a target profile, fixtures, and expected diagnostics.
+Mistral, Cohere, OpenRouter, Groq, Together, and MCP are planned. New providers are data: add a target profile, fixtures, and expected diagnostics.
 
 ## CLI
 
