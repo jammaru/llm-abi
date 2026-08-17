@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Compile a TypeScript type or JSON Schema against OpenAI, Anthropic, and Gemini. See diagnostics, loss, and conservative size — not a compatibility percentage."
+    />
+    <title>llm-abi playground</title>
+  </head>
+  <body>
+    <a class="skip" href="#results">Skip to results</a>
+    <header class="site-header">
+      <div class="brand">
+        <strong>llm-abi</strong>
+        <p class="tagline">
+          One schema. Every model. The schema ABI between TypeScript and LLM providers.
+        </p>
+      </div>
+      <nav class="nav" aria-label="Project">
+        <a href="https://github.com/jammaru/llm-abi">GitHub</a>
+        <a href="https://www.npmjs.com/package/llm-abi">npm</a>
+      </nav>
+    </header>
+    <main class="layout">
+      <section class="panel" aria-labelledby="input-heading">
+        <h2 id="input-heading">Input</h2>
+        <div class="row">
+          <label>
+            Example
+            <select id="example"></select>
+          </label>
+        </div>
+        <fieldset class="checks">
+          <legend class="legend">Kind</legend>
+          <label>
+            <input id="kind-ts" name="kind" type="radio" value="typescript" checked />
+            <span>TypeScript subset</span>
+          </label>
+          <label>
+            <input id="kind-json" name="kind" type="radio" value="json" />
+            <span>JSON Schema</span>
+          </label>
+        </fieldset>
+        <label>
+          Source
+          <textarea
+            id="source"
+            spellcheck="false"
+            autocapitalize="off"
+            autocomplete="off"
+          ></textarea>
+        </label>
+        <label>
+          Type name (TypeScript)
+          <input id="type-name" type="text" spellcheck="false" />
+        </label>
+        <div class="checks">
+          <label>
+            <input id="optimize" type="checkbox" />
+            <span>Optimize redundant titles</span>
+          </label>
+        </div>
+        <label>
+          Constraint fallback
+          <select id="fallback">
+            <option value="description">description</option>
+            <option value="strip">strip</option>
+          </select>
+        </label>
+        <p class="privacy">
+          Compilation runs in this browser with profiles shipped in llm-abi. The schema is not
+          uploaded. Tokens are ceil(UTF-8 bytes / 3), a conservative overhead hint, not billing and
+          not a score.
+        </p>
+      </section>
+      <section class="panel" id="results" aria-labelledby="results-heading">
+        <h2 id="results-heading">Results</h2>
+        <p id="error" class="error" hidden></p>
+        <p>
+          Input fingerprint
+          <span id="fingerprint" class="fingerprint"></span>
+        </p>
+        <div id="analysis"></div>
+        <h2>Per target</h2>
+        <div id="targets" class="targets"></div>
+        <h2>Diagnostic matrix</h2>
+        <div id="matrix"></div>
+        <h2>Emitted JSON diff</h2>
+        <div class="compare-controls">
+          <label>
+            Left
+            <select id="compare-left"></select>
+          </label>
+          <label>
+            Right
+            <select id="compare-right"></select>
+          </label>
+        </div>
+        <div id="diff"></div>
+        <h2>Validate original schema</h2>
+        <label>
+          JSON instance
+          <textarea id="instance" spellcheck="false"></textarea>
+        </label>
+        <p>
+          <button id="validate" type="button">Validate</button>
+        </p>
+        <div id="validate-out"></div>
+        <h2>Share</h2>
+        <p>
+          <button id="share" class="secondary" type="button">Copy share URL</button>
+        </p>
+        <p id="share-status" class="muted" aria-live="polite"></p>
+      </section>
+    </main>
+    <footer class="site-footer">
+      <p>
+        Compatibility is <code>lossless</code>, <code>runtime-safe</code>, <code>lossy</code>, or
+        <code>unsupported</code>. llm-abi does not invent percentages.
+        <a href="https://github.com/jammaru/llm-abi">Documentation</a>
+      </p>
+    </footer>
+    <script type="module" src="./src/main.ts"></script>
+  </body>
+</html>

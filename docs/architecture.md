@@ -33,3 +33,7 @@ The lowering pass reads the profile. Adding DeepSeek should not require a new co
 ## Safety
 
 Untrusted schemas are bounded by max depth, max nodes, and max `$ref` count. Dictionaries keyed by property names use `Map` or null-prototype objects.
+
+## Playground
+
+`packages/playground` is a static Vite app. It imports the public `llm-abi` API, compiles in the browser, and never fetches provider profiles. Compatibility is shown as discrete levels, never a percentage.

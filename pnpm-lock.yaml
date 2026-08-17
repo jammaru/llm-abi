@@ -104,6 +104,16 @@ importers:
 
   packages/core: {}
 
+  packages/playground:
+    dependencies:
+      llm-abi:
+        specifier: workspace:*
+        version: link:../core
+    devDependencies:
+      vite:
+        specifier: ^8.2.1
+        version: 8.2.1(@types/node@24.13.3)(yaml@2.9.0)
+
 packages:
 
   '@andrewbranch/untar.js@1.0.4':
