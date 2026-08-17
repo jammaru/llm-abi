@@ -173,7 +173,12 @@ function emitObject(
   setRecord(object, "properties", properties);
   setRecord(object, "required", [...node.required]);
   if (typeof node.additionalProperties === "boolean") {
-    setRecord(object, "additionalProperties", node.additionalProperties);
+    const omitFalse =
+      node.additionalProperties === false &&
+      profile.objectPolicy.additionalProperties === "omit-false";
+    if (!omitFalse) {
+      setRecord(object, "additionalProperties", node.additionalProperties);
+    }
   } else {
     setRecord(
       object,

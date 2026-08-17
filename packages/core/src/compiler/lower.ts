@@ -265,9 +265,28 @@ function lowerObject(node: Extract<SchemaNode, { kind: "object" }>, ctx: LowerCo
   } else if (
     node.additionalProperties === true &&
     ctx.profile.capabilities.additionalPropertiesTrue !== "supported" &&
-    ctx.profile.objectPolicy.additionalProperties !== "preserve"
+    ctx.profile.objectPolicy.additionalProperties !== "preserve" &&
+    ctx.profile.objectPolicy.additionalProperties !== "omit-false"
   ) {
     node.additionalProperties = false;
+  }
+
+  if (
+    node.additionalProperties === false &&
+    ctx.profile.objectPolicy.additionalProperties === "omit-false"
+  ) {
+    push(
+      ctx,
+      {
+        code: "additional-properties-omitted",
+        severity: "info",
+        path: node.path,
+        keyword: "additionalProperties",
+        message: `${ctx.profile.id} defaults additionalProperties to false and rejects boolean schema false.`,
+        action: "Omitted additionalProperties: false from the provider schema.",
+      },
+      "lossless",
+    );
   }
 
   if (ctx.profile.objectPolicy.requireAllProperties) {
@@ -379,6 +398,25 @@ function lowerTuple(node: Extract<SchemaNode, { kind: "tuple" }>, ctx: LowerCont
   if (typeof node.rest === "object") {
     node.rest = lowerNode(node.rest, ctx, false);
   }
+  if (node.rest === false && ctx.profile.objectPolicy.additionalProperties === "omit-false") {
+    const closedLength = node.prefixItems.length;
+    if (node.maxItems === undefined || node.maxItems > closedLength) {
+      node.maxItems = closedLength;
+    }
+    node.rest = undefined;
+    push(
+      ctx,
+      {
+        code: "boolean-schema-rewritten",
+        severity: "warning",
+        path: node.path,
+        keyword: "items",
+        message: `${ctx.profile.id} rejects boolean JSON Schema values such as items: false.`,
+        action: `Rewrote tuple rest to maxItems: ${String(closedLength)}.`,
+      },
+      "lossless",
+    );
+  }
   return node;
 }
 
@@ -447,6 +485,30 @@ function lowerIntersection(
   ctx: LowerContext,
 ): SchemaNode {
   node.parts = node.parts.map((part) => lowerNode(part, ctx, false));
+  const support = ctx.profile.capabilities.allOf;
+  if (support === "supported") {
+    return node;
+  }
+  if (support === "runtime-only") {
+    push(
+      ctx,
+      {
+        code: "runtime-only-constraint",
+        severity: "warning",
+        path: node.path,
+        keyword: "allOf",
+        message: `${ctx.profile.id} accepts multi-schema allOf as best-effort only.`,
+        action: "allOf was kept; conformance is not guaranteed by the provider.",
+      },
+      "runtime-safe",
+      {
+        path: node.path,
+        keyword: "allOf",
+        fallback: "runtime-validation",
+      },
+    );
+    return node;
+  }
   push(
     ctx,
     {
@@ -558,6 +620,24 @@ function applyMinItems(node: Extract<SchemaNode, { kind: "array" }>, ctx: LowerC
   });
 }
 
+function enforcedCeiling(profile: TargetProfile, keyword: string): number | undefined {
+  const enforced = profile.limits.enforced;
+  if (!enforced) {
+    return undefined;
+  }
+  if (
+    keyword === "minLength" ||
+    keyword === "maxLength" ||
+    keyword === "minItems" ||
+    keyword === "maxItems" ||
+    keyword === "minProperties" ||
+    keyword === "maxProperties"
+  ) {
+    return enforced[keyword];
+  }
+  return undefined;
+}
+
 function applyConstraint(
   ctx: LowerContext,
   node: SchemaNode,
@@ -569,7 +649,34 @@ function applyConstraint(
     return;
   }
   const support = ctx.profile.capabilities[keyword];
-  if (support === "supported") {
+  const ceiling = enforcedCeiling(ctx.profile, keyword);
+  const overCeiling = ceiling !== undefined && typeof value === "number" && value > ceiling;
+  if (support === "supported" && !overCeiling) {
+    return;
+  }
+  if (support === "supported" && overCeiling) {
+    push(
+      ctx,
+      {
+        code: "runtime-only-constraint",
+        severity: "warning",
+        path: node.path,
+        keyword,
+        message: `${ctx.profile.id} only guarantees \`${keyword}\` up to ${String(ceiling)}.`,
+        action: "Constraint moved to runtime validation.",
+      },
+      "runtime-safe",
+      {
+        path: node.path,
+        keyword,
+        value,
+        fallback: "runtime-validation",
+      },
+    );
+    if (ctx.options.constraintFallback === "description") {
+      appendConstraint(ctx, node, constraintText(keyword, value));
+    }
+    strip();
     return;
   }
   const text = constraintText(keyword, value);

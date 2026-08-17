@@ -30,7 +30,7 @@ export const vendor = defineTarget({
   formats: new Set(["date-time"]),
   limits: {},
   objectPolicy: {
-    additionalProperties: false,
+    additionalProperties: false, // or "preserve" / "omit-false"
     requireAllProperties: false,
     optionalAsNullable: false,
   },

@@ -17,19 +17,19 @@ Copy [`packages/core/src/targets/openai.ts`](../../packages/core/src/targets/ope
 
 ## Profile fields
 
-| Field              | Role                                                                  |
-| ------------------ | --------------------------------------------------------------------- |
-| `id`               | Canonical id, `vendor/api/mode`                                       |
-| `aliases`          | What `compile(schema, "vendor")` accepts                              |
-| `revision`         | Doc or observation date shipped with the package                      |
-| `dialect`          | Emitted JSON Schema dialect                                           |
-| `capabilities`     | Per-keyword `supported` \| `runtime-only` \| `lossy` \| `unsupported` |
-| `formats`          | Allowed `format` values, or `"any"`                                   |
-| `objectPolicy`     | `additionalProperties`, required-all, optional-as-nullable            |
-| `rootMustBeObject` | Structured-output APIs that reject a non-object root                  |
-| `rootAnyOf`        | Whether a union root is representable                                 |
-| `limits`           | Depth, property, enum, and string budgets                             |
-| `defsKeyword`      | Emitted reusable-def keyword (`$defs` default, `$def` for DeepSeek)   |
+| Field              | Role                                                                                                      |
+| ------------------ | --------------------------------------------------------------------------------------------------------- |
+| `id`               | Canonical id, `vendor/api/mode`                                                                           |
+| `aliases`          | What `compile(schema, "vendor")` accepts                                                                  |
+| `revision`         | Doc or observation date shipped with the package                                                          |
+| `dialect`          | Emitted JSON Schema dialect                                                                               |
+| `capabilities`     | Per-keyword `supported` \| `runtime-only` \| `lossy` \| `unsupported`                                     |
+| `formats`          | Allowed `format` values, or `"any"`                                                                       |
+| `objectPolicy`     | `additionalProperties` (`false` / `true` / `preserve` / `omit-false`), required-all, optional-as-nullable |
+| `rootMustBeObject` | Structured-output APIs that reject a non-object root                                                      |
+| `rootAnyOf`        | Whether a union root is representable                                                                     |
+| `limits`           | Depth, property, enum, string budgets, and documented constraint ceilings                                 |
+| `defsKeyword`      | Emitted reusable-def keyword (`$defs` default, `$def` for DeepSeek)                                       |
 
 Capability values:
 
@@ -50,7 +50,7 @@ Profiles record **how we know** a capability, not just the capability.
 | `sdk-observed` | Visible in an official SDK transformer |
 | `empirical`    | Observed against a live API            |
 
-v0.1 OpenAI, Anthropic, and Gemini profiles are `documented` against public structured-output references dated 2026-08. The DeepSeek strict-tools profile is `documented` against the official Tool Calls guide (Beta `strict: true`, `$def`, required-all objects, no `minLength` / `minItems`).
+v0.1 OpenAI, Anthropic, and Gemini profiles are `documented` against public structured-output references dated 2026-08. The DeepSeek strict-tools profile is `documented` against the official Tool Calls guide (Beta `strict: true`, `$def`, required-all objects, no `minLength` / `minItems`). The xAI Grok structured profile is `documented` against official structured-output docs (non-circular `$ref`, `omit-false` additionalProperties, optional fields, constraint ceilings).
 
 When a doc and a live API disagree, prefer the live API, mark `empirical`, and keep a fixture.
 
@@ -71,4 +71,4 @@ Do not invent a compatibility percentage.
 - Fetching docs or config at runtime
 - Playground or gateway product work
 
-Planned extra vendors (xAI, Qwen, Mistral, OpenRouter, MCP, and later Cohere / Groq / Together) belong in their own issues. This file is only the profile recipe.
+Planned extra vendors (Qwen, Mistral, OpenRouter, MCP, and later Cohere / Groq / Together) belong in their own issues. This file is only the profile recipe.

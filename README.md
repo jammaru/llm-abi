@@ -145,7 +145,7 @@ compile(
 
 Zod, Valibot, ArkType, and other Standard Schema libraries work when they expose JSON Schema conversion. Validation-only Standard Schema objects are rejected with a clear error. llm-abi does not depend on Zod.
 
-### Targets (v0.1)
+### Targets
 
 | Alias       | Profile                         | Status   |
 | ----------- | ------------------------------- | -------- |
@@ -153,8 +153,9 @@ Zod, Valibot, ArkType, and other Standard Schema libraries work when they expose
 | `anthropic` | `anthropic/messages/structured` | Verified |
 | `gemini`    | `google/gemini/structured`      | Verified |
 | `deepseek`  | `deepseek/chat/strict-tools`    | Verified |
+| `xai`       | `xai/grok/structured`           | Verified |
 
-xAI, Qwen, Mistral, Cohere, OpenRouter, Groq, Together, and MCP are planned. New providers are data: add a target profile, fixtures, and expected diagnostics.
+Qwen, Mistral, Cohere, OpenRouter, Groq, Together, and MCP are planned. New providers are data: add a target profile, fixtures, and expected diagnostics.
 
 ## CLI
 

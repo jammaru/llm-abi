@@ -105,6 +105,7 @@ Targets:
   anthropic         anthropic/messages/structured
   gemini            google/gemini/structured
   deepseek          deepseek/chat/strict-tools
+  xai               xai/grok/structured
 
 Options:
   --target, -t      Target profile id or alias
