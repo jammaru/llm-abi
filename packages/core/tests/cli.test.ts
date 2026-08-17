@@ -123,6 +123,24 @@ describe("cli", () => {
     }
   });
 
+  it("reads a .ts file as TypeScript type syntax", () => {
+    const directory = mkdtempSync(join(tmpdir(), "llm-abi-"));
+    const file = join(directory, "user.ts");
+    writeFileSync(file, "export type User = { name: string; age: number };\n", "utf8");
+    const chunks: string[] = [];
+    const original = process.stdout.write.bind(process.stdout);
+    process.stdout.write = ((chunk: string | Uint8Array) => {
+      chunks.push(String(chunk));
+      return true;
+    }) as typeof process.stdout.write;
+    try {
+      expect(run(["node", "llm-abi", "check", file, "--type", "User"])).toBe(0);
+    } finally {
+      process.stdout.write = original;
+    }
+    expect(chunks.join("")).toContain("PASS");
+  });
+
   it("accepts a schema path after --", () => {
     expect(parseArgs(["node", "llm-abi", "check", "--ci", "--json", "--", "-weird.json"])).toEqual({
       command: "check",
@@ -132,6 +150,7 @@ describe("cli", () => {
       ci: true,
       strict: false,
       optimize: false,
+      typeName: undefined,
       help: false,
       version: false,
     });

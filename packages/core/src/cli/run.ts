@@ -4,7 +4,7 @@ import { analyze } from "../analyze.ts";
 import { check } from "../check.ts";
 import { compile } from "../compile.ts";
 import { listTargets } from "../targets/registry.ts";
-import type { JsonSchema } from "../types.ts";
+import type { JsonSchema, SchemaInput } from "../types.ts";
 import { parseArgs } from "./args.ts";
 import { HELP, renderAnalyze, renderCheck, renderCompile, renderExplain } from "./render.ts";
 
@@ -48,7 +48,7 @@ function runInner(argv: readonly string[]): number {
 
   const schema = readSchema(args.file);
   if (args.command === "analyze") {
-    const result = analyze(schema);
+    const result = analyze(schema, { typeName: args.typeName });
     if (args.json) {
       process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
     } else {
@@ -57,7 +57,7 @@ function runInner(argv: readonly string[]): number {
     return 0;
   }
   if (args.command === "check") {
-    const result = check(schema, { optimize: args.optimize });
+    const result = check(schema, { optimize: args.optimize, typeName: args.typeName });
     if (args.json) {
       process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
     } else {
@@ -74,6 +74,7 @@ function runInner(argv: readonly string[]): number {
     target,
     strict: args.strict,
     optimize: args.optimize,
+    typeName: args.typeName,
   });
   if (args.command === "compile") {
     if (args.json) {
@@ -95,9 +96,12 @@ function runInner(argv: readonly string[]): number {
   return 1;
 }
 
-function readSchema(file: string): JsonSchema {
+function readSchema(file: string): SchemaInput {
   const path = resolve(file);
   const raw = readFileSync(path, "utf8");
+  if (/\.(?:d\.)?[cm]?ts$/i.test(path)) {
+    return raw;
+  }
   return JSON.parse(raw) as JsonSchema;
 }
 

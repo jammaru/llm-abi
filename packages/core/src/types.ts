@@ -81,7 +81,7 @@ export interface ValidationResult {
   readonly issues: readonly ValidationIssue[];
 }
 
-export type SchemaInput = JsonSchema | StandardSchemaLike | Record<string, unknown>;
+export type SchemaInput = JsonSchema | StandardSchemaLike | Record<string, unknown> | string;
 
 export interface StandardSchemaLike {
   readonly "~standard": {
@@ -99,6 +99,7 @@ export interface CompileOptions {
   readonly strict?: boolean;
   readonly optimize?: boolean;
   readonly constraintFallback?: "description" | "strip";
+  readonly typeName?: string;
 }
 
 export interface SchemaSize {
@@ -127,6 +128,7 @@ export interface CheckRow {
 export interface CheckOptions {
   readonly targets?: readonly TargetId[];
   readonly optimize?: boolean;
+  readonly typeName?: string;
 }
 
 export interface CheckResult {
@@ -149,4 +151,8 @@ export interface Analysis {
   readonly fingerprint: string;
   readonly stats: AnalysisStats;
   readonly notes: readonly Diagnostic[];
+}
+
+export interface AnalyzeOptions {
+  readonly typeName?: string;
 }

@@ -94,10 +94,10 @@ export function formatDiagnostic(diagnostic: Diagnostic): string {
 export const HELP: string = `llm-abi — schema compatibility compiler for LLM providers
 
 Usage:
-  llm-abi check <schema.json> [--ci]
-  llm-abi compile <schema.json> --target <id>
-  llm-abi explain <schema.json> --target <id>
-  llm-abi analyze <schema.json>
+  llm-abi check <schema.json|.ts> [--ci]
+  llm-abi compile <schema.json|.ts> --target <id>
+  llm-abi explain <schema.json|.ts> --target <id>
+  llm-abi analyze <schema.json|.ts>
   llm-abi doctor
 
 Targets:
@@ -109,6 +109,7 @@ Options:
   --target, -t      Target profile id or alias
   --strict          Fail when the schema is unsupported
   --optimize        Drop redundant titles and duplicate descriptions
+  --type            Type or interface name for TypeScript input
   --json            Machine-readable output
   --ci              Exit 1 when any target is unsupported
   --help, -h

@@ -3,7 +3,7 @@
 llm-abi is a compiler, not a converter.
 
 ```text
-JSON Schema / Standard JSON Schema
+JSON Schema / Standard JSON Schema / TypeScript type subset
               ↓
         Normalized IR
               ↓
