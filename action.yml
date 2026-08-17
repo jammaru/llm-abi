@@ -1,0 +1,51 @@
+name: llm-abi check
+description: Check JSON Schema compatibility across LLM providers
+author: jammaru
+
+inputs:
+  schema-files:
+    description: Newline-separated schema file paths or glob patterns
+    required: false
+    default: |
+      **/*.schema.json
+      **/schema.json
+  changed-only:
+    description: Check only schema files changed by the pull request
+    required: false
+    default: "true"
+  working-directory:
+    description: Directory used to resolve schema file patterns
+    required: false
+    default: "."
+  base-ref:
+    description: Base Git ref used for comparison; defaults to the pull request base SHA
+    required: false
+    default: ""
+  comment:
+    description: Create or update a pull request comment
+    required: false
+    default: "false"
+  github-token:
+    description: Token used only for pull request comments
+    required: false
+    default: ${{ github.token }}
+
+outputs:
+  conclusion:
+    description: passed, unsupported, skipped, or error
+  checked-files:
+    description: Number of schema files checked
+  unsupported-count:
+    description: Number of file-target combinations reported as unsupported
+  results-json:
+    description: Compact JSON containing fingerprints and compatibility results
+  comment-url:
+    description: URL of the created or updated pull request comment
+
+runs:
+  using: node24
+  main: packages/action/runner.mjs
+
+branding:
+  icon: check-circle
+  color: purple

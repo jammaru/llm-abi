@@ -63,4 +63,36 @@ describe("cli", () => {
       process.stdout.write = original;
     }
   });
+
+  it("passes --ci when constraints require runtime validation", () => {
+    const file = withSchema({
+      type: "object",
+      properties: { age: { type: "number", minimum: 0 } },
+      required: ["age"],
+    });
+    const original = process.stdout.write.bind(process.stdout);
+    process.stdout.write = (() => true) as typeof process.stdout.write;
+    try {
+      expect(run(["node", "llm-abi", "check", file, "--ci"])).toBe(0);
+    } finally {
+      process.stdout.write = original;
+    }
+  });
+
+  it("passes --ci when a target is lossy but supported", () => {
+    const file = withSchema({
+      type: "object",
+      minProperties: 1,
+      additionalProperties: {
+        type: "string",
+      },
+    });
+    const original = process.stdout.write.bind(process.stdout);
+    process.stdout.write = (() => true) as typeof process.stdout.write;
+    try {
+      expect(run(["node", "llm-abi", "check", file, "--ci"])).toBe(0);
+    } finally {
+      process.stdout.write = original;
+    }
+  });
 });

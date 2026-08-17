@@ -24,3 +24,27 @@ npx llm-abi doctor
 | `--ci`     | Exit 1 when any target is `unsupported`               |
 
 `llm-abi doctor --json` is intended for bug reports.
+
+## GitHub Action
+
+The repository root contains a reusable JavaScript Action that runs `llm-abi check --ci --json` for
+each selected schema. By default it checks pull request changes matching `**/*.schema.json` or
+`**/schema.json`.
+
+```yaml
+- uses: actions/checkout@v7
+  with:
+    fetch-depth: 0
+    persist-credentials: false
+- uses: jammaru/llm-abi@v1
+  with:
+    schema-files: "schemas/**/*.json"
+    comment: "true"
+```
+
+Set `pull-requests: write` on the job or workflow when `comment` is enabled. The comment is optional;
+the Action always writes the compatibility table to the job summary. Repeated runs update the same
+bot-authored comment.
+
+Action outputs are `conclusion`, `checked-files`, `unsupported-count`, `results-json`, and
+`comment-url`. Conclusions are `passed`, `unsupported`, `skipped`, or `error`.

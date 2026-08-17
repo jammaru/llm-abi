@@ -22,3 +22,31 @@ jobs:
           persist-credentials: false
       - uses: ./.github/actions/setup
       - run: pnpm check
+
+  action-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - id: supported
+        uses: ./
+        with:
+          schema-files: packages/conformance/fixtures/object-basic.json
+          changed-only: "false"
+      - id: unsupported
+        continue-on-error: true
+        uses: ./
+        with:
+          schema-files: packages/conformance/fixtures/any-of.json
+          changed-only: "false"
+      - name: Verify Action outcomes
+        env:
+          SUPPORTED_CONCLUSION: ${{ steps.supported.outputs.conclusion }}
+          UNSUPPORTED_CONCLUSION: ${{ steps.unsupported.outputs.conclusion }}
+          UNSUPPORTED_OUTCOME: ${{ steps.unsupported.outcome }}
+        run: |
+          test "$SUPPORTED_CONCLUSION" = passed
+          test "$UNSUPPORTED_CONCLUSION" = unsupported
+          test "$UNSUPPORTED_OUTCOME" = failure
