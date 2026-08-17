@@ -413,4 +413,33 @@ describe("lowering", () => {
     expect(email.type).toEqual(["string", "null"]);
     expect(result.compatibility).toBe("lossless");
   });
+
+  it("closes objects on Mistral without requiring optional fields", () => {
+    const result = compile(
+      {
+        type: "object",
+        properties: {
+          name: { type: "string", minLength: 1 },
+          nickname: { type: "string" },
+        },
+        required: ["name"],
+        additionalProperties: true,
+      },
+      "mistral",
+    );
+    const schema = result.schema as {
+      required: string[];
+      additionalProperties?: unknown;
+      properties: { name: { minLength?: number } };
+    };
+    expect(schema.additionalProperties).toBe(false);
+    expect(schema.required).toEqual(["name"]);
+    expect(schema.properties.name.minLength).toBe(1);
+    expect(result.diagnostics.some((item) => item.code === "additional-properties-forced")).toBe(
+      true,
+    );
+    expect(result.diagnostics.some((item) => item.code === "optional-to-nullable")).toBe(false);
+    expect(result.diagnostics.some((item) => item.code === "optional-to-required")).toBe(false);
+    expect(result.compatibility).toBe("lossless");
+  });
 });

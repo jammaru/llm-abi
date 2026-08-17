@@ -41,6 +41,7 @@ describe("targets", () => {
     expect(resolveTarget("deepseek").id).toBe("deepseek/chat/strict-tools");
     expect(resolveTarget("grok").id).toBe("xai/grok/structured");
     expect(resolveTarget("qwen").id).toBe("alibaba/qwen/tools");
+    expect(resolveTarget("mistral").id).toBe("mistral/chat/structured");
   });
 
   it("lists registered targets", () => {
@@ -49,7 +50,8 @@ describe("targets", () => {
     expect(ids).toContain("deepseek/chat/strict-tools");
     expect(ids).toContain("xai/grok/structured");
     expect(ids).toContain("alibaba/qwen/tools");
-    expect(ids.length).toBeGreaterThanOrEqual(6);
+    expect(ids).toContain("mistral/chat/structured");
+    expect(ids.length).toBeGreaterThanOrEqual(7);
   });
 
   it("throws on unknown targets", () => {

@@ -147,16 +147,17 @@ Zod, Valibot, ArkType, and other Standard Schema libraries work when they expose
 
 ### Targets
 
-| Alias       | Profile                         | Status   |
-| ----------- | ------------------------------- | -------- |
-| `openai`    | `openai/responses/structured`   | Verified |
-| `anthropic` | `anthropic/messages/structured` | Verified |
-| `gemini`    | `google/gemini/structured`      | Verified |
-| `deepseek`  | `deepseek/chat/strict-tools`    | Verified |
-| `xai`       | `xai/grok/structured`           | Verified |
-| `qwen`      | `alibaba/qwen/tools`            | Verified |
+| Alias       | Profile                         | Status       |
+| ----------- | ------------------------------- | ------------ |
+| `openai`    | `openai/responses/structured`   | Verified     |
+| `anthropic` | `anthropic/messages/structured` | Verified     |
+| `gemini`    | `google/gemini/structured`      | Verified     |
+| `deepseek`  | `deepseek/chat/strict-tools`    | Verified     |
+| `xai`       | `xai/grok/structured`           | Verified     |
+| `qwen`      | `alibaba/qwen/tools`            | Verified     |
+| `mistral`   | `mistral/chat/structured`       | Experimental |
 
-Mistral, Cohere, OpenRouter, Groq, Together, and MCP are planned. New providers are data: add a target profile, fixtures, and expected diagnostics.
+OpenRouter, Cohere, Groq, Together, and MCP are planned. New providers are data: add a target profile, fixtures, and expected diagnostics.
 
 ## CLI
 
