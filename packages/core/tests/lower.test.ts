@@ -337,4 +337,80 @@ describe("lowering", () => {
     expect(properties["host"]?.format).toBeUndefined();
     expect(result.compatibility).toBe("runtime-safe");
   });
+
+  it("preserves optional fields and additionalProperties true on Qwen", () => {
+    const result = compile(
+      {
+        type: "object",
+        properties: {
+          name: { type: "string" },
+          email: { type: "string" },
+        },
+        required: ["name"],
+        additionalProperties: true,
+      },
+      "qwen",
+    );
+    const schema = result.schema as { required: string[]; additionalProperties?: unknown };
+    expect(schema.required).toEqual(["name"]);
+    expect(schema.additionalProperties).toBe(true);
+    expect(result.compatibility).toBe("lossless");
+  });
+
+  it("keeps additionalProperties false on Qwen instead of omitting it", () => {
+    const result = compile(
+      {
+        type: "object",
+        properties: { name: { type: "string" } },
+        required: ["name"],
+        additionalProperties: false,
+      },
+      "qwen",
+    );
+    expect((result.schema as { additionalProperties?: unknown }).additionalProperties).toBe(false);
+    expect(result.compatibility).toBe("lossless");
+  });
+
+  it("marks Qwen anyOf as unsupported", () => {
+    const result = compile(
+      {
+        type: "object",
+        properties: {
+          value: { anyOf: [{ type: "string" }, { type: "number" }] },
+        },
+        required: ["value"],
+      },
+      "qwen",
+    );
+    expect(result.compatibility).toBe("unsupported");
+  });
+
+  it("strips undocumented Qwen formats", () => {
+    const result = compile(
+      {
+        type: "object",
+        properties: { email: { type: "string", format: "email" } },
+        required: ["email"],
+      },
+      "qwen",
+    );
+    const email = (result.schema as { properties: { email: { format?: string } } }).properties
+      .email;
+    expect(email.format).toBeUndefined();
+    expect(result.compatibility).toBe("runtime-safe");
+  });
+
+  it("keeps Qwen nullable type arrays", () => {
+    const result = compile(
+      {
+        type: "object",
+        properties: { email: { type: ["string", "null"] } },
+        required: ["email"],
+      },
+      "qwen",
+    );
+    const email = (result.schema as { properties: { email: { type?: unknown } } }).properties.email;
+    expect(email.type).toEqual(["string", "null"]);
+    expect(result.compatibility).toBe("lossless");
+  });
 });

@@ -106,6 +106,7 @@ Targets:
   gemini            google/gemini/structured
   deepseek          deepseek/chat/strict-tools
   xai               xai/grok/structured
+  qwen              alibaba/qwen/tools
 
 Options:
   --target, -t      Target profile id or alias

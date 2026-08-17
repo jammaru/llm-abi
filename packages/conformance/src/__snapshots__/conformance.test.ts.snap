@@ -3,6 +3,7 @@
 exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
 {
   "additional-properties-false.json": {
+    "alibaba/qwen/tools": "lossless",
     "anthropic/messages/structured": "lossless",
     "deepseek/chat/strict-tools": "lossless",
     "google/gemini/structured": "lossless",
@@ -10,6 +11,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "xai/grok/structured": "lossless",
   },
   "additional-properties-true.json": {
+    "alibaba/qwen/tools": "lossless",
     "anthropic/messages/structured": "lossless",
     "deepseek/chat/strict-tools": "lossless",
     "google/gemini/structured": "lossless",
@@ -17,6 +19,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "xai/grok/structured": "lossless",
   },
   "all-of.json": {
+    "alibaba/qwen/tools": "lossless",
     "anthropic/messages/structured": "lossless",
     "deepseek/chat/strict-tools": "lossless",
     "google/gemini/structured": "lossless",
@@ -24,6 +27,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "xai/grok/structured": "lossless",
   },
   "any-of.json": {
+    "alibaba/qwen/tools": "unsupported",
     "anthropic/messages/structured": "lossless",
     "deepseek/chat/strict-tools": "lossless",
     "google/gemini/structured": "unsupported",
@@ -31,6 +35,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "xai/grok/structured": "lossless",
   },
   "array.json": {
+    "alibaba/qwen/tools": "lossless",
     "anthropic/messages/structured": "lossless",
     "deepseek/chat/strict-tools": "lossless",
     "google/gemini/structured": "lossless",
@@ -38,6 +43,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "xai/grok/structured": "lossless",
   },
   "boolean.json": {
+    "alibaba/qwen/tools": "lossless",
     "anthropic/messages/structured": "lossless",
     "deepseek/chat/strict-tools": "lossless",
     "google/gemini/structured": "lossless",
@@ -45,6 +51,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "xai/grok/structured": "lossless",
   },
   "complex-pattern.json": {
+    "alibaba/qwen/tools": "runtime-safe",
     "anthropic/messages/structured": "runtime-safe",
     "deepseek/chat/strict-tools": "runtime-safe",
     "google/gemini/structured": "runtime-safe",
@@ -52,6 +59,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "xai/grok/structured": "runtime-safe",
   },
   "const.json": {
+    "alibaba/qwen/tools": "runtime-safe",
     "anthropic/messages/structured": "lossless",
     "deepseek/chat/strict-tools": "lossless",
     "google/gemini/structured": "runtime-safe",
@@ -59,6 +67,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "xai/grok/structured": "lossless",
   },
   "deep-object.json": {
+    "alibaba/qwen/tools": "runtime-safe",
     "anthropic/messages/structured": "runtime-safe",
     "deepseek/chat/strict-tools": "lossy",
     "google/gemini/structured": "lossless",
@@ -66,6 +75,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "xai/grok/structured": "lossless",
   },
   "defs-ref.json": {
+    "alibaba/qwen/tools": "lossless",
     "anthropic/messages/structured": "lossless",
     "deepseek/chat/strict-tools": "lossless",
     "google/gemini/structured": "lossless",
@@ -73,6 +83,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "xai/grok/structured": "lossless",
   },
   "discriminated-union.json": {
+    "alibaba/qwen/tools": "unsupported",
     "anthropic/messages/structured": "lossy",
     "deepseek/chat/strict-tools": "lossy",
     "google/gemini/structured": "unsupported",
@@ -80,6 +91,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "xai/grok/structured": "lossy",
   },
   "empty-object.json": {
+    "alibaba/qwen/tools": "lossless",
     "anthropic/messages/structured": "lossless",
     "deepseek/chat/strict-tools": "lossless",
     "google/gemini/structured": "lossless",
@@ -87,6 +99,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "xai/grok/structured": "lossless",
   },
   "enum.json": {
+    "alibaba/qwen/tools": "lossless",
     "anthropic/messages/structured": "lossless",
     "deepseek/chat/strict-tools": "lossless",
     "google/gemini/structured": "lossless",
@@ -94,6 +107,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "xai/grok/structured": "lossless",
   },
   "exclusive-min.json": {
+    "alibaba/qwen/tools": "runtime-safe",
     "anthropic/messages/structured": "runtime-safe",
     "deepseek/chat/strict-tools": "lossless",
     "google/gemini/structured": "runtime-safe",
@@ -101,6 +115,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "xai/grok/structured": "lossless",
   },
   "external-ref.json": {
+    "alibaba/qwen/tools": "unsupported",
     "anthropic/messages/structured": "unsupported",
     "deepseek/chat/strict-tools": "unsupported",
     "google/gemini/structured": "unsupported",
@@ -108,6 +123,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "xai/grok/structured": "unsupported",
   },
   "format.json": {
+    "alibaba/qwen/tools": "runtime-safe",
     "anthropic/messages/structured": "lossless",
     "deepseek/chat/strict-tools": "lossless",
     "google/gemini/structured": "runtime-safe",
@@ -115,6 +131,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "xai/grok/structured": "lossless",
   },
   "integer.json": {
+    "alibaba/qwen/tools": "runtime-safe",
     "anthropic/messages/structured": "runtime-safe",
     "deepseek/chat/strict-tools": "lossless",
     "google/gemini/structured": "lossless",
@@ -122,6 +139,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "xai/grok/structured": "lossless",
   },
   "max-items.json": {
+    "alibaba/qwen/tools": "runtime-safe",
     "anthropic/messages/structured": "runtime-safe",
     "deepseek/chat/strict-tools": "runtime-safe",
     "google/gemini/structured": "lossless",
@@ -129,6 +147,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "xai/grok/structured": "lossless",
   },
   "max-length.json": {
+    "alibaba/qwen/tools": "runtime-safe",
     "anthropic/messages/structured": "runtime-safe",
     "deepseek/chat/strict-tools": "runtime-safe",
     "google/gemini/structured": "runtime-safe",
@@ -136,6 +155,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "xai/grok/structured": "lossless",
   },
   "maximum.json": {
+    "alibaba/qwen/tools": "runtime-safe",
     "anthropic/messages/structured": "runtime-safe",
     "deepseek/chat/strict-tools": "lossless",
     "google/gemini/structured": "lossless",
@@ -143,6 +163,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "xai/grok/structured": "lossless",
   },
   "min-items.json": {
+    "alibaba/qwen/tools": "runtime-safe",
     "anthropic/messages/structured": "lossless",
     "deepseek/chat/strict-tools": "runtime-safe",
     "google/gemini/structured": "lossless",
@@ -150,6 +171,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "xai/grok/structured": "lossless",
   },
   "min-length.json": {
+    "alibaba/qwen/tools": "runtime-safe",
     "anthropic/messages/structured": "runtime-safe",
     "deepseek/chat/strict-tools": "runtime-safe",
     "google/gemini/structured": "runtime-safe",
@@ -157,6 +179,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "xai/grok/structured": "lossless",
   },
   "min-properties.json": {
+    "alibaba/qwen/tools": "lossy",
     "anthropic/messages/structured": "lossy",
     "deepseek/chat/strict-tools": "lossy",
     "google/gemini/structured": "runtime-safe",
@@ -164,6 +187,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "xai/grok/structured": "lossy",
   },
   "minimum.json": {
+    "alibaba/qwen/tools": "runtime-safe",
     "anthropic/messages/structured": "runtime-safe",
     "deepseek/chat/strict-tools": "lossless",
     "google/gemini/structured": "lossless",
@@ -171,6 +195,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "xai/grok/structured": "lossless",
   },
   "multiple-of.json": {
+    "alibaba/qwen/tools": "runtime-safe",
     "anthropic/messages/structured": "runtime-safe",
     "deepseek/chat/strict-tools": "lossless",
     "google/gemini/structured": "runtime-safe",
@@ -178,6 +203,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "xai/grok/structured": "lossless",
   },
   "not-keyword.json": {
+    "alibaba/qwen/tools": "lossy",
     "anthropic/messages/structured": "lossy",
     "deepseek/chat/strict-tools": "lossy",
     "google/gemini/structured": "lossy",
@@ -185,6 +211,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "xai/grok/structured": "lossy",
   },
   "nullable.json": {
+    "alibaba/qwen/tools": "lossless",
     "anthropic/messages/structured": "lossless",
     "deepseek/chat/strict-tools": "lossless",
     "google/gemini/structured": "lossless",
@@ -192,6 +219,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "xai/grok/structured": "lossless",
   },
   "object-basic.json": {
+    "alibaba/qwen/tools": "runtime-safe",
     "anthropic/messages/structured": "runtime-safe",
     "deepseek/chat/strict-tools": "lossless",
     "google/gemini/structured": "lossless",
@@ -199,6 +227,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "xai/grok/structured": "lossless",
   },
   "one-of.json": {
+    "alibaba/qwen/tools": "unsupported",
     "anthropic/messages/structured": "lossy",
     "deepseek/chat/strict-tools": "lossy",
     "google/gemini/structured": "unsupported",
@@ -206,6 +235,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "xai/grok/structured": "lossy",
   },
   "optional.json": {
+    "alibaba/qwen/tools": "runtime-safe",
     "anthropic/messages/structured": "runtime-safe",
     "deepseek/chat/strict-tools": "lossy",
     "google/gemini/structured": "runtime-safe",
@@ -213,6 +243,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "xai/grok/structured": "lossless",
   },
   "pattern.json": {
+    "alibaba/qwen/tools": "runtime-safe",
     "anthropic/messages/structured": "lossless",
     "deepseek/chat/strict-tools": "lossless",
     "google/gemini/structured": "runtime-safe",
@@ -220,6 +251,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "xai/grok/structured": "lossless",
   },
   "record.json": {
+    "alibaba/qwen/tools": "lossy",
     "anthropic/messages/structured": "lossy",
     "deepseek/chat/strict-tools": "lossy",
     "google/gemini/structured": "lossless",
@@ -227,6 +259,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "xai/grok/structured": "lossy",
   },
   "recursive-ref.json": {
+    "alibaba/qwen/tools": "unsupported",
     "anthropic/messages/structured": "unsupported",
     "deepseek/chat/strict-tools": "lossy",
     "google/gemini/structured": "lossless",
@@ -234,6 +267,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "xai/grok/structured": "unsupported",
   },
   "tuple.json": {
+    "alibaba/qwen/tools": "unsupported",
     "anthropic/messages/structured": "lossy",
     "deepseek/chat/strict-tools": "lossy",
     "google/gemini/structured": "lossless",
@@ -241,6 +275,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "xai/grok/structured": "lossless",
   },
   "type-array-nullable.json": {
+    "alibaba/qwen/tools": "lossless",
     "anthropic/messages/structured": "lossless",
     "deepseek/chat/strict-tools": "lossless",
     "google/gemini/structured": "lossless",
@@ -248,6 +283,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "xai/grok/structured": "lossless",
   },
   "union-root.json": {
+    "alibaba/qwen/tools": "unsupported",
     "anthropic/messages/structured": "lossless",
     "deepseek/chat/strict-tools": "unsupported",
     "google/gemini/structured": "unsupported",
@@ -255,6 +291,7 @@ exports[`conformance fixtures > keeps a stable compatibility matrix 1`] = `
     "xai/grok/structured": "unsupported",
   },
   "unique-items.json": {
+    "alibaba/qwen/tools": "runtime-safe",
     "anthropic/messages/structured": "runtime-safe",
     "deepseek/chat/strict-tools": "runtime-safe",
     "google/gemini/structured": "runtime-safe",
