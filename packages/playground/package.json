@@ -10,6 +10,8 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
+    "@fontsource/ibm-plex-mono": "^5.2.7",
+    "@fontsource/outfit": "^5.2.8",
     "llm-abi": "workspace:*"
   },
   "devDependencies": {

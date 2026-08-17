@@ -1,7 +1,18 @@
+import "@fontsource/outfit/latin-600.css";
+import "@fontsource/outfit/latin-700.css";
+import "@fontsource/ibm-plex-mono/latin-400.css";
+import "@fontsource/ibm-plex-mono/latin-500.css";
 import "./styles.css";
 import { runPlayground, validateInstance } from "./compile.ts";
 import { applyExample, decodeState, defaultState, encodeState, shareTooLong } from "./state.ts";
 import type { PlaygroundState } from "./state.ts";
+import {
+  nextResolvedTheme,
+  readStoredPreference,
+  resolvedTheme,
+  writeStoredPreference,
+  type ResolvedTheme,
+} from "./theme.ts";
 import {
   fillExampleSelect,
   readForm,
@@ -67,7 +78,48 @@ function syncHash(state: PlaygroundState): void {
   }
 }
 
+function prefersDark(): boolean {
+  return window.matchMedia("(prefers-color-scheme: dark)").matches;
+}
+
+function currentResolved(): ResolvedTheme {
+  return resolvedTheme(readStoredPreference(window.localStorage), prefersDark());
+}
+
+function paintTheme(resolved: ResolvedTheme): void {
+  document.documentElement.dataset.theme = resolved;
+  const themeColor = document.querySelector('meta[name="theme-color"]');
+  if (themeColor) {
+    themeColor.setAttribute("content", resolved === "dark" ? "#0f1115" : "#ffffff");
+  }
+  const toggle = document.querySelector("[data-theme-toggle]");
+  if (toggle) {
+    toggle.setAttribute("data-mode", resolved);
+  }
+  const button = document.getElementById("theme-toggle");
+  if (button instanceof HTMLButtonElement) {
+    const dark = resolved === "dark";
+    button.setAttribute("aria-pressed", dark ? "true" : "false");
+    button.setAttribute("aria-label", dark ? "Switch to light theme" : "Switch to dark theme");
+  }
+}
+
+function bindTheme(): void {
+  paintTheme(currentResolved());
+  requiredElement<HTMLButtonElement>("theme-toggle").addEventListener("click", () => {
+    const next = nextResolvedTheme(currentResolved());
+    writeStoredPreference(window.localStorage, next);
+    paintTheme(next);
+  });
+  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
+    if (readStoredPreference(window.localStorage) === "auto") {
+      paintTheme(currentResolved());
+    }
+  });
+}
+
 function main(): void {
+  bindTheme();
   const els = elements();
   fillExampleSelect(els.example);
   let state = decodeState(window.location.hash) ?? defaultState();
