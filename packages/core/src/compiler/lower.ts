@@ -85,6 +85,21 @@ export function lowerDocument(
     defs.set(key, lowerNode(value, ctx, false));
   }
   document.defs = defs;
+  if (profile.compatibilityCeiling) {
+    push(
+      ctx,
+      {
+        code: "gateway-enforcement-varies",
+        severity: "warning",
+        path: [],
+        keyword: "response_format",
+        message: `${profile.id} is a gateway: routed providers may translate or ignore this schema.`,
+        action:
+          "Validate the instance. A lossless compile here does not mean every routed model accepts the schema.",
+      },
+      profile.compatibilityCeiling,
+    );
+  }
   return {
     document,
     diagnostics: ctx.diagnostics,

@@ -42,6 +42,7 @@ describe("targets", () => {
     expect(resolveTarget("grok").id).toBe("xai/grok/structured");
     expect(resolveTarget("qwen").id).toBe("alibaba/qwen/tools");
     expect(resolveTarget("mistral").id).toBe("mistral/chat/structured");
+    expect(resolveTarget("openrouter").id).toBe("openrouter/structured");
   });
 
   it("lists registered targets", () => {
@@ -51,7 +52,8 @@ describe("targets", () => {
     expect(ids).toContain("xai/grok/structured");
     expect(ids).toContain("alibaba/qwen/tools");
     expect(ids).toContain("mistral/chat/structured");
-    expect(ids.length).toBeGreaterThanOrEqual(7);
+    expect(ids).toContain("openrouter/structured");
+    expect(ids.length).toBeGreaterThanOrEqual(8);
   });
 
   it("throws on unknown targets", () => {

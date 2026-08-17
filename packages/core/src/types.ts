@@ -37,7 +37,8 @@ export type DiagnosticCode =
   | "complex-pattern"
   | "unused-def-removed"
   | "redundant-annotation-removed"
-  | "string-budget-exceeded";
+  | "string-budget-exceeded"
+  | "gateway-enforcement-varies";
 
 export interface Diagnostic {
   readonly code: DiagnosticCode;

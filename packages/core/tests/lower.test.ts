@@ -442,4 +442,27 @@ describe("lowering", () => {
     expect(result.diagnostics.some((item) => item.code === "optional-to-required")).toBe(false);
     expect(result.compatibility).toBe("lossless");
   });
+
+  it("never claims lossless OpenRouter enforcement for a simple object schema", () => {
+    const result = compile(
+      {
+        type: "object",
+        properties: {
+          name: { type: "string" },
+          nickname: { type: "string" },
+        },
+        required: ["name"],
+        additionalProperties: true,
+      },
+      "openrouter",
+    );
+    const schema = result.schema as { required: string[]; additionalProperties?: unknown };
+    expect(schema.required).toEqual(["name"]);
+    expect(schema.additionalProperties).toBe(true);
+    expect(result.compatibility).toBe("runtime-safe");
+    expect(result.diagnostics.some((item) => item.code === "gateway-enforcement-varies")).toBe(
+      true,
+    );
+    expect(result.diagnostics.some((item) => item.code === "optional-to-required")).toBe(false);
+  });
 });
