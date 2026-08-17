@@ -1,15 +1,15 @@
-# sabijs
+# llm-abi
 
-Published compiler for [Sabi](https://github.com/jammaru/sabi).
+Published compiler for [llm-abi](https://github.com/jammaru/llm-abi).
 
 ```ts
-import { compile } from "sabijs";
+import { compile } from "llm-abi";
 
 const result = compile(schema, "anthropic");
 ```
 
 ```bash
-npx sabijs check schema.json
+npx llm-abi check schema.json
 ```
 
-Zero runtime dependencies. See the [repository README](https://github.com/jammaru/sabi) for targets, compatibility levels, and CLI docs.
+Zero runtime dependencies. See the [repository README](https://github.com/jammaru/llm-abi) for targets, compatibility levels, and CLI docs.

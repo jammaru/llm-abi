@@ -1,6 +1,6 @@
 # Architecture
 
-Sabi is a compiler, not a converter.
+llm-abi is a compiler, not a converter.
 
 ```text
 JSON Schema / Standard JSON Schema

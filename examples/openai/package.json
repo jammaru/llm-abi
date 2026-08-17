@@ -1,11 +1,11 @@
 {
-  "name": "@sabi/example-openai",
+  "name": "@llm-abi/example-openai",
   "private": true,
   "type": "module",
   "scripts": {
     "start": "node --experimental-strip-types ./main.ts"
   },
   "dependencies": {
-    "sabijs": "workspace:*"
+    "llm-abi": "workspace:*"
   }
 }

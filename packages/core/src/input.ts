@@ -1,4 +1,4 @@
-import { SabiError } from "./errors.ts";
+import { LlmAbiError } from "./errors.ts";
 import { parseJsonSchema } from "./ir/parse.ts";
 import type { SchemaDocument } from "./ir/types.ts";
 import { isStandardJSONSchema, isStandardSchema } from "./standard-schema.ts";
@@ -22,7 +22,7 @@ export function parseInput(schema: SchemaInput): ParsedInput {
     };
   }
   if (isStandardSchema(schema)) {
-    throw new SabiError(
+    throw new LlmAbiError(
       "This schema implements Standard Schema validation but not Standard JSON Schema. Pass a JSON Schema object, or use a library that implements StandardJSONSchemaV1 (for example Zod 4, Valibot, or ArkType).",
       "missing-json-schema",
     );

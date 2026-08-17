@@ -1,4 +1,4 @@
-import { compile } from "sabijs";
+import { compile } from "llm-abi";
 
 const schema = {
   "~standard": {

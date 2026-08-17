@@ -3,7 +3,7 @@
 Named exports only. There is no default export.
 
 ```ts
-import { compile, check, analyze, fingerprint, listTargets, resolveTarget } from "sabijs";
+import { compile, check, analyze, fingerprint, listTargets, resolveTarget } from "llm-abi";
 ```
 
 ## `compile(schema, target | options)`
@@ -45,4 +45,4 @@ Canonical SHA-256 of the input schema. Property order does not matter.
 
 ## `listTargets()` / `resolveTarget(id)`
 
-`resolveTarget("claude")` returns the Anthropic structured profile. Unknown ids throw `SabiError`.
+`resolveTarget("claude")` returns the Anthropic structured profile. Unknown ids throw `LlmAbiError`.

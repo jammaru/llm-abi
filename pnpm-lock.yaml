@@ -17,12 +17,6 @@ importers:
       '@changesets/cli':
         specifier: ^3.0.0
         version: 3.0.0
-      '@oxfmt/binding-win32-x64-msvc':
-        specifier: 0.63.0
-        version: 0.63.0
-      '@oxlint/binding-win32-x64-msvc':
-        specifier: 1.78.0
-        version: 1.78.0
       '@types/node':
         specifier: ^24.3.0
         version: 24.13.3
@@ -57,10 +51,16 @@ importers:
       '@oxfmt/binding-linux-x64-gnu':
         specifier: 0.63.0
         version: 0.63.0
+      '@oxfmt/binding-win32-x64-msvc':
+        specifier: 0.63.0
+        version: 0.63.0
       '@oxlint/binding-darwin-arm64':
         specifier: 1.78.0
         version: 1.78.0
       '@oxlint/binding-linux-x64-gnu':
+        specifier: 1.78.0
+        version: 1.78.0
+      '@oxlint/binding-win32-x64-msvc':
         specifier: 1.78.0
         version: 1.78.0
       '@rolldown/binding-darwin-arm64':
@@ -78,25 +78,25 @@ importers:
 
   examples/anthropic:
     dependencies:
-      sabijs:
+      llm-abi:
         specifier: workspace:*
         version: link:../../packages/core
 
   examples/gemini:
     dependencies:
-      sabijs:
+      llm-abi:
         specifier: workspace:*
         version: link:../../packages/core
 
   examples/openai:
     dependencies:
-      sabijs:
+      llm-abi:
         specifier: workspace:*
         version: link:../../packages/core
 
   examples/standard-schema:
     dependencies:
-      sabijs:
+      llm-abi:
         specifier: workspace:*
         version: link:../../packages/core
 
@@ -1734,7 +1734,8 @@ snapshots:
   '@oxfmt/binding-win32-ia32-msvc@0.63.0':
     optional: true
 
-  '@oxfmt/binding-win32-x64-msvc@0.63.0': {}
+  '@oxfmt/binding-win32-x64-msvc@0.63.0':
+    optional: true
 
   '@oxlint/binding-android-arm-eabi@1.78.0':
     optional: true
@@ -1790,7 +1791,8 @@ snapshots:
   '@oxlint/binding-win32-ia32-msvc@1.78.0':
     optional: true
 
-  '@oxlint/binding-win32-x64-msvc@1.78.0': {}
+  '@oxlint/binding-win32-x64-msvc@1.78.0':
+    optional: true
 
   '@pnpm/deps.graph-sequencer@1100.0.1': {}
 

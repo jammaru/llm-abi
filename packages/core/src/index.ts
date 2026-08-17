@@ -3,7 +3,7 @@ export { check } from "./check.ts";
 export { analyze } from "./analyze.ts";
 export { fingerprint } from "./fingerprint.ts";
 export { listTargets, resolveTarget } from "./targets/registry.ts";
-export { SabiError, SchemaCompatibilityError, SchemaLimitError } from "./errors.ts";
+export { LlmAbiError, SchemaCompatibilityError, SchemaLimitError } from "./errors.ts";
 export type {
   Analysis,
   AnalysisStats,

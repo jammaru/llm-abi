@@ -1,8 +1,9 @@
 {
-  "name": "sabijs",
+  "name": "llm-abi",
   "version": "0.1.0",
   "description": "One schema. Every model. Compile TypeScript and JSON Schema into provider-safe schemas for OpenAI, Claude, Gemini, and more.",
   "keywords": [
+    "abi",
     "anthropic",
     "compiler",
     "gemini",
@@ -14,19 +15,19 @@
     "tool-calling",
     "typescript"
   ],
-  "homepage": "https://github.com/jammaru/sabi#readme",
+  "homepage": "https://github.com/jammaru/llm-abi#readme",
   "bugs": {
-    "url": "https://github.com/jammaru/sabi/issues"
+    "url": "https://github.com/jammaru/llm-abi/issues"
   },
   "license": "MIT",
   "author": "jammaru",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jammaru/sabi.git",
+    "url": "git+https://github.com/jammaru/llm-abi.git",
     "directory": "packages/core"
   },
   "bin": {
-    "sabijs": "./dist/cli.mjs"
+    "llm-abi": "./dist/cli.mjs"
   },
   "files": [
     "dist",

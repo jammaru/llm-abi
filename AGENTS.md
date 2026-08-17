@@ -1,6 +1,6 @@
 # Agent guide
 
-Sabi is a **schema compatibility compiler** for LLM providers.
+llm-abi is a **schema compatibility compiler** for LLM providers.
 
 > Compile any TypeScript / JSON Schema to a provider-safe schema, and report what could not be represented.
 

@@ -9,7 +9,7 @@ const raw = readFileSync(file);
 const gzip = gzipSync(raw).length;
 const maxGzip = 16_384;
 
-process.stdout.write(`sabijs index.mjs  ${statSync(file).size} bytes  (${gzip} gzip)\n`);
+process.stdout.write(`llm-abi index.mjs  ${statSync(file).size} bytes  (${gzip} gzip)\n`);
 
 if (gzip > maxGzip) {
   process.stderr.write(`gzip size ${gzip} exceeds budget ${maxGzip}\n`);

@@ -1,5 +1,5 @@
 ---
-"sabijs": minor
+"llm-abi": minor
 ---
 
 Initial public compiler for OpenAI, Anthropic, and Gemini structured outputs.

@@ -1,6 +1,6 @@
 # Contributing
 
-Thank you for helping with Sabi.
+Thank you for helping with llm-abi.
 
 ## Setup
 

@@ -1,9 +1,9 @@
 ---
 name: add-target
-description: Add a Sabi LLM provider target profile with fixtures, tests, and evidence. Use when adding OpenAI, Anthropic, Gemini, DeepSeek, xAI, Qwen, or other compile targets.
+description: Add an llm-abi LLM provider target profile with fixtures, tests, and evidence. Use when adding OpenAI, Anthropic, Gemini, DeepSeek, xAI, Qwen, or other compile targets.
 ---
 
-# Add a Sabi target
+# Add an llm-abi target
 
 ## Steps
 

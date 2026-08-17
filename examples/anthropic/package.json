@@ -1,11 +1,11 @@
 {
-  "name": "@sabi/example-anthropic",
+  "name": "@llm-abi/example-anthropic",
   "private": true,
   "type": "module",
   "scripts": {
     "start": "node --experimental-strip-types ./main.ts"
   },
   "dependencies": {
-    "sabijs": "workspace:*"
+    "llm-abi": "workspace:*"
   }
 }

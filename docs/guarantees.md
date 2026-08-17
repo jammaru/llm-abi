@@ -1,6 +1,6 @@
 # Guarantees
 
-Sabi compiles one schema into a provider-safe schema and reports what could not be represented.
+llm-abi compiles one schema into a provider-safe schema and reports what could not be represented.
 
 ## What v0.1 guarantees
 

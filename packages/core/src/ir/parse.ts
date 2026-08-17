@@ -194,7 +194,7 @@ function parseNode(
       ctx.notes.push({
         path,
         keyword,
-        message: `JSON Schema keyword "${keyword}" is not represented in the Sabi IR.`,
+        message: `JSON Schema keyword "${keyword}" is not represented in the llm-abi IR.`,
       });
     }
   }

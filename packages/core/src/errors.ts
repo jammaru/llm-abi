@@ -1,14 +1,14 @@
-export class SabiError extends Error {
+export class LlmAbiError extends Error {
   readonly code: string;
 
-  constructor(message: string, code = "sabi-error") {
+  constructor(message: string, code = "llm-abi-error") {
     super(message);
-    this.name = "SabiError";
+    this.name = "LlmAbiError";
     this.code = code;
   }
 }
 
-export class SchemaCompatibilityError extends SabiError {
+export class SchemaCompatibilityError extends LlmAbiError {
   readonly targetId: string;
   readonly path: readonly string[];
 
@@ -25,7 +25,7 @@ export class SchemaCompatibilityError extends SabiError {
   }
 }
 
-export class SchemaLimitError extends SabiError {
+export class SchemaLimitError extends LlmAbiError {
   constructor(message: string, code = "schema-too-large") {
     super(message, code);
     this.name = "SchemaLimitError";

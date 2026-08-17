@@ -1,12 +1,14 @@
-# Sabi
+# llm-abi
 
 **One schema. Every model.**
 
+The schema ABI between TypeScript and LLM providers.
+
 Compile TypeScript and JSON Schema into provider-safe schemas for OpenAI, Claude, Gemini, and more.
 
-[![CI](https://github.com/jammaru/sabi/actions/workflows/ci.yml/badge.svg)](https://github.com/jammaru/sabi/actions/workflows/ci.yml)
-[![npm](https://img.shields.io/npm/v/sabijs)](https://www.npmjs.com/package/sabijs)
-[![license](https://img.shields.io/npm/l/sabijs)](./LICENSE)
+[![CI](https://github.com/jammaru/llm-abi/actions/workflows/ci.yml/badge.svg)](https://github.com/jammaru/llm-abi/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/llm-abi)](https://www.npmjs.com/package/llm-abi)
+[![license](https://img.shields.io/npm/l/llm-abi)](./LICENSE)
 
 Your JSON Schema works on OpenAI.
 
@@ -14,10 +16,10 @@ It fails on Gemini.
 
 Anthropic silently cannot enforce `minimum`.
 
-Sabi fixes this.
+llm-abi fixes this.
 
 ```ts
-import { compile } from "sabijs";
+import { compile } from "llm-abi";
 
 const result = compile(UserSchema, {
   target: "anthropic",
@@ -31,7 +33,7 @@ result.validate;
 ```
 
 ```bash
-npx sabijs check schema.json
+npx llm-abi check schema.json
 ```
 
 ```text
@@ -56,18 +58,16 @@ LLM providers all say they accept JSON Schema. They do not accept the same JSON 
 | Anthropic | Unsupported constraints are stripped and moved to descriptions |
 | Gemini    | Officially a subset; large or deep schemas can be rejected     |
 
-Sabi is not another Zod-to-JSON-Schema converter. It is a **schema compatibility compiler**: one input schema, provider-aware lowering, diagnostics, loss reporting, runtime validation, and a CI checker.
+llm-abi is not another Zod-to-JSON-Schema converter. It is a **schema compatibility compiler**: one input schema, provider-aware lowering, diagnostics, loss reporting, runtime validation, and a CI checker.
 
 ## Install
 
 ```bash
-npm install sabijs
+npm install llm-abi
 ```
 
-The brand is **Sabi**. The npm package is `sabijs` because the unscoped name `sabi` is already taken by an unrelated placeholder.
-
 ```ts
-import { compile, check, analyze, fingerprint } from "sabijs";
+import { compile, check, analyze, fingerprint } from "llm-abi";
 ```
 
 Zero runtime dependencies. The compiler library is about 14 KB gzip. Node, Bun, Deno, browsers, and edge runtimes can import it. The CLI requires Node.js 22+.
@@ -75,7 +75,7 @@ Zero runtime dependencies. The compiler library is about 14 KB gzip. Node, Bun, 
 ## Usage
 
 ```ts
-import { compile } from "sabijs";
+import { compile } from "llm-abi";
 
 const UserSchema = {
   type: "object",
@@ -124,7 +124,7 @@ result.loss;
 - JSON Schema objects (draft-07 / 2020-12)
 - [Standard JSON Schema](https://standardschema.dev/json-schema) (`~standard.jsonSchema`)
 
-Zod, Valibot, ArkType, and other Standard Schema libraries work when they expose JSON Schema conversion. Validation-only Standard Schema objects are rejected with a clear error. Sabi does not depend on Zod.
+Zod, Valibot, ArkType, and other Standard Schema libraries work when they expose JSON Schema conversion. Validation-only Standard Schema objects are rejected with a clear error. llm-abi does not depend on Zod.
 
 ### Targets (v0.1)
 
@@ -139,24 +139,24 @@ DeepSeek, xAI, Qwen, Mistral, Cohere, OpenRouter, Groq, Together, and MCP are pl
 ## CLI
 
 ```bash
-npx sabijs check schema.json
-npx sabijs compile schema.json --target anthropic
-npx sabijs explain schema.json --target gemini
-npx sabijs doctor
+npx llm-abi check schema.json
+npx llm-abi compile schema.json --target anthropic
+npx llm-abi explain schema.json --target gemini
+npx llm-abi doctor
 ```
 
 `--ci` exits with status 1 when any target is `unsupported`.
 
 ## Guarantees
 
-Sabi **does**:
+llm-abi **does**:
 
 - Compile one schema into a provider-safe schema
 - Tell you exactly what was rewritten, stripped, or moved to runtime validation
 - Keep `compile()` pure: no network, no filesystem, no clocks, no hidden config
 - Keep provider profiles versioned with the package
 
-Sabi **does not**:
+llm-abi **does not**:
 
 - Guarantee identical validation results across every model
 - Claim support for every model hosted on every gateway
@@ -181,7 +181,7 @@ Provider differences live in **profiles**, not scattered `if (provider === "anth
 ## Repository
 
 ```text
-packages/core          compiler + CLI (published as sabijs)
+packages/core          compiler + CLI (published as llm-abi)
 packages/conformance   fixture corpus
 examples/              copy-paste recipes
 ```
