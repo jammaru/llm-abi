@@ -17,6 +17,7 @@ Node.js 22+ and pnpm 10 are required. `pnpm check` is what GitHub Actions runs o
 - `packages/core` — compiler, public API, CLI
 - `packages/conformance` — JSON Schema fixtures
 - `packages/action` — reusable GitHub Action that runs the CLI
+- `packages/playground` — static browser playground (`pnpm playground`)
 - `examples` — copy-paste recipes, typechecked and executed in CI
 - `docs` — guarantees, API, CLI, and architecture
 - `AGENTS.md` — product boundaries for humans and coding agents
@@ -40,3 +41,11 @@ Node.js 22+ and pnpm 10 are required. `pnpm check` is what GitHub Actions runs o
 5. Mark the README status honestly (`Verified` / `Partial` / `Experimental`).
 
 See [docs/targets/README.md](docs/targets/README.md) for the profile fields and evidence rules. `.agents/skills/add-target/SKILL.md` is the same checklist for agents.
+
+## Playground
+
+```bash
+pnpm playground
+```
+
+The app is static. Compilation uses the `llm-abi` workspace package in the browser. GitHub Pages deploys `packages/playground/dist` from `main` (Pages source: GitHub Actions).

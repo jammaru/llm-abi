@@ -1,11 +1,20 @@
+import { fileURLToPath } from "node:url";
 import { defineConfig } from "vitest/config";
 
+const llmAbiSrc = fileURLToPath(new URL("./packages/core/src/index.ts", import.meta.url));
+
 export default defineConfig({
+  resolve: {
+    alias: {
+      "llm-abi": llmAbiSrc,
+    },
+  },
   test: {
     include: [
       "packages/action/tests/**/*.test.ts",
       "packages/core/tests/**/*.test.ts",
       "packages/conformance/src/**/*.test.ts",
+      "packages/playground/tests/**/*.test.ts",
     ],
     benchmark: {
       include: ["benchmarks/**/*.bench.ts"],
