@@ -43,6 +43,9 @@ describe("targets", () => {
     expect(resolveTarget("qwen").id).toBe("alibaba/qwen/tools");
     expect(resolveTarget("mistral").id).toBe("mistral/chat/structured");
     expect(resolveTarget("openrouter").id).toBe("openrouter/structured");
+    expect(resolveTarget("mcp").id).toBe("mcp/2026-06/tools");
+    expect(resolveTarget("mcp/tools").id).toBe("mcp/2026-06/tools");
+    expect(resolveTarget("mcp/2025-11/tools").id).toBe("mcp/2026-06/tools");
   });
 
   it("lists registered targets", () => {
@@ -53,7 +56,8 @@ describe("targets", () => {
     expect(ids).toContain("alibaba/qwen/tools");
     expect(ids).toContain("mistral/chat/structured");
     expect(ids).toContain("openrouter/structured");
-    expect(ids.length).toBeGreaterThanOrEqual(8);
+    expect(ids).toContain("mcp/2026-06/tools");
+    expect(ids.length).toBeGreaterThanOrEqual(9);
   });
 
   it("throws on unknown targets", () => {

@@ -103,3 +103,20 @@ describe("compile gemini", () => {
     ).toThrow(/does not support/);
   });
 });
+
+describe("compile mcp", () => {
+  it("emits a host-safe object schema and still validates stripped constraints", () => {
+    const result = compile(userSchema, "mcp");
+    const schema = result.schema as {
+      required: string[];
+      properties: Record<string, { minimum?: number; type?: unknown }>;
+    };
+    expect(result.target.id).toBe("mcp/2026-06/tools");
+    expect(schema.required).toEqual(["name", "age"]);
+    expect(schema.properties["nickname"]?.["type"]).toBe("string");
+    expect(schema.properties["age"]?.minimum).toBeUndefined();
+    expect(result.compatibility).toBe("runtime-safe");
+    expect(result.validate({ name: "Ada", age: 36 }).ok).toBe(true);
+    expect(result.validate({ name: "Ada", age: -1 }).ok).toBe(false);
+  });
+});

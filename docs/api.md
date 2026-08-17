@@ -52,4 +52,4 @@ Canonical SHA-256 of the input schema. Property order does not matter.
 
 ## `listTargets()` / `resolveTarget(id)`
 
-`resolveTarget("claude")` returns the Anthropic structured profile. `resolveTarget("deepseek")` returns `deepseek/chat/strict-tools`. `resolveTarget("grok")` returns `xai/grok/structured`. `resolveTarget("qwen")` returns `alibaba/qwen/tools`. `resolveTarget("mistral")` returns `mistral/chat/structured`. `resolveTarget("openrouter")` returns `openrouter/structured`. Unknown ids throw `LlmAbiError`.
+`resolveTarget("claude")` returns the Anthropic structured profile. `resolveTarget("deepseek")` returns `deepseek/chat/strict-tools`. `resolveTarget("grok")` returns `xai/grok/structured`. `resolveTarget("qwen")` returns `alibaba/qwen/tools`. `resolveTarget("mistral")` returns `mistral/chat/structured`. `resolveTarget("openrouter")` returns `openrouter/structured`. `resolveTarget("mcp")` returns `mcp/2026-06/tools`. Unknown ids throw `LlmAbiError`.

@@ -465,4 +465,138 @@ describe("lowering", () => {
     );
     expect(result.diagnostics.some((item) => item.code === "optional-to-required")).toBe(false);
   });
+
+  it("requires an object root and rejects oneOf on MCP tool inputSchema", () => {
+    const root = compile({ type: "string" }, "mcp");
+    expect(root.compatibility).toBe("unsupported");
+    expect(root.diagnostics.some((item) => item.code === "root-must-be-object")).toBe(true);
+
+    const oneOf = compile(
+      {
+        type: "object",
+        properties: {
+          value: { oneOf: [{ type: "string" }, { type: "number" }] },
+        },
+        required: ["value"],
+      },
+      "mcp",
+    );
+    expect(oneOf.compatibility).toBe("unsupported");
+    expect(oneOf.diagnostics.some((item) => item.code === "unsupported-construct")).toBe(true);
+  });
+
+  it("inlines non-recursive $defs so MCP hosts receive a plain object schema", () => {
+    const result = compile(
+      {
+        type: "object",
+        properties: { author: { $ref: "#/$defs/Person" } },
+        required: ["author"],
+        $defs: {
+          Person: {
+            type: "object",
+            properties: { name: { type: "string" } },
+            required: ["name"],
+          },
+        },
+      },
+      "mcp",
+    );
+    const schema = result.schema as {
+      $defs?: unknown;
+      properties: { author: { $ref?: string; properties?: { name: { type?: string } } } };
+    };
+    expect(schema.$defs).toBeUndefined();
+    expect(schema.properties.author.$ref).toBeUndefined();
+    expect(schema.properties.author.properties?.name.type).toBe("string");
+    expect(JSON.stringify(result.schema)).not.toContain("$ref");
+    expect(result.compatibility).toBe("lossless");
+  });
+
+  it("rejects recursive $ref on MCP instead of emitting $defs", () => {
+    const result = compile(
+      {
+        type: "object",
+        properties: { node: { $ref: "#/$defs/Node" } },
+        required: ["node"],
+        $defs: {
+          Node: {
+            type: "object",
+            properties: {
+              name: { type: "string" },
+              child: { $ref: "#/$defs/Node" },
+            },
+            required: ["name"],
+          },
+        },
+      },
+      "mcp",
+    );
+    expect(result.compatibility).toBe("unsupported");
+    expect(result.diagnostics.some((item) => item.code === "recursive-ref")).toBe(true);
+    expect((result.schema as { $defs?: unknown }).$defs).toBeUndefined();
+  });
+
+  it("moves MCP numeric and format constraints to runtime validation", () => {
+    const result = compile(
+      {
+        type: "object",
+        properties: {
+          n: { type: "integer", minimum: 0 },
+          email: { type: "string", format: "email" },
+        },
+        required: ["n", "email"],
+      },
+      "mcp",
+    );
+    const properties = (
+      result.schema as {
+        properties: {
+          n: { minimum?: number; description?: string };
+          email: { format?: string };
+        };
+      }
+    ).properties;
+    expect(properties.n.minimum).toBeUndefined();
+    expect(properties.n.description).toContain("Must be >= 0");
+    expect(properties.email.format).toBeUndefined();
+    expect(result.compatibility).toBe("runtime-safe");
+    expect(result.validate({ n: 1, email: "ada@example.com" }).ok).toBe(true);
+    expect(result.validate({ n: -1, email: "ada@example.com" }).ok).toBe(false);
+  });
+
+  it("keeps MCP optional fields and enum values instead of OpenAI strict mode", () => {
+    const result = compile(
+      {
+        type: "object",
+        properties: {
+          unit: { type: "string", enum: ["celsius", "fahrenheit"] },
+          location: { type: "string" },
+        },
+        required: ["location"],
+      },
+      "mcp",
+    );
+    const schema = result.schema as {
+      required: string[];
+      properties: { unit: { enum?: string[]; type?: unknown } };
+    };
+    expect(schema.required).toEqual(["location"]);
+    expect(schema.properties.unit.enum).toEqual(["celsius", "fahrenheit"]);
+    expect(schema.properties.unit.type).not.toEqual(["string", "null"]);
+    expect(result.diagnostics.some((item) => item.code === "optional-to-required")).toBe(false);
+    expect(result.diagnostics.some((item) => item.code === "optional-to-nullable")).toBe(false);
+    expect(result.compatibility).toBe("lossless");
+  });
+
+  it("does not emit additionalProperties schemas on MCP", () => {
+    const result = compile(
+      {
+        type: "object",
+        additionalProperties: { type: "string" },
+      },
+      "mcp",
+    );
+    expect((result.schema as { additionalProperties?: unknown }).additionalProperties).toBe(false);
+    expect(result.compatibility).toBe("lossy");
+  });
 });
