@@ -50,7 +50,7 @@ Profiles record **how we know** a capability, not just the capability.
 | `sdk-observed` | Visible in an official SDK transformer |
 | `empirical`    | Observed against a live API            |
 
-v0.1 OpenAI, Anthropic, and Gemini profiles are `documented` against public structured-output references dated 2026-08. The DeepSeek strict-tools profile is `documented` against the official Tool Calls guide (Beta `strict: true`, `$def`, required-all objects, no `minLength` / `minItems`). The xAI Grok structured profile is `documented` against official structured-output docs (non-circular `$ref`, `omit-false` additionalProperties, optional fields, constraint ceilings). The Qwen tools profile is `documented` against Model Studio JSON Schema mode and function calling (closed type list, optional fields, `additionalProperties` true or false).
+v0.1 OpenAI, Anthropic, and Gemini profiles are `documented` against public structured-output references dated 2026-08. The DeepSeek strict-tools profile is `documented` against the official Tool Calls guide (Beta `strict: true`, `$def`, required-all objects, no `minLength` / `minItems`). The xAI Grok structured profile is `documented` against official structured-output docs (non-circular `$ref`, `omit-false` additionalProperties, optional fields, constraint ceilings). The Qwen tools profile is `documented` against Model Studio JSON Schema mode and function calling (closed type list, optional fields, `additionalProperties` true or false). The Mistral structured profile is `sdk-observed` against the official client's `rec_strict_json_schema` helper (force `additionalProperties: false`, keep optional fields).
 
 When a doc and a live API disagree, prefer the live API, mark `empirical`, and keep a fixture.
 
@@ -71,4 +71,4 @@ Do not invent a compatibility percentage.
 - Fetching docs or config at runtime
 - Playground or gateway product work
 
-Planned extra vendors (Mistral, OpenRouter, MCP, and later Cohere / Groq / Together) belong in their own issues. This file is only the profile recipe.
+Planned extra vendors (OpenRouter, MCP, and later Cohere / Groq / Together) belong in their own issues. This file is only the profile recipe.

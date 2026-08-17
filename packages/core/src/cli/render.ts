@@ -107,6 +107,7 @@ Targets:
   deepseek          deepseek/chat/strict-tools
   xai               xai/grok/structured
   qwen              alibaba/qwen/tools
+  mistral           mistral/chat/structured
 
 Options:
   --target, -t      Target profile id or alias
