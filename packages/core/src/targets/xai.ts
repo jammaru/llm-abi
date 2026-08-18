@@ -14,8 +14,12 @@ export const xaiGrokStructured: TargetProfile = defineTarget({
   vendor: "xai",
   mode: "structured",
   revision: "2026-08",
+  maturity: "supported",
   dialect: "2020-12",
   evidence: "documented",
+  evidenceSource: "https://docs.x.ai/developers/model-capabilities/text/structured-outputs",
+  lastVerified: "2026-08-18",
+  liveAdapter: false,
   capabilities: {
     anyOf: "supported",
     oneOf: "lossy",

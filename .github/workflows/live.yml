@@ -29,4 +29,13 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
           GOOGLE_GENERATIVE_AI_API_KEY: ${{ secrets.GOOGLE_GENERATIVE_AI_API_KEY }}
+          LLM_ABI_LIVE_REPORT_PATH: live-conformance.json
         run: pnpm --filter @llm-abi/conformance live
+      - name: Upload conformance evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: live-conformance-${{ github.run_id }}
+          path: live-conformance.json
+          if-no-files-found: warn
+          retention-days: 30

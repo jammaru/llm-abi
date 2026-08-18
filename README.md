@@ -2,7 +2,13 @@
 
 **One schema. Every model.**
 
-The schema ABI between TypeScript and LLM providers.
+![Paste one schema and compare provider-safe output and diagnostics](docs/assets/playground-demo.gif)
+
+```bash
+npm i llm-abi
+```
+
+The schema compatibility compiler between TypeScript and LLM providers.
 
 Compile TypeScript and JSON Schema into provider-safe schemas for OpenAI, Claude, Gemini, and more.
 
@@ -10,7 +16,7 @@ Compile TypeScript and JSON Schema into provider-safe schemas for OpenAI, Claude
 [![npm](https://img.shields.io/npm/v/llm-abi)](https://www.npmjs.com/package/llm-abi)
 [![license](https://img.shields.io/npm/l/llm-abi)](./LICENSE)
 
-[Playground](https://llm-abi.pages.dev/) — paste a TypeScript type or JSON Schema, then compare OpenAI, Anthropic, and Gemini output, diagnostics, loss, and size.
+[Playground](https://llm-abi.pages.dev/) — paste a TypeScript type or JSON Schema, then compare every built-in target, diagnostics, loss, and emitted JSON.
 
 Your JSON Schema works on OpenAI.
 
@@ -51,6 +57,15 @@ google/gemini/structured               PASS     155
 2 constraints require runtime validation.
 ```
 
+## Use llm-abi when
+
+- One generated or hand-written schema must work across multiple LLM providers.
+- You need to catch provider rejection and silent constraint loss before an API call.
+- You want a build/CI gate without adopting another agent framework or provider SDK.
+- You need the emitted provider schema and a runtime validator for constraints the provider cannot enforce.
+
+Use a provider SDK, AI SDK, Instructor, or BAML for making model calls, retries, and application orchestration. llm-abi sits underneath those tools: compile the schema, then pass `result.schema` to the SDK you already use.
+
 ## Why
 
 LLM providers all say they accept JSON Schema. They do not accept the same JSON Schema.
@@ -60,11 +75,20 @@ LLM providers all say they accept JSON Schema. They do not accept the same JSON 
 | OpenAI    | Strict structured outputs use a JSON Schema subset              |
 | Anthropic | Unsupported constraints are stripped and moved to descriptions  |
 | Gemini    | Officially a subset; large or deep schemas can be rejected      |
-| MCP hosts | Tool `inputSchema` is an object subset; `$ref` and `oneOf` fail |
+| MCP hosts | The protocol accepts JSON Schema, but deployed host support can be narrower |
 
 llm-abi is not another Zod-to-JSON-Schema converter. It is a **schema compatibility compiler**: one input schema, provider-aware lowering, diagnostics, loss reporting, conservative size/token hints, runtime validation, and a CI checker.
 
-Try that loop in the [compatibility playground](https://llm-abi.pages.dev/). Compilation runs in the browser. Profiles ship with the package. There is no compatibility percentage.
+Try that loop in the [compatibility playground](https://llm-abi.pages.dev/). Compilation runs in the browser. Profiles ship with the package. Each target exposes its evidence source and verification date. There is no compatibility percentage.
+
+### Where it fits
+
+| Tool category                       | Primary job                                      | llm-abi relationship                                      |
+| ----------------------------------- | ------------------------------------------------ | --------------------------------------------------------- |
+| Zod / Valibot / ArkType             | Define and validate application data             | Accept their Standard JSON Schema output                  |
+| OpenAI / Anthropic / Gemini SDKs     | Call one provider                                | Compile before assigning the SDK schema field             |
+| Vercel AI SDK / Instructor / BAML    | Generation, parsing, retries, orchestration      | Complementary; llm-abi is the provider-compatibility gate |
+| Provider-specific schema converters | Make a schema fit one provider or client surface | Use llm-abi when one source must target several providers |
 
 ## Install
 
@@ -150,17 +174,21 @@ Zod, Valibot, ArkType, and other Standard Schema libraries work when they expose
 
 ### Targets
 
-| Alias        | Profile                         | Status       |
-| ------------ | ------------------------------- | ------------ |
-| `openai`     | `openai/responses/structured`   | Verified     |
-| `anthropic`  | `anthropic/messages/structured` | Verified     |
-| `gemini`     | `google/gemini/structured`      | Verified     |
-| `deepseek`   | `deepseek/chat/strict-tools`    | Verified     |
-| `xai`        | `xai/grok/structured`           | Verified     |
-| `qwen`       | `alibaba/qwen/tools`            | Verified     |
-| `mistral`    | `mistral/chat/structured`       | Experimental |
-| `openrouter` | `openrouter/structured`         | Partial      |
-| `mcp`        | `mcp/2026-06/tools`             | Partial      |
+Maturity and evidence are separate. `Supported` means the profile is maintained with fixtures; it does not claim a live API check. “Last verified” is the date the profile was checked against the linked evidence source.
+
+| Alias        | Profile                         | Maturity     | Evidence                                                                                          | Last verified | Live adapter |
+| ------------ | ------------------------------- | ------------ | ------------------------------------------------------------------------------------------------- | ------------- | ------------ |
+| `openai`     | `openai/responses/structured`   | Supported    | [documented](https://developers.openai.com/api/docs/guides/structured-outputs)                    | 2026-08-18    | Nightly      |
+| `anthropic`  | `anthropic/messages/structured` | Supported    | [documented](https://platform.claude.com/docs/en/build-with-claude/structured-outputs)            | 2026-08-18    | Nightly      |
+| `gemini`     | `google/gemini/structured`      | Supported    | [documented](https://ai.google.dev/gemini-api/docs/generate-content/structured-output)            | 2026-08-18    | Nightly      |
+| `deepseek`   | `deepseek/chat/strict-tools`    | Supported    | [documented](https://api-docs.deepseek.com/guides/tool_calls)                                     | 2026-08-18    | —            |
+| `xai`        | `xai/grok/structured`           | Supported    | [documented](https://docs.x.ai/developers/model-capabilities/text/structured-outputs)             | 2026-08-18    | —            |
+| `qwen`       | `alibaba/qwen/tools`            | Supported    | [documented](https://help.aliyun.com/en/model-studio/qwen-function-calling)                       | 2026-08-18    | —            |
+| `mistral`    | `mistral/chat/structured`       | Experimental | [sdk-observed](https://docs.mistral.ai/capabilities/structured-output/custom_structured_output/)  | 2026-08-18    | —            |
+| `openrouter` | `openrouter/structured`         | Partial      | [documented](https://openrouter.ai/docs/guides/features/structured-outputs)                       | 2026-08-18    | —            |
+| `mcp`        | `mcp/2026-06/tools`             | Partial      | [documented](https://modelcontextprotocol.io/specification/2026-07-28/server/tools)                | 2026-08-18    | —            |
+
+The MCP target is deliberately conservative for deployed hosts. The current protocol specification allows a full JSON Schema object; a future protocol target and host-specific compatibility profiles are tracked separately.
 
 Cohere, Groq, and Together are planned. New providers are data: add a target profile, fixtures, and expected diagnostics.
 
@@ -215,7 +243,7 @@ the compatibility result.
 
 ### Nightly live checks
 
-A scheduled workflow sends **compiled** schemas to OpenAI, Anthropic, and Gemini when repository secrets exist. It never runs on pull requests. Missing secrets skip that vendor. Outcomes are `accepted`, `rejected`, or `skipped` — never a percentage. A rejection means the live API disagreed with the profile; mark evidence `empirical` and add a fixture.
+A scheduled workflow sends **compiled** schemas to OpenAI, Anthropic, and Gemini when repository secrets exist. It never runs on pull requests. Missing secrets skip that vendor. Outcomes are `accepted`, `rejected`, or `skipped` — never a percentage. Every run uploads a timestamped `live-conformance.json` artifact with fixture × target outcomes. A rejection means the live API disagreed with the profile; mark evidence `empirical` and add a fixture.
 
 ## Guarantees
 

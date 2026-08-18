@@ -60,6 +60,16 @@ describe("targets", () => {
     expect(ids.length).toBeGreaterThanOrEqual(9);
   });
 
+  it("exposes auditable evidence for every target", () => {
+    for (const target of listTargets()) {
+      expect(["supported", "partial", "experimental"]).toContain(target.maturity);
+      expect(["documented", "sdk-observed", "empirical"]).toContain(target.evidence.kind);
+      expect(target.evidence.source).toMatch(/^https:\/\//);
+      expect(target.evidence.lastVerified).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      expect(["nightly", "not-configured"]).toContain(target.evidence.live);
+    }
+  });
+
   it("throws on unknown targets", () => {
     expect(() => resolveTarget("nope")).toThrow(/Unknown target/);
   });

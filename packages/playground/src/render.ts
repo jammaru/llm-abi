@@ -164,9 +164,35 @@ function renderAnalysis(
 
 function renderTargets(root: HTMLElement, targets: readonly PlaygroundTargetView[]): void {
   root.replaceChildren();
+  const overview = document.createElement("section");
+  overview.className = "target-overview";
+  overview.setAttribute("aria-label", "Compatibility overview");
+  const cards = document.createElement("div");
+  cards.className = "target-cards";
   for (const target of targets) {
-    root.append(renderCard(target));
+    overview.append(renderOverviewItem(target));
+    cards.append(renderCard(target));
   }
+  root.append(overview, cards);
+}
+
+function renderOverviewItem(target: PlaygroundTargetView): HTMLElement {
+  const item = document.createElement("article");
+  item.className = "overview-item";
+  item.dataset["compatibility"] = target.compatibility;
+  const vendor = document.createElement("span");
+  vendor.className = "overview-vendor";
+  vendor.textContent = target.target.vendor;
+  const result = document.createElement("strong");
+  result.className = `overview-result compat-${target.compatibility}`;
+  result.textContent = compatibilityLabel(target.compatibility);
+  const count = document.createElement("span");
+  count.className = "overview-count";
+  count.textContent = `${String(target.diagnostics.length)} diagnostic${
+    target.diagnostics.length === 1 ? "" : "s"
+  }`;
+  item.append(vendor, result, count);
+  return item;
 }
 
 function renderCard(target: PlaygroundTargetView): HTMLElement {
@@ -190,7 +216,27 @@ function renderCard(target: PlaygroundTargetView): HTMLElement {
   meta.className = "muted";
   meta.textContent = `${formatBytes(target.size.bytes)} · ${formatTokens(target.size.tokens)} · ${target.fingerprint}`;
 
-  article.append(header, badge, meta, renderDiagnostics(target.diagnostics), renderLoss(target));
+  const evidence = document.createElement("p");
+  evidence.className = "evidence-line";
+  const source = document.createElement("a");
+  source.href = target.target.evidence.source;
+  source.target = "_blank";
+  source.rel = "noreferrer";
+  source.textContent = target.target.evidence.kind;
+  const live = target.target.evidence.live === "nightly" ? " · nightly adapter" : "";
+  evidence.append(
+    source,
+    ` · verified ${target.target.evidence.lastVerified}${live} · ${target.target.maturity}`,
+  );
+
+  article.append(
+    header,
+    badge,
+    evidence,
+    meta,
+    renderDiagnostics(target.diagnostics),
+    renderLoss(target),
+  );
 
   const details = document.createElement("details");
   const summary = document.createElement("summary");

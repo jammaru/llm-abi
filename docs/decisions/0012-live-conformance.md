@@ -12,6 +12,7 @@ The runner:
 - skips a vendor when its secret is missing
 - sends only the **compiled** schema
 - records `accepted` | `rejected` | `skipped` per fixture × adapter
+- uploads a timestamped, machine-readable `live-conformance.json` artifact
 - never invents a compatibility percentage or score
 - uses `fetch`, not vendor SDKs, and not `packages/core`
 

@@ -21,7 +21,7 @@ const same = compile(schema, { target: "anthropic/messages/structured" });
 | `diagnostics`   | Stable `code` values, paths, and suggested actions                                  |
 | `loss`          | Discrete compatibility plus removed constraints                                     |
 | `fingerprint`   | Canonical SHA-256 of the emitted schema                                             |
-| `target`        | Resolved profile id, vendor, mode, revision                                         |
+| `target`        | Resolved profile id, vendor, mode, revision, maturity, and evidence                 |
 | `compatibility` | `lossless` \| `runtime-safe` \| `lossy` \| `unsupported`                            |
 | `size`          | UTF-8 bytes of the emitted schema and a conservative token hint (`ceil(bytes / 3)`) |
 | `validate`      | Validates against the **original** schema                                           |
@@ -53,3 +53,19 @@ Canonical SHA-256 of the input schema. Property order does not matter.
 ## `listTargets()` / `resolveTarget(id)`
 
 `resolveTarget("claude")` returns the Anthropic structured profile. `resolveTarget("deepseek")` returns `deepseek/chat/strict-tools`. `resolveTarget("grok")` returns `xai/grok/structured`. `resolveTarget("qwen")` returns `alibaba/qwen/tools`. `resolveTarget("mistral")` returns `mistral/chat/structured`. `resolveTarget("openrouter")` returns `openrouter/structured`. `resolveTarget("mcp")` returns `mcp/2026-06/tools`. Unknown ids throw `LlmAbiError`.
+
+Each resolved target includes:
+
+```ts
+{
+  maturity: "supported" | "partial" | "experimental",
+  evidence: {
+    kind: "documented" | "sdk-observed" | "empirical",
+    source: "https://...",
+    lastVerified: "2026-08-18",
+    live: "nightly" | "not-configured",
+  },
+}
+```
+
+Maturity, documentary evidence, and live coverage are independent signals. A documentation verification date does not claim a successful live API request.

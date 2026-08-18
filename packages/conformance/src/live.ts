@@ -1,7 +1,7 @@
-import { appendFileSync, readFileSync } from "node:fs";
+import { appendFileSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { renderLiveReport } from "./live/report.ts";
+import { renderLiveJson, renderLiveReport } from "./live/report.ts";
 import { runLive } from "./live/run.ts";
 import { LIVE_FIXTURES } from "./live/types.ts";
 import type { LiveEnv, LiveHttpResult, LiveTransport } from "./live/types.ts";
@@ -32,6 +32,10 @@ export async function liveMain(env: LiveEnv, fetchImpl: typeof fetch = fetch): P
   const summary = env["GITHUB_STEP_SUMMARY"];
   if (summary) {
     appendFileSync(summary, report);
+  }
+  const reportPath = env["LLM_ABI_LIVE_REPORT_PATH"];
+  if (reportPath) {
+    writeFileSync(reportPath, renderLiveJson(result, new Date().toISOString()));
   }
   return result.rejected > 0 ? 1 : 0;
 }

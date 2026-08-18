@@ -25,7 +25,9 @@ A profile is data:
 - capability of each keyword (`supported` | `runtime-only` | `lossy` | `unsupported`)
 - object policy (`additionalProperties`, optional-as-nullable)
 - limits
-- evidence (`documented` | `sdk-observed` | `empirical`)
+- maturity (`supported` | `partial` | `experimental`)
+- evidence kind and source (`documented` | `sdk-observed` | `empirical`)
+- last verification date and nightly-adapter coverage
 - revision string shipped with the package
 
 The lowering pass reads the profile. Adding a vendor should not require a new compiler.

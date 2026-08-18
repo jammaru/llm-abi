@@ -52,6 +52,13 @@ export function toResolved(profile: TargetProfile): ResolvedTarget {
     mode: profile.mode,
     revision: profile.revision,
     aliases: profile.aliases,
+    maturity: profile.maturity,
+    evidence: {
+      kind: profile.evidence,
+      source: profile.evidenceSource,
+      lastVerified: profile.lastVerified,
+      live: profile.liveAdapter ? "nightly" : "not-configured",
+    },
   };
 }
 

@@ -27,7 +27,9 @@ export type {
   SchemaInput,
   SchemaSize,
   Support,
+  TargetEvidence,
   TargetId,
+  TargetMaturity,
   ValidationIssue,
   ValidationResult,
 } from "./types.ts";

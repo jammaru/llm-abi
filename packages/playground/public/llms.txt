@@ -1,0 +1,13 @@
+# llm-abi
+
+> A deterministic schema compatibility compiler for LLM structured outputs and tool calling.
+
+Compile JSON Schema, Standard JSON Schema, or a closed TypeScript type subset for OpenAI, Anthropic, Gemini, DeepSeek, xAI, Qwen, Mistral, OpenRouter, and conservative MCP hosts. Results include a provider schema, discrete compatibility, diagnostics, loss items, a fingerprint, size hints, and runtime validation against the original schema.
+
+- Documentation: https://github.com/jammaru/llm-abi#readme
+- Playground: https://llm-abi.pages.dev/
+- Package: https://www.npmjs.com/package/llm-abi
+- API: https://github.com/jammaru/llm-abi/blob/main/docs/api.md
+- Guarantees: https://github.com/jammaru/llm-abi/blob/main/docs/guarantees.md
+
+Install with `npm install llm-abi`, then call `compile(schema, "anthropic")` or another built-in target. llm-abi does not make model calls; it is the provider-compatibility gate used before the SDK or framework that does.

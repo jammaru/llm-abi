@@ -1,0 +1,42 @@
+# llm-abi
+
+> A deterministic schema compatibility compiler for LLM structured outputs and tool calling.
+
+llm-abi compiles JSON Schema, Standard JSON Schema, and a closed TypeScript type subset into provider-specific schemas. It reports discrete compatibility (`lossless`, `runtime-safe`, `lossy`, or `unsupported`), stable diagnostics, removed constraints, a fingerprint, size hints, and a runtime validator for the original schema.
+
+Use llm-abi when one schema must target multiple providers and you need to detect provider rejection or silent constraint loss before an API call. It complements provider SDKs, Vercel AI SDK, Instructor, BAML, Zod, Valibot, and ArkType; it does not make model calls or replace those tools.
+
+## Links
+
+- Documentation: https://github.com/jammaru/llm-abi#readme
+- Playground: https://llm-abi.pages.dev/
+- Package: https://www.npmjs.com/package/llm-abi
+- API: https://github.com/jammaru/llm-abi/blob/main/docs/api.md
+- Guarantees: https://github.com/jammaru/llm-abi/blob/main/docs/guarantees.md
+- Target profiles: https://github.com/jammaru/llm-abi/blob/main/docs/targets/README.md
+
+## Install
+
+```bash
+npm install llm-abi
+```
+
+## Minimal usage
+
+```ts
+import { compile } from "llm-abi";
+
+const result = compile(schema, "anthropic");
+
+result.schema;
+result.compatibility;
+result.diagnostics;
+result.loss;
+result.validate(modelOutput);
+```
+
+## Built-in targets
+
+OpenAI Responses structured outputs, Anthropic Messages structured outputs, Google Gemini structured output, DeepSeek strict tools, xAI Grok structured output, Alibaba Qwen tools, Mistral structured output, OpenRouter structured output, and a conservative MCP host profile.
+
+Every resolved target includes a maturity level, linked evidence source, last-verification date, and whether a secret-gated nightly live adapter exists. Do not infer live verification from documentary evidence alone.

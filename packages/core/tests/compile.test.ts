@@ -39,6 +39,20 @@ describe("compile openai", () => {
       .properties;
     expect(properties["age"]?.minimum).toBe(0);
   });
+
+  it("deduplicates diagnostics and loss for named TypeScript definitions", () => {
+    const result = compile(
+      `export type User = {
+        name: string;
+        nickname?: string;
+      };`,
+      { target: "openai", typeName: "User" },
+    );
+    expect(result.diagnostics.filter((item) => item.code === "optional-to-nullable")).toHaveLength(
+      1,
+    );
+    expect(result.loss.removed.filter((item) => item.keyword === "optional")).toHaveLength(1);
+  });
 });
 
 describe("compile anthropic", () => {

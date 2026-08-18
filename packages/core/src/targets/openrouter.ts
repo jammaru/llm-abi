@@ -15,8 +15,12 @@ export const openrouterStructured: TargetProfile = defineTarget({
   vendor: "openrouter",
   mode: "structured",
   revision: "2026-08",
+  maturity: "partial",
   dialect: "2020-12",
   evidence: "documented",
+  evidenceSource: "https://openrouter.ai/docs/guides/features/structured-outputs",
+  lastVerified: "2026-08-18",
+  liveAdapter: false,
   compatibilityCeiling: "runtime-safe",
   capabilities: {
     anyOf: "supported",

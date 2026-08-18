@@ -22,6 +22,8 @@ Given the same:
 - That every MCP host has shipped SEP-2106 full JSON Schema 2020-12
 - 100% identical validation results between providers
 
+Target maturity, evidence kind, and live coverage are independent. `lastVerified` records when maintainers checked the linked evidence source; only `evidence.live === "nightly"` means the repository has a live adapter for that target.
+
 ## Compatibility levels
 
 | Level        | Provider schema                 | Original `validate()`               |

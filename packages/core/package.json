@@ -15,7 +15,7 @@
     "tool-calling",
     "typescript"
   ],
-  "homepage": "https://github.com/jammaru/llm-abi#readme",
+  "homepage": "https://llm-abi.pages.dev/",
   "bugs": {
     "url": "https://github.com/jammaru/llm-abi/issues"
   },

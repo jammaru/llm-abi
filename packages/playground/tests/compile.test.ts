@@ -17,6 +17,9 @@ describe("playground compile", () => {
     }
     expect(result.targets.length).toBeGreaterThanOrEqual(3);
     expect(result.inputFingerprint.startsWith("sha256:")).toBe(true);
+    expect(
+      result.targets.every((target) => target.target.evidence.source.startsWith("https://")),
+    ).toBe(true);
     const levels = new Set(result.targets.map((target) => target.compatibility));
     expect([...levels].join(" ")).not.toMatch(/%|percent|score/i);
     const openai = result.targets.find((target) => target.target.vendor === "openai");

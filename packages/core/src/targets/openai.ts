@@ -25,8 +25,12 @@ export const openaiResponsesStructured: TargetProfile = defineTarget({
   vendor: "openai",
   mode: "structured",
   revision: "2026-08",
+  maturity: "supported",
   dialect: "2020-12",
   evidence: "documented",
+  evidenceSource: "https://developers.openai.com/api/docs/guides/structured-outputs",
+  lastVerified: "2026-08-18",
+  liveAdapter: true,
   capabilities: {
     anyOf: "supported",
     oneOf: "lossy",

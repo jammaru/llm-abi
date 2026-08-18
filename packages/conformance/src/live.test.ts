@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { firstSecret } from "./live/adapters.ts";
 import { classifyLiveHttp, redact } from "./live/classify.ts";
-import { renderLiveReport } from "./live/report.ts";
+import { renderLiveJson, renderLiveReport } from "./live/report.ts";
 import { runLive } from "./live/run.ts";
 import type { LiveHttpResult, LiveTransport } from "./live/types.ts";
 
@@ -185,6 +185,34 @@ describe("live conformance", () => {
     });
     expect(report).toContain("accepted 1");
     expect(report).not.toContain("%");
+  });
+
+  it("renders a timestamped machine-readable evidence artifact", () => {
+    const json = renderLiveJson(
+      {
+        rows: [
+          {
+            fixture: "object-basic.json",
+            target: "openai/responses/structured",
+            compile: "lossless",
+            live: "accepted",
+            reason: "HTTP 200",
+          },
+        ],
+        accepted: 1,
+        rejected: 0,
+        skipped: 0,
+      },
+      "2026-08-18T00:00:00.000Z",
+    );
+    const parsed = JSON.parse(json) as {
+      generatedAt: string;
+      outcomes: { accepted: number };
+      rows: Array<{ target: string }>;
+    };
+    expect(parsed.generatedAt).toBe("2026-08-18T00:00:00.000Z");
+    expect(parsed.outcomes.accepted).toBe(1);
+    expect(parsed.rows[0]?.target).toBe("openai/responses/structured");
   });
 
   it("reads the first configured secret name", () => {

@@ -11,6 +11,7 @@ import type {
   CompileOptions,
   CompileResult,
   Diagnostic,
+  LossItem,
   SchemaInput,
   TargetId,
   ValidationResult,
@@ -32,7 +33,10 @@ export function compile(
     optimize: options.optimize ?? false,
   });
   const size = measureSchema(emitted.schema);
-  const diagnostics: Diagnostic[] = [...lowered.diagnostics, ...emitted.diagnostics];
+  const diagnostics: Diagnostic[] = uniqueDiagnostics([
+    ...lowered.diagnostics,
+    ...emitted.diagnostics,
+  ]);
   const budget = budgetDiagnostic(size, profile);
   if (budget) {
     diagnostics.push(budget);
@@ -51,7 +55,10 @@ export function compile(
   const result: CompileResult = {
     schema: emitted.schema,
     diagnostics,
-    loss: lowered.loss,
+    loss: {
+      level: lowered.loss.level,
+      removed: uniqueLossItems(lowered.loss.removed),
+    },
     fingerprint: fingerprintJson(emitted.schema),
     target: toResolved(profile),
     compatibility: lowered.loss.level,
@@ -82,6 +89,42 @@ export function compile(
     },
   };
   return result;
+}
+
+function uniqueDiagnostics(diagnostics: readonly Diagnostic[]): Diagnostic[] {
+  const seen = new Set<string>();
+  return diagnostics.filter((diagnostic) => {
+    const key = [
+      diagnostic.code,
+      diagnostic.severity,
+      diagnostic.path.join("/"),
+      diagnostic.keyword ?? "",
+      diagnostic.message,
+      diagnostic.action ?? "",
+    ].join("|");
+    if (seen.has(key)) {
+      return false;
+    }
+    seen.add(key);
+    return true;
+  });
+}
+
+function uniqueLossItems(items: readonly LossItem[]): LossItem[] {
+  const seen = new Set<string>();
+  return items.filter((item) => {
+    const key = [
+      item.path.join("/"),
+      item.keyword,
+      item.fallback,
+      item.value === undefined ? "" : JSON.stringify(item.value),
+    ].join("|");
+    if (seen.has(key)) {
+      return false;
+    }
+    seen.add(key);
+    return true;
+  });
 }
 
 function normalizeOptions(targetOrOptions: TargetId | CompileOptions): CompileOptions {
