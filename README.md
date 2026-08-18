@@ -86,8 +86,8 @@ Try that loop in the [compatibility playground](https://llm-abi.pages.dev/). Com
 | Tool category                       | Primary job                                      | llm-abi relationship                                      |
 | ----------------------------------- | ------------------------------------------------ | --------------------------------------------------------- |
 | Zod / Valibot / ArkType             | Define and validate application data             | Accept their Standard JSON Schema output                  |
-| OpenAI / Anthropic / Gemini SDKs     | Call one provider                                | Compile before assigning the SDK schema field             |
-| Vercel AI SDK / Instructor / BAML    | Generation, parsing, retries, orchestration      | Complementary; llm-abi is the provider-compatibility gate |
+| OpenAI / Anthropic / Gemini SDKs    | Call one provider                                | Compile before assigning the SDK schema field             |
+| Vercel AI SDK / Instructor / BAML   | Generation, parsing, retries, orchestration      | Complementary; llm-abi is the provider-compatibility gate |
 | Provider-specific schema converters | Make a schema fit one provider or client surface | Use llm-abi when one source must target several providers |
 
 ## Install
