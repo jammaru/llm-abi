@@ -176,17 +176,17 @@ Zod, Valibot, ArkType, and other Standard Schema libraries work when they expose
 
 Maturity and evidence are separate. `Supported` means the profile is maintained with fixtures; it does not claim a live API check. “Last verified” is the date the profile was checked against the linked evidence source.
 
-| Alias        | Profile                         | Maturity     | Evidence                                                                                          | Last verified | Live adapter |
-| ------------ | ------------------------------- | ------------ | ------------------------------------------------------------------------------------------------- | ------------- | ------------ |
-| `openai`     | `openai/responses/structured`   | Supported    | [documented](https://developers.openai.com/api/docs/guides/structured-outputs)                    | 2026-08-18    | Nightly      |
-| `anthropic`  | `anthropic/messages/structured` | Supported    | [documented](https://platform.claude.com/docs/en/build-with-claude/structured-outputs)            | 2026-08-18    | Nightly      |
-| `gemini`     | `google/gemini/structured`      | Supported    | [documented](https://ai.google.dev/gemini-api/docs/generate-content/structured-output)            | 2026-08-18    | Nightly      |
-| `deepseek`   | `deepseek/chat/strict-tools`    | Supported    | [documented](https://api-docs.deepseek.com/guides/tool_calls)                                     | 2026-08-18    | —            |
-| `xai`        | `xai/grok/structured`           | Supported    | [documented](https://docs.x.ai/developers/model-capabilities/text/structured-outputs)             | 2026-08-18    | —            |
-| `qwen`       | `alibaba/qwen/tools`            | Supported    | [documented](https://help.aliyun.com/en/model-studio/qwen-function-calling)                       | 2026-08-18    | —            |
-| `mistral`    | `mistral/chat/structured`       | Experimental | [sdk-observed](https://docs.mistral.ai/capabilities/structured-output/custom_structured_output/)  | 2026-08-18    | —            |
-| `openrouter` | `openrouter/structured`         | Partial      | [documented](https://openrouter.ai/docs/guides/features/structured-outputs)                       | 2026-08-18    | —            |
-| `mcp`        | `mcp/2026-06/tools`             | Partial      | [documented](https://modelcontextprotocol.io/specification/2026-07-28/server/tools)               | 2026-08-18    | —            |
+| Alias        | Profile                         | Maturity     | Evidence                                                                                         | Last verified | Live adapter |
+| ------------ | ------------------------------- | ------------ | ------------------------------------------------------------------------------------------------ | ------------- | ------------ |
+| `openai`     | `openai/responses/structured`   | Supported    | [documented](https://developers.openai.com/api/docs/guides/structured-outputs)                   | 2026-08-18    | Nightly      |
+| `anthropic`  | `anthropic/messages/structured` | Supported    | [documented](https://platform.claude.com/docs/en/build-with-claude/structured-outputs)           | 2026-08-18    | Nightly      |
+| `gemini`     | `google/gemini/structured`      | Supported    | [documented](https://ai.google.dev/gemini-api/docs/generate-content/structured-output)           | 2026-08-18    | Nightly      |
+| `deepseek`   | `deepseek/chat/strict-tools`    | Supported    | [documented](https://api-docs.deepseek.com/guides/tool_calls)                                    | 2026-08-18    | —            |
+| `xai`        | `xai/grok/structured`           | Supported    | [documented](https://docs.x.ai/developers/model-capabilities/text/structured-outputs)            | 2026-08-18    | —            |
+| `qwen`       | `alibaba/qwen/tools`            | Supported    | [documented](https://help.aliyun.com/en/model-studio/qwen-function-calling)                      | 2026-08-18    | —            |
+| `mistral`    | `mistral/chat/structured`       | Experimental | [sdk-observed](https://docs.mistral.ai/capabilities/structured-output/custom_structured_output/) | 2026-08-18    | —            |
+| `openrouter` | `openrouter/structured`         | Partial      | [documented](https://openrouter.ai/docs/guides/features/structured-outputs)                      | 2026-08-18    | —            |
+| `mcp`        | `mcp/2026-06/tools`             | Partial      | [documented](https://modelcontextprotocol.io/specification/2026-07-28/server/tools)              | 2026-08-18    | —            |
 
 The MCP target is deliberately conservative for deployed hosts. The current protocol specification allows a full JSON Schema object; a future protocol target and host-specific compatibility profiles are tracked separately.
 
