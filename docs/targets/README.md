@@ -24,9 +24,9 @@ Copy [`packages/core/src/targets/openai.ts`](../../packages/core/src/targets/ope
 | `revision`             | Profile revision shipped with the package                                                                 |
 | `maturity`             | `supported` \| `partial` \| `experimental`; never inferred from evidence                                  |
 | `evidence`             | `documented` \| `sdk-observed` \| `empirical`                                                             |
-| `evidenceSource`       | Stable URL for the source used to maintain the profile                                                     |
-| `lastVerified`         | ISO date when the profile was checked against `evidenceSource`                                             |
-| `liveAdapter`          | Whether the secret-gated nightly runner exercises this target                                              |
+| `evidenceSource`       | Stable URL for the source used to maintain the profile                                                    |
+| `lastVerified`         | ISO date when the profile was checked against `evidenceSource`                                            |
+| `liveAdapter`          | Whether the secret-gated nightly runner exercises this target                                             |
 | `dialect`              | Emitted JSON Schema dialect                                                                               |
 | `capabilities`         | Per-keyword `supported` \| `runtime-only` \| `lossy` \| `unsupported`                                     |
 | `formats`              | Allowed `format` values, or `"any"`                                                                       |
@@ -64,11 +64,11 @@ When a doc and a live API disagree, prefer the live API, mark `empirical`, and k
 
 ## Maturity in the README
 
-| Maturity       | When                                                        |
-| -------------- | ----------------------------------------------------------- |
-| `Supported`    | Maintained public profile with fixtures                     |
+| Maturity       | When                                                          |
+| -------------- | ------------------------------------------------------------- |
+| `Supported`    | Maintained public profile with fixtures                       |
 | `Partial`      | A gateway, host family, or API surface is intentionally broad |
-| `Experimental` | The behavior or SDK surface is still moving                 |
+| `Experimental` | The behavior or SDK surface is still moving                   |
 
 Maturity does not imply a live API check. `lastVerified` means only that the profile was checked against its linked evidence source on that date. Set `liveAdapter: true` only when the nightly runner contains an adapter for the exact target surface.
 

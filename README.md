@@ -70,11 +70,11 @@ Use a provider SDK, AI SDK, Instructor, or BAML for making model calls, retries,
 
 LLM providers all say they accept JSON Schema. They do not accept the same JSON Schema.
 
-| Provider  | What actually happens                                           |
-| --------- | --------------------------------------------------------------- |
-| OpenAI    | Strict structured outputs use a JSON Schema subset              |
-| Anthropic | Unsupported constraints are stripped and moved to descriptions  |
-| Gemini    | Officially a subset; large or deep schemas can be rejected      |
+| Provider  | What actually happens                                                       |
+| --------- | --------------------------------------------------------------------------- |
+| OpenAI    | Strict structured outputs use a JSON Schema subset                          |
+| Anthropic | Unsupported constraints are stripped and moved to descriptions              |
+| Gemini    | Officially a subset; large or deep schemas can be rejected                  |
 | MCP hosts | The protocol accepts JSON Schema, but deployed host support can be narrower |
 
 llm-abi is not another Zod-to-JSON-Schema converter. It is a **schema compatibility compiler**: one input schema, provider-aware lowering, diagnostics, loss reporting, conservative size/token hints, runtime validation, and a CI checker.
@@ -186,7 +186,7 @@ Maturity and evidence are separate. `Supported` means the profile is maintained 
 | `qwen`       | `alibaba/qwen/tools`            | Supported    | [documented](https://help.aliyun.com/en/model-studio/qwen-function-calling)                       | 2026-08-18    | —            |
 | `mistral`    | `mistral/chat/structured`       | Experimental | [sdk-observed](https://docs.mistral.ai/capabilities/structured-output/custom_structured_output/)  | 2026-08-18    | —            |
 | `openrouter` | `openrouter/structured`         | Partial      | [documented](https://openrouter.ai/docs/guides/features/structured-outputs)                       | 2026-08-18    | —            |
-| `mcp`        | `mcp/2026-06/tools`             | Partial      | [documented](https://modelcontextprotocol.io/specification/2026-07-28/server/tools)                | 2026-08-18    | —            |
+| `mcp`        | `mcp/2026-06/tools`             | Partial      | [documented](https://modelcontextprotocol.io/specification/2026-07-28/server/tools)               | 2026-08-18    | —            |
 
 The MCP target is deliberately conservative for deployed hosts. The current protocol specification allows a full JSON Schema object; a future protocol target and host-specific compatibility profiles are tracked separately.
 
