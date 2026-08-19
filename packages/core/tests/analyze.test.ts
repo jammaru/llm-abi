@@ -46,6 +46,11 @@ describe("targets", () => {
     expect(resolveTarget("mcp").id).toBe("mcp/2026-06/tools");
     expect(resolveTarget("mcp/tools").id).toBe("mcp/2026-06/tools");
     expect(resolveTarget("mcp/2025-11/tools").id).toBe("mcp/2026-06/tools");
+    expect(resolveTarget("openai").evidence.source).toMatch(/^https:\/\//);
+    expect(resolveTarget("openai").evidence.live).toBe("nightly");
+    expect(resolveTarget("deepseek").evidence.live).toBe("not-configured");
+    expect("capabilities" in resolveTarget("openai")).toBe(false);
+    expect("liveAdapter" in resolveTarget("openai")).toBe(false);
   });
 
   it("lists registered targets", () => {

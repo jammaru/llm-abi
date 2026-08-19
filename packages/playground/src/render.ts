@@ -253,7 +253,7 @@ function renderCard(target: PlaygroundTargetView): HTMLElement {
   const live = target.target.evidence.live === "nightly" ? " · nightly adapter" : "";
   evidence.append(
     source,
-    ` · verified ${target.target.evidence.lastVerified}${live} · ${target.target.maturity}`,
+    ` · ${target.target.evidence.lastVerified}${live} · ${target.target.maturity}`,
   );
 
   const hint = document.createElement("p");

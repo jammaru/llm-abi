@@ -36,13 +36,17 @@ export function listTargets(): readonly ResolvedTarget[] {
   return PROFILES.map(toResolved);
 }
 
-export function resolveTarget(id: TargetId): TargetProfile {
+export function getTargetProfile(id: TargetId): TargetProfile {
   const profile = BY_ID.get(id);
   if (!profile) {
     const known = PROFILES.map((item) => item.id).join(", ");
     throw new LlmAbiError(`Unknown target "${id}". Known targets: ${known}.`, "unknown-target");
   }
   return profile;
+}
+
+export function resolveTarget(id: TargetId): ResolvedTarget {
+  return toResolved(getTargetProfile(id));
 }
 
 export function toResolved(profile: TargetProfile): ResolvedTarget {

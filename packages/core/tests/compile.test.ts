@@ -53,6 +53,24 @@ describe("compile openai", () => {
     );
     expect(result.loss.removed.filter((item) => item.keyword === "optional")).toHaveLength(1);
   });
+
+  it("keeps distinct optional properties as separate diagnostics", () => {
+    const result = compile(
+      {
+        type: "object",
+        properties: {
+          name: { type: "string" },
+          nickname: { type: "string" },
+          email: { type: "string" },
+        },
+        required: ["name"],
+      },
+      "openai",
+    );
+    expect(result.diagnostics.filter((item) => item.code === "optional-to-nullable")).toHaveLength(
+      2,
+    );
+  });
 });
 
 describe("compile anthropic", () => {

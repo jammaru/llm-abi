@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { firstSecret } from "./live/adapters.ts";
+import { listTargets, resolveTarget } from "../../core/src/targets/registry.ts";
+import { firstSecret, LIVE_ADAPTERS } from "./live/adapters.ts";
 import { classifyLiveHttp, redact } from "./live/classify.ts";
 import { renderLiveJson, renderLiveReport } from "./live/report.ts";
 import { runLive } from "./live/run.ts";
@@ -215,6 +216,28 @@ describe("live conformance", () => {
     expect(parsed.rows[0]?.target).toBe("openai/responses/structured");
   });
 
+  it("keeps redacted live reasons in the JSON artifact", () => {
+    const json = renderLiveJson(
+      {
+        rows: [
+          {
+            fixture: "object-basic.json",
+            target: "openai/responses/structured",
+            compile: "runtime-safe",
+            live: "rejected",
+            reason: "HTTP 400 invalid schema [redacted]",
+          },
+        ],
+        accepted: 0,
+        rejected: 1,
+        skipped: 0,
+      },
+      "2026-08-18T00:00:00.000Z",
+    );
+    expect(json).toContain("[redacted]");
+    expect(json).not.toContain("sk-test");
+  });
+
   it("reads the first configured secret name", () => {
     expect(firstSecret({ GOOGLE_API_KEY: "g" }, ["GEMINI_API_KEY", "GOOGLE_API_KEY"])).toBe("g");
     expect(firstSecret({}, ["OPENAI_API_KEY"])).toBeUndefined();
@@ -228,5 +251,13 @@ describe("live conformance", () => {
 
   it("redacts secrets in error text", () => {
     expect(redact("token sk-secret leaked", ["sk-secret"])).toBe("token [redacted] leaked");
+  });
+
+  it("sets liveAdapter only when a nightly adapter exists for that target", () => {
+    const nightly = new Set(LIVE_ADAPTERS.map((adapter) => resolveTarget(adapter.target).id));
+    expect(nightly.size).toBe(LIVE_ADAPTERS.length);
+    for (const target of listTargets()) {
+      expect(nightly.has(target.id)).toBe(target.evidence.live === "nightly");
+    }
   });
 });

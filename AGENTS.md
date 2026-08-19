@@ -54,7 +54,7 @@ Input → IR → analyze → lower(profile) → emit → diagnostics
 3. Add fixtures under `packages/conformance/fixtures/`
 4. Add focused tests for the vendor-specific rules
 5. Document evidence (`documented` | `sdk-observed` | `empirical`)
-6. Update README target table honestly (`Verified` / `Partial` / `Experimental`)
+6. Update README target table honestly (`Supported` / `Partial` / `Experimental`)
 
 ## Agent files
 

@@ -6,7 +6,7 @@ import { fingerprintJson } from "./fingerprint.ts";
 import { cloneDocument } from "./ir/types.ts";
 import { parseInput } from "./input.ts";
 import { budgetDiagnostic, measureSchema } from "./size.ts";
-import { resolveTarget, toResolved } from "./targets/registry.ts";
+import { getTargetProfile, toResolved } from "./targets/registry.ts";
 import type {
   CompileOptions,
   CompileResult,
@@ -22,7 +22,7 @@ export function compile(
   targetOrOptions: TargetId | CompileOptions,
 ): CompileResult {
   const options = normalizeOptions(targetOrOptions);
-  const profile = resolveTarget(options.target);
+  const profile = getTargetProfile(options.target);
   const parsed = parseInput(schema, { typeName: options.typeName });
   const original = parsed.document;
   const working = cloneDocument(original);
