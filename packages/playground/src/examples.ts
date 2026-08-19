@@ -1,21 +1,33 @@
 import type { InputKind } from "./compile.ts";
+import type { Locale } from "./locale.ts";
+
+export interface LocalizedText {
+  readonly en: string;
+  readonly ja: string;
+}
 
 export interface PlaygroundExample {
   readonly id: string;
-  readonly title: string;
-  readonly lesson: string;
+  readonly title: LocalizedText;
+  readonly lesson: LocalizedText;
   readonly kind: InputKind;
   readonly typeName: string;
   readonly source: string;
   readonly instance: string;
 }
 
+export function localizedText(text: LocalizedText, locale: Locale): string {
+  return text[locale];
+}
+
 export const EXAMPLES: readonly PlaygroundExample[] = [
   {
     id: "json-one-of",
-    title: "oneOf union",
-    lesson:
-      "oneOf becomes anyOf on OpenAI and Anthropic (lossy). Gemini cannot represent either union form (unsupported). That spread is the point of llm-abi.",
+    title: { en: "oneOf union", ja: "oneOf ユニオン" },
+    lesson: {
+      en: "oneOf becomes anyOf on OpenAI and Anthropic (lossy). Gemini cannot represent either union form (unsupported). That spread is the point of llm-abi.",
+      ja: "OpenAI と Anthropic では oneOf が anyOf になり（lossy）、Gemini はどちらのユニオン形も表せません（unsupported）。この差が llm-abi の対象です。",
+    },
     kind: "json",
     typeName: "",
     source: `{
@@ -35,9 +47,11 @@ export const EXAMPLES: readonly PlaygroundExample[] = [
   },
   {
     id: "ts-user",
-    title: "TypeScript user",
-    lesson:
-      "Start from a closed TypeScript subset. OpenAI rewrites optional fields; Anthropic and Gemini keep them optional.",
+    title: { en: "TypeScript user", ja: "TypeScript のユーザー" },
+    lesson: {
+      en: "Start from a closed TypeScript subset. OpenAI rewrites optional fields; Anthropic and Gemini keep them optional.",
+      ja: "閉じた TypeScript サブセットから始めます。OpenAI は optional を書き換え、Anthropic と Gemini は optional のまま残します。",
+    },
     kind: "typescript",
     typeName: "User",
     source: `export type User = {
@@ -54,9 +68,11 @@ export const EXAMPLES: readonly PlaygroundExample[] = [
   },
   {
     id: "json-constraints",
-    title: "Numeric and string limits",
-    lesson:
-      "Anthropic cannot enforce minimum / minLength in the provider schema. Compatibility is runtime-safe, not a percentage: result.validate still checks them.",
+    title: { en: "Numeric and string limits", ja: "数値と文字列の制限" },
+    lesson: {
+      en: "Anthropic cannot enforce minimum / minLength in the provider schema. Compatibility is runtime-safe, not a percentage: result.validate still checks them.",
+      ja: "Anthropic は minimum / minLength をプロバイダスキーマでは強制できません。互換性は runtime-safe であり、パーセントではありません。result.validate がそれらを検査します。",
+    },
     kind: "json",
     typeName: "",
     source: `{
@@ -76,9 +92,11 @@ export const EXAMPLES: readonly PlaygroundExample[] = [
   },
   {
     id: "json-optional",
-    title: "Optional properties",
-    lesson:
-      "OpenAI strict structured outputs require every property and treat missing optionals as null. That rewrite is diagnosed; compatibility is runtime-safe, not lossless.",
+    title: { en: "Optional properties", ja: "オプショナルなプロパティ" },
+    lesson: {
+      en: "OpenAI strict structured outputs require every property and treat missing optionals as null. That rewrite is diagnosed; compatibility is runtime-safe, not lossless.",
+      ja: "OpenAI の strict structured outputs は全プロパティを必須にし、欠けた optional を null として扱います。この書き換えは診断され、互換性は lossless ではなく runtime-safe です。",
+    },
     kind: "json",
     typeName: "",
     source: `{
@@ -97,9 +115,11 @@ export const EXAMPLES: readonly PlaygroundExample[] = [
   },
   {
     id: "json-union-root",
-    title: "Union at the root",
-    lesson:
-      "OpenAI and Gemini structured outputs need an object root. Anthropic can keep a root anyOf. Unsupported is a discrete level, not a score.",
+    title: { en: "Union at the root", ja: "ルートのユニオン" },
+    lesson: {
+      en: "OpenAI and Gemini structured outputs need an object root. Anthropic can keep a root anyOf. Unsupported is a discrete level, not a score.",
+      ja: "OpenAI と Gemini の structured outputs はオブジェクトルートが必要です。Anthropic はルートの anyOf を残せます。unsupported は離散的なレベルであり、スコアではありません。",
+    },
     kind: "json",
     typeName: "",
     source: `{
@@ -124,9 +144,11 @@ export const EXAMPLES: readonly PlaygroundExample[] = [
   },
   {
     id: "json-tuple",
-    title: "Tuple prefixItems",
-    lesson:
-      "Gemini keeps prefixItems. OpenAI and Anthropic cannot represent tuples in structured output.",
+    title: { en: "Tuple prefixItems", ja: "タプルの prefixItems" },
+    lesson: {
+      en: "Gemini keeps prefixItems. OpenAI and Anthropic cannot represent tuples in structured output.",
+      ja: "Gemini は prefixItems を残します。OpenAI と Anthropic の structured output ではタプルを表せません。",
+    },
     kind: "json",
     typeName: "",
     source: `{
@@ -148,9 +170,11 @@ export const EXAMPLES: readonly PlaygroundExample[] = [
   },
   {
     id: "json-pattern",
-    title: "String pattern",
-    lesson:
-      "Gemini treats pattern as runtime-only. OpenAI and Anthropic keep simple patterns in the provider schema.",
+    title: { en: "String pattern", ja: "文字列の pattern" },
+    lesson: {
+      en: "Gemini treats pattern as runtime-only. OpenAI and Anthropic keep simple patterns in the provider schema.",
+      ja: "Gemini は pattern を実行時のみとして扱います。OpenAI と Anthropic は単純な pattern をプロバイダスキーマに残します。",
+    },
     kind: "json",
     typeName: "",
     source: `{
@@ -168,9 +192,11 @@ export const EXAMPLES: readonly PlaygroundExample[] = [
   },
   {
     id: "json-additional",
-    title: "additionalProperties: true",
-    lesson:
-      "OpenAI and Anthropic force additionalProperties false. Gemini preserves true. The rewrite is diagnosed; nothing is dropped silently.",
+    title: { en: "additionalProperties: true", ja: "additionalProperties: true" },
+    lesson: {
+      en: "OpenAI and Anthropic force additionalProperties false. Gemini preserves true. The rewrite is diagnosed; nothing is dropped silently.",
+      ja: "OpenAI と Anthropic は additionalProperties を false に強制します。Gemini は true を保ちます。書き換えは診断され、黙って捨てられません。",
+    },
     kind: "json",
     typeName: "",
     source: `{

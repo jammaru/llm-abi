@@ -4,8 +4,10 @@ import "@fontsource/ibm-plex-mono/latin-400.css";
 import "@fontsource/ibm-plex-mono/latin-500.css";
 import "./styles.css";
 import { runPlayground, validateInstance } from "./compile.ts";
+import { applyChrome, copyFor } from "./copy.ts";
 import { applyExample, decodeState, defaultState, encodeState, shareTooLong } from "./state.ts";
 import type { PlaygroundState } from "./state.ts";
+import { readStoredLocale, resolveLocale, writeStoredLocale, type Locale } from "./locale.ts";
 import {
   nextResolvedTheme,
   readStoredPreference,
@@ -87,7 +89,7 @@ function currentResolved(): ResolvedTheme {
   return resolvedTheme(readStoredPreference(window.localStorage), prefersDark());
 }
 
-function paintTheme(resolved: ResolvedTheme): void {
+function paintTheme(resolved: ResolvedTheme, locale: Locale): void {
   document.documentElement.dataset.theme = resolved;
   const themeColor = document.querySelector('meta[name="theme-color"]');
   if (themeColor) {
@@ -100,21 +102,35 @@ function paintTheme(resolved: ResolvedTheme): void {
   const button = document.getElementById("theme-toggle");
   if (button instanceof HTMLButtonElement) {
     const dark = resolved === "dark";
+    const copy = copyFor(locale);
     button.setAttribute("aria-pressed", dark ? "true" : "false");
-    button.setAttribute("aria-label", dark ? "Switch to light theme" : "Switch to dark theme");
+    button.setAttribute("aria-label", dark ? copy.themeToLight : copy.themeToDark);
   }
 }
 
-function bindTheme(): void {
-  paintTheme(currentResolved());
+function paintLocale(locale: Locale): void {
+  document.documentElement.lang = locale;
+  document.documentElement.dataset.locale = locale;
+  const en = document.getElementById("locale-en");
+  const ja = document.getElementById("locale-ja");
+  if (en instanceof HTMLInputElement) {
+    en.checked = locale === "en";
+  }
+  if (ja instanceof HTMLInputElement) {
+    ja.checked = locale === "ja";
+  }
+}
+
+function bindTheme(localeOf: () => Locale): void {
+  paintTheme(currentResolved(), localeOf());
   requiredElement<HTMLButtonElement>("theme-toggle").addEventListener("click", () => {
     const next = nextResolvedTheme(currentResolved());
     writeStoredPreference(window.localStorage, next);
-    paintTheme(next);
+    paintTheme(next, localeOf());
   });
   window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
     if (readStoredPreference(window.localStorage) === "auto") {
-      paintTheme(currentResolved());
+      paintTheme(currentResolved(), localeOf());
     }
   });
 }
@@ -157,11 +173,19 @@ function syncDetailsForViewport(): void {
 
 function main(): void {
   const demo = applyDemoMode();
-  if (!demo) {
-    bindTheme();
-  }
   const els = elements();
-  fillExampleSelect(els.example);
+  let locale: Locale = resolveLocale(
+    readStoredLocale(window.localStorage),
+    navigator.languages.length > 0 ? [...navigator.languages] : [navigator.language],
+  );
+  if (demo) {
+    locale = "en";
+  } else {
+    bindTheme(() => locale);
+  }
+  paintLocale(locale);
+  applyChrome(copyFor(locale));
+  fillExampleSelect(els.example, locale);
   let state = decodeState(window.location.hash) ?? defaultState();
   writeForm(els, state);
   let timer = 0;
@@ -171,10 +195,33 @@ function main(): void {
 
   const refresh = (next: PlaygroundState): void => {
     state = next;
+    const copy = copyFor(locale);
     const result = runPlayground(state.source, compileOptions(state));
-    renderResult(els, result, state);
+    renderResult(els, result, state, copy, locale);
     syncHash(state);
   };
+
+  const setLocale = (next: Locale): void => {
+    locale = next;
+    writeStoredLocale(window.localStorage, next);
+    paintLocale(next);
+    applyChrome(copyFor(next));
+    fillExampleSelect(els.example, next);
+    els.example.value = state.exampleId;
+    if (!demo) {
+      paintTheme(currentResolved(), next);
+    }
+    refresh(state);
+  };
+
+  if (!demo) {
+    requiredElement<HTMLInputElement>("locale-en").addEventListener("change", () => {
+      setLocale("en");
+    });
+    requiredElement<HTMLInputElement>("locale-ja").addEventListener("change", () => {
+      setLocale("ja");
+    });
+  }
 
   const schedule = (): void => {
     window.clearTimeout(timer);
@@ -218,20 +265,21 @@ function main(): void {
     renderValidation(
       els,
       validateInstance(current.source, compileOptions(current), current.instance),
+      copyFor(locale),
     );
   });
   requiredElement<HTMLButtonElement>("share").addEventListener("click", async () => {
     const current = readForm(els, state);
     state = current;
     const encoded = encodeState(current);
-    renderShareStatus(els, encoded, false);
+    renderShareStatus(els, encoded, false, copyFor(locale));
     if (shareTooLong(encoded)) {
       return;
     }
     const url = `${window.location.origin}${window.location.pathname}#${encoded}`;
     try {
       await navigator.clipboard.writeText(url);
-      renderShareStatus(els, encoded, true);
+      renderShareStatus(els, encoded, true, copyFor(locale));
     } catch {
       els.shareStatus.textContent = url;
     }

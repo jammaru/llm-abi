@@ -23,9 +23,9 @@ export function formatTokens(tokens: number): string {
   return `${String(tokens)} tok`;
 }
 
-export function formatPath(path: readonly string[]): string {
+export function formatPath(path: readonly string[], root = "(root)"): string {
   if (path.length === 0) {
-    return "(root)";
+    return root;
   }
   return path.join(".");
 }

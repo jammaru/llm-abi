@@ -1,9 +1,10 @@
 import type { Diagnostic } from "llm-abi";
 import { diagnosticMatrix, diffSchemas } from "./compare.ts";
 import type { InstanceCheck, PlaygroundResult, PlaygroundTargetView } from "./compile.ts";
-import { EXAMPLES } from "./examples.ts";
+import { localizePlaygroundError, type Copy } from "./copy.ts";
+import { EXAMPLES, localizedText } from "./examples.ts";
+import type { Locale } from "./locale.ts";
 import {
-  compatibilityHint,
   compatibilityLabel,
   formatBytes,
   formatPath,
@@ -36,13 +37,17 @@ export interface PlaygroundElements {
   readonly fingerprint: HTMLElement;
 }
 
-export function fillExampleSelect(select: HTMLSelectElement): void {
+export function fillExampleSelect(select: HTMLSelectElement, locale: Locale): void {
+  const selected = select.value;
   select.replaceChildren();
   for (const example of EXAMPLES) {
     const option = document.createElement("option");
     option.value = example.id;
-    option.textContent = example.title;
+    option.textContent = localizedText(example.title, locale);
     select.append(option);
+  }
+  if ([...select.options].some((option) => option.value === selected)) {
+    select.value = selected;
   }
 }
 
@@ -86,10 +91,12 @@ export function renderResult(
   els: PlaygroundElements,
   result: PlaygroundResult,
   state: PlaygroundState,
+  copy: Copy,
+  locale: Locale,
 ): void {
   if (!result.ok) {
     els.error.hidden = false;
-    els.error.textContent = result.message;
+    els.error.textContent = localizePlaygroundError(copy, result.code, result.message);
     els.lesson.hidden = true;
     els.lesson.textContent = "";
     els.analysis.replaceChildren();
@@ -102,29 +109,27 @@ export function renderResult(
   els.error.hidden = true;
   els.error.textContent = "";
   els.fingerprint.textContent = result.inputFingerprint;
-  renderLesson(els.lesson, state);
-  renderTargets(els.targets, result.targets);
-  renderAnalysis(els.analysis, result);
+  renderLesson(els.lesson, state, locale);
+  renderTargets(els.targets, result.targets, copy);
+  renderAnalysis(els.analysis, result, copy);
   fillCompareSelects(els.compareLeft, els.compareRight, result.targets, state);
-  renderMatrix(els.matrix, result.targets);
-  renderDiff(els.diff, result.targets, state.compareLeft, state.compareRight);
+  renderMatrix(els.matrix, result.targets, copy);
+  renderDiff(els.diff, result.targets, state.compareLeft, state.compareRight, copy);
 }
 
-export function renderValidation(els: PlaygroundElements, value: InstanceCheck): void {
+export function renderValidation(els: PlaygroundElements, value: InstanceCheck, copy: Copy): void {
   els.validateOut.replaceChildren();
   if (value.status === "error") {
     const p = document.createElement("p");
     p.className = "status status-error";
-    p.textContent = value.message;
+    p.textContent = localizePlaygroundError(copy, value.code, value.message);
     els.validateOut.append(p);
     return;
   }
   const result = value.result;
   const p = document.createElement("p");
   p.className = result.ok ? "status status-ok" : "status status-error";
-  p.textContent = result.ok
-    ? "Instance is valid against the original schema."
-    : "Instance failed original-schema validation.";
+  p.textContent = result.ok ? copy.instanceValid : copy.instanceInvalid;
   els.validateOut.append(p);
   if (result.issues.length === 0) {
     return;
@@ -133,22 +138,26 @@ export function renderValidation(els: PlaygroundElements, value: InstanceCheck):
   list.className = "issue-list";
   for (const issue of result.issues) {
     const item = document.createElement("li");
-    item.textContent = `${formatPath(issue.path)}: ${issue.message}`;
+    item.textContent = `${formatPath(issue.path, copy.rootPath)}: ${issue.message}`;
     list.append(item);
   }
   els.validateOut.append(list);
 }
 
-export function renderShareStatus(els: PlaygroundElements, encoded: string, copied: boolean): void {
+export function renderShareStatus(
+  els: PlaygroundElements,
+  encoded: string,
+  copied: boolean,
+  copy: Copy,
+): void {
   if (shareTooLong(encoded)) {
-    els.shareStatus.textContent =
-      "This schema is too large for a URL. Compilation still runs in the browser; copy the source instead.";
+    els.shareStatus.textContent = copy.shareTooLong;
     return;
   }
-  els.shareStatus.textContent = copied ? "Share URL copied." : "";
+  els.shareStatus.textContent = copied ? copy.shareCopied : "";
 }
 
-function renderLesson(root: HTMLElement, state: PlaygroundState): void {
+function renderLesson(root: HTMLElement, state: PlaygroundState, locale: Locale): void {
   const example = EXAMPLES.find((item) => item.id === state.exampleId);
   if (!example) {
     root.hidden = true;
@@ -156,39 +165,47 @@ function renderLesson(root: HTMLElement, state: PlaygroundState): void {
     return;
   }
   root.hidden = false;
-  root.textContent = example.lesson;
+  root.textContent = localizedText(example.lesson, locale);
 }
 
-function renderAnalysis(root: HTMLElement, result: Extract<PlaygroundResult, { ok: true }>): void {
+function renderAnalysis(
+  root: HTMLElement,
+  result: Extract<PlaygroundResult, { ok: true }>,
+  copy: Copy,
+): void {
   const stats = result.analysis.stats;
   root.replaceChildren();
   const dl = document.createElement("dl");
   dl.className = "stats";
-  addStat(dl, "Nodes", String(stats.nodes));
-  addStat(dl, "Depth", String(stats.depth));
-  addStat(dl, "Properties", String(stats.properties));
-  addStat(dl, "$defs", String(stats.defs));
-  addStat(dl, "Unused $defs", String(stats.unusedDefs));
-  addStat(dl, "Constraints", String(stats.constraints));
-  addStat(dl, "Input size", `${formatBytes(stats.bytes)} · ${formatTokens(stats.tokens)}`);
+  addStat(dl, copy.statsNodes, String(stats.nodes));
+  addStat(dl, copy.statsDepth, String(stats.depth));
+  addStat(dl, copy.statsProperties, String(stats.properties));
+  addStat(dl, copy.statsDefs, String(stats.defs));
+  addStat(dl, copy.statsUnusedDefs, String(stats.unusedDefs));
+  addStat(dl, copy.statsConstraints, String(stats.constraints));
+  addStat(dl, copy.statsInputSize, `${formatBytes(stats.bytes)} · ${formatTokens(stats.tokens)}`);
   root.append(dl);
 }
 
-function renderTargets(root: HTMLElement, targets: readonly PlaygroundTargetView[]): void {
+function renderTargets(
+  root: HTMLElement,
+  targets: readonly PlaygroundTargetView[],
+  copy: Copy,
+): void {
   root.replaceChildren();
   const overview = document.createElement("section");
   overview.className = "target-overview";
-  overview.setAttribute("aria-label", "Compatibility overview");
+  overview.setAttribute("aria-label", copy.overviewAria);
   const cards = document.createElement("div");
   cards.className = "target-cards";
   for (const target of targets) {
-    overview.append(renderOverviewItem(target));
-    cards.append(renderCard(target));
+    overview.append(renderOverviewItem(target, copy));
+    cards.append(renderCard(target, copy));
   }
   root.append(overview, cards);
 }
 
-function renderOverviewItem(target: PlaygroundTargetView): HTMLElement {
+function renderOverviewItem(target: PlaygroundTargetView, copy: Copy): HTMLElement {
   const item = document.createElement("button");
   item.type = "button";
   item.className = "overview-item";
@@ -207,16 +224,12 @@ function renderOverviewItem(target: PlaygroundTargetView): HTMLElement {
   const count = document.createElement("span");
   count.className = "overview-count";
   const first = target.diagnostics[0];
-  count.textContent = first
-    ? first.code
-    : `${String(target.diagnostics.length)} diagnostic${
-        target.diagnostics.length === 1 ? "" : "s"
-      }`;
+  count.textContent = first ? first.code : copy.overviewNoDiagnostics;
   item.append(vendor, result, count);
   return item;
 }
 
-function renderCard(target: PlaygroundTargetView): HTMLElement {
+function renderCard(target: PlaygroundTargetView, copy: Copy): HTMLElement {
   const article = document.createElement("article");
   article.className = "card";
   article.id = `target-${target.target.vendor}`;
@@ -249,16 +262,16 @@ function renderCard(target: PlaygroundTargetView): HTMLElement {
     source.target = "_blank";
     source.rel = "noreferrer";
   }
-  source.textContent = target.target.evidence.kind;
-  const live = target.target.evidence.live === "nightly" ? " · nightly adapter" : "";
+  source.textContent = copy.evidenceKind[target.target.evidence.kind];
+  const live = target.target.evidence.live === "nightly" ? ` · ${copy.evidenceNightly}` : "";
   evidence.append(
     source,
-    ` · ${target.target.evidence.lastVerified}${live} · ${target.target.maturity}`,
+    ` · ${target.target.evidence.lastVerified}${live} · ${copy.maturity[target.target.maturity]}`,
   );
 
   const hint = document.createElement("p");
   hint.className = "compat-hint";
-  hint.textContent = compatibilityHint(target.compatibility);
+  hint.textContent = copy.compatHint[target.compatibility];
 
   article.append(
     header,
@@ -266,13 +279,13 @@ function renderCard(target: PlaygroundTargetView): HTMLElement {
     hint,
     evidence,
     meta,
-    renderDiagnostics(target.diagnostics),
-    renderLoss(target),
+    renderDiagnostics(target.diagnostics, copy),
+    renderLoss(target, copy),
   );
 
   const details = document.createElement("details");
   const summary = document.createElement("summary");
-  summary.textContent = "Provider schema";
+  summary.textContent = copy.providerSchema;
   const pre = document.createElement("pre");
   pre.textContent = prettyJson(target.schema);
   details.append(summary, pre);
@@ -280,15 +293,15 @@ function renderCard(target: PlaygroundTargetView): HTMLElement {
   return article;
 }
 
-function renderDiagnostics(diagnostics: readonly Diagnostic[]): HTMLElement {
+function renderDiagnostics(diagnostics: readonly Diagnostic[], copy: Copy): HTMLElement {
   const section = document.createElement("section");
   const heading = document.createElement("h4");
-  heading.textContent = "Diagnostics";
+  heading.textContent = copy.diagnostics;
   section.append(heading);
   if (diagnostics.length === 0) {
     const empty = document.createElement("p");
     empty.className = "muted";
-    empty.textContent = "None. The provider schema keeps the input meaning.";
+    empty.textContent = copy.diagnosticsEmpty;
     section.append(empty);
     return section;
   }
@@ -300,7 +313,7 @@ function renderDiagnostics(diagnostics: readonly Diagnostic[]): HTMLElement {
     code.textContent = diagnostic.code;
     const text = document.createElement("span");
     const keyword = diagnostic.keyword ? ` ${diagnostic.keyword}` : "";
-    text.textContent = ` ${formatPath(diagnostic.path)}${keyword}: ${diagnostic.message}`;
+    text.textContent = ` ${formatPath(diagnostic.path, copy.rootPath)}${keyword}: ${diagnostic.message}`;
     item.append(code, text);
     list.append(item);
   }
@@ -308,13 +321,13 @@ function renderDiagnostics(diagnostics: readonly Diagnostic[]): HTMLElement {
   return section;
 }
 
-function renderLoss(target: PlaygroundTargetView): HTMLElement {
+function renderLoss(target: PlaygroundTargetView, copy: Copy): HTMLElement {
   const section = document.createElement("section");
   const heading = document.createElement("h4");
-  heading.textContent = "Loss";
+  heading.textContent = copy.loss;
   section.append(heading);
   const level = document.createElement("p");
-  level.textContent = `level: ${target.loss.level}`;
+  level.textContent = `${copy.lossLevel}: ${target.loss.level}`;
   section.append(level);
   if (target.loss.removed.length === 0) {
     return section;
@@ -322,20 +335,24 @@ function renderLoss(target: PlaygroundTargetView): HTMLElement {
   const list = document.createElement("ul");
   for (const item of target.loss.removed) {
     const li = document.createElement("li");
-    li.textContent = `${formatPath(item.path)} ${item.keyword} → ${item.fallback}`;
+    li.textContent = `${formatPath(item.path, copy.rootPath)} ${item.keyword} → ${item.fallback}`;
     list.append(li);
   }
   section.append(list);
   return section;
 }
 
-function renderMatrix(root: HTMLElement, targets: readonly PlaygroundTargetView[]): void {
+function renderMatrix(
+  root: HTMLElement,
+  targets: readonly PlaygroundTargetView[],
+  copy: Copy,
+): void {
   root.replaceChildren();
-  const rows = diagnosticMatrix(targets);
+  const rows = diagnosticMatrix(targets, copy.rootPath);
   if (rows.length === 0) {
     const p = document.createElement("p");
     p.className = "muted";
-    p.textContent = "No diagnostics on any target.";
+    p.textContent = copy.matrixEmpty;
     root.append(p);
     return;
   }
@@ -343,8 +360,8 @@ function renderMatrix(root: HTMLElement, targets: readonly PlaygroundTargetView[
   table.className = "matrix";
   const head = document.createElement("thead");
   const headRow = document.createElement("tr");
-  appendCell(headRow, "th", "Code");
-  appendCell(headRow, "th", "Path");
+  appendCell(headRow, "th", copy.matrixCode);
+  appendCell(headRow, "th", copy.matrixPath);
   for (const target of targets) {
     appendCell(headRow, "th", vendorLabel(target.target.vendor));
   }
@@ -356,7 +373,7 @@ function renderMatrix(root: HTMLElement, targets: readonly PlaygroundTargetView[
     appendCell(tr, "td", row.path);
     for (const target of targets) {
       const td = document.createElement("td");
-      td.textContent = row.byTarget.get(target.target.id) ? "yes" : "—";
+      td.textContent = row.byTarget.get(target.target.id) ? copy.matrixYes : "—";
       tr.append(td);
     }
     body.append(tr);
@@ -370,6 +387,7 @@ function renderDiff(
   targets: readonly PlaygroundTargetView[],
   leftId: string,
   rightId: string,
+  copy: Copy,
 ): void {
   root.replaceChildren();
   const left = targets.find((item) => item.target.id === leftId) ?? targets[0];
@@ -380,18 +398,18 @@ function renderDiff(
   if (left.target.id === right.target.id) {
     const p = document.createElement("p");
     p.className = "muted";
-    p.textContent = "Pick two different targets to diff emitted JSON.";
+    p.textContent = copy.diffPick;
     root.append(p);
     return;
   }
-  const diffs = diffSchemas(left.schema, right.schema);
+  const diffs = diffSchemas(left.schema, right.schema, copy.rootPath);
   const intro = document.createElement("p");
   intro.className = "muted";
   intro.textContent = `${left.target.id} vs ${right.target.id}`;
   root.append(intro);
   if (diffs.length === 0) {
     const p = document.createElement("p");
-    p.textContent = "Emitted JSON is identical.";
+    p.textContent = copy.diffIdentical;
     root.append(p);
     return;
   }
@@ -399,7 +417,7 @@ function renderDiff(
   table.className = "matrix";
   const head = document.createElement("thead");
   const headRow = document.createElement("tr");
-  appendCell(headRow, "th", "Path");
+  appendCell(headRow, "th", copy.matrixPath);
   appendCell(headRow, "th", vendorLabel(left.target.vendor));
   appendCell(headRow, "th", vendorLabel(right.target.vendor));
   head.append(headRow);
