@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { diagnosticMatrix, diffSchemas } from "../src/compare.ts";
 import { runPlayground } from "../src/compile.ts";
-import { defaultExample } from "../src/examples.ts";
+import { exampleById } from "../src/examples.ts";
 
 describe("playground compare", () => {
   it("diffs object keys without treating missing as equal", () => {
@@ -11,10 +11,14 @@ describe("playground compare", () => {
   });
 
   it("builds a diagnostic matrix keyed by code and path", () => {
-    const example = defaultExample();
+    const example = exampleById("ts-user");
+    expect(example).toBeDefined();
+    if (!example) {
+      return;
+    }
     const result = runPlayground(example.source, {
-      kind: "typescript",
-      typeName: "User",
+      kind: example.kind,
+      typeName: example.typeName,
       optimize: false,
       constraintFallback: "description",
     });

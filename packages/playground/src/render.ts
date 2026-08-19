@@ -2,7 +2,15 @@ import type { Diagnostic } from "llm-abi";
 import { diagnosticMatrix, diffSchemas } from "./compare.ts";
 import type { InstanceCheck, PlaygroundResult, PlaygroundTargetView } from "./compile.ts";
 import { EXAMPLES } from "./examples.ts";
-import { compatibilityLabel, formatBytes, formatPath, formatTokens, prettyJson } from "./format.ts";
+import {
+  compatibilityHint,
+  compatibilityLabel,
+  formatBytes,
+  formatPath,
+  formatTokens,
+  prettyJson,
+  vendorLabel,
+} from "./format.ts";
 import type { PlaygroundState } from "./state.ts";
 import { shareTooLong } from "./state.ts";
 
@@ -15,6 +23,7 @@ export interface PlaygroundElements {
   readonly kindJson: HTMLInputElement;
   readonly kindTypescript: HTMLInputElement;
   readonly error: HTMLElement;
+  readonly lesson: HTMLElement;
   readonly analysis: HTMLElement;
   readonly targets: HTMLElement;
   readonly matrix: HTMLElement;
@@ -81,6 +90,8 @@ export function renderResult(
   if (!result.ok) {
     els.error.hidden = false;
     els.error.textContent = result.message;
+    els.lesson.hidden = true;
+    els.lesson.textContent = "";
     els.analysis.replaceChildren();
     els.targets.replaceChildren();
     els.matrix.replaceChildren();
@@ -91,8 +102,9 @@ export function renderResult(
   els.error.hidden = true;
   els.error.textContent = "";
   els.fingerprint.textContent = result.inputFingerprint;
-  renderAnalysis(els.analysis, result, state);
+  renderLesson(els.lesson, state);
   renderTargets(els.targets, result.targets);
+  renderAnalysis(els.analysis, result);
   fillCompareSelects(els.compareLeft, els.compareRight, result.targets, state);
   renderMatrix(els.matrix, result.targets);
   renderDiff(els.diff, result.targets, state.compareLeft, state.compareRight);
@@ -136,20 +148,20 @@ export function renderShareStatus(els: PlaygroundElements, encoded: string, copi
   els.shareStatus.textContent = copied ? "Share URL copied." : "";
 }
 
-function renderAnalysis(
-  root: HTMLElement,
-  result: Extract<PlaygroundResult, { ok: true }>,
-  state: PlaygroundState,
-): void {
-  const stats = result.analysis.stats;
+function renderLesson(root: HTMLElement, state: PlaygroundState): void {
   const example = EXAMPLES.find((item) => item.id === state.exampleId);
-  root.replaceChildren();
-  if (example) {
-    const lesson = document.createElement("p");
-    lesson.className = "lesson";
-    lesson.textContent = example.lesson;
-    root.append(lesson);
+  if (!example) {
+    root.hidden = true;
+    root.textContent = "";
+    return;
   }
+  root.hidden = false;
+  root.textContent = example.lesson;
+}
+
+function renderAnalysis(root: HTMLElement, result: Extract<PlaygroundResult, { ok: true }>): void {
+  const stats = result.analysis.stats;
+  root.replaceChildren();
   const dl = document.createElement("dl");
   dl.className = "stats";
   addStat(dl, "Nodes", String(stats.nodes));
@@ -177,20 +189,29 @@ function renderTargets(root: HTMLElement, targets: readonly PlaygroundTargetView
 }
 
 function renderOverviewItem(target: PlaygroundTargetView): HTMLElement {
-  const item = document.createElement("article");
+  const item = document.createElement("button");
+  item.type = "button";
   item.className = "overview-item";
+  item.dataset["jumpTarget"] = `target-${target.target.vendor}`;
+  item.setAttribute(
+    "aria-label",
+    `${vendorLabel(target.target.vendor)} ${compatibilityLabel(target.compatibility)}`,
+  );
   item.dataset["compatibility"] = target.compatibility;
   const vendor = document.createElement("span");
   vendor.className = "overview-vendor";
-  vendor.textContent = target.target.vendor;
+  vendor.textContent = vendorLabel(target.target.vendor);
   const result = document.createElement("strong");
   result.className = `overview-result compat-${target.compatibility}`;
   result.textContent = compatibilityLabel(target.compatibility);
   const count = document.createElement("span");
   count.className = "overview-count";
-  count.textContent = `${String(target.diagnostics.length)} diagnostic${
-    target.diagnostics.length === 1 ? "" : "s"
-  }`;
+  const first = target.diagnostics[0];
+  count.textContent = first
+    ? first.code
+    : `${String(target.diagnostics.length)} diagnostic${
+        target.diagnostics.length === 1 ? "" : "s"
+      }`;
   item.append(vendor, result, count);
   return item;
 }
@@ -198,11 +219,12 @@ function renderOverviewItem(target: PlaygroundTargetView): HTMLElement {
 function renderCard(target: PlaygroundTargetView): HTMLElement {
   const article = document.createElement("article");
   article.className = "card";
+  article.id = `target-${target.target.vendor}`;
   article.dataset["compatibility"] = target.compatibility;
 
   const header = document.createElement("header");
   const title = document.createElement("h3");
-  title.textContent = target.target.vendor;
+  title.textContent = vendorLabel(target.target.vendor);
   const id = document.createElement("p");
   id.className = "muted";
   id.textContent = `${target.target.id} · ${target.target.revision}`;
@@ -213,15 +235,20 @@ function renderCard(target: PlaygroundTargetView): HTMLElement {
   badge.textContent = compatibilityLabel(target.compatibility);
 
   const meta = document.createElement("p");
-  meta.className = "muted";
+  meta.className = "muted card-meta";
   meta.textContent = `${formatBytes(target.size.bytes)} · ${formatTokens(target.size.tokens)} · ${target.fingerprint}`;
 
   const evidence = document.createElement("p");
   evidence.className = "evidence-line";
-  const source = document.createElement("a");
-  source.href = target.target.evidence.source;
-  source.target = "_blank";
-  source.rel = "noreferrer";
+  const evidenceUrl = target.target.evidence.source;
+  const source = evidenceUrl.startsWith("https://")
+    ? document.createElement("a")
+    : document.createElement("span");
+  if (source instanceof HTMLAnchorElement) {
+    source.href = evidenceUrl;
+    source.target = "_blank";
+    source.rel = "noreferrer";
+  }
   source.textContent = target.target.evidence.kind;
   const live = target.target.evidence.live === "nightly" ? " · nightly adapter" : "";
   evidence.append(
@@ -229,9 +256,14 @@ function renderCard(target: PlaygroundTargetView): HTMLElement {
     ` · verified ${target.target.evidence.lastVerified}${live} · ${target.target.maturity}`,
   );
 
+  const hint = document.createElement("p");
+  hint.className = "compat-hint";
+  hint.textContent = compatibilityHint(target.compatibility);
+
   article.append(
     header,
     badge,
+    hint,
     evidence,
     meta,
     renderDiagnostics(target.diagnostics),
@@ -314,7 +346,7 @@ function renderMatrix(root: HTMLElement, targets: readonly PlaygroundTargetView[
   appendCell(headRow, "th", "Code");
   appendCell(headRow, "th", "Path");
   for (const target of targets) {
-    appendCell(headRow, "th", target.target.vendor);
+    appendCell(headRow, "th", vendorLabel(target.target.vendor));
   }
   head.append(headRow);
   const body = document.createElement("tbody");
@@ -368,8 +400,8 @@ function renderDiff(
   const head = document.createElement("thead");
   const headRow = document.createElement("tr");
   appendCell(headRow, "th", "Path");
-  appendCell(headRow, "th", left.target.vendor);
-  appendCell(headRow, "th", right.target.vendor);
+  appendCell(headRow, "th", vendorLabel(left.target.vendor));
+  appendCell(headRow, "th", vendorLabel(right.target.vendor));
   head.append(headRow);
   const body = document.createElement("tbody");
   for (const diff of diffs) {
@@ -393,7 +425,7 @@ function fillTargetSelect(
   for (const target of targets) {
     const option = document.createElement("option");
     option.value = target.target.id;
-    option.textContent = `${target.target.vendor} (${compatibilityLabel(target.compatibility)})`;
+    option.textContent = `${vendorLabel(target.target.vendor)} (${compatibilityLabel(target.compatibility)})`;
     select.append(option);
   }
   if ([...select.options].some((option) => option.value === previous)) {

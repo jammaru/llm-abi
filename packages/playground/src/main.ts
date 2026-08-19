@@ -43,6 +43,7 @@ function elements(): PlaygroundElements {
     kindJson: requiredElement("kind-json"),
     kindTypescript: requiredElement("kind-ts"),
     error: requiredElement("error"),
+    lesson: requiredElement("lesson"),
     analysis: requiredElement("analysis"),
     targets: requiredElement("targets"),
     matrix: requiredElement("matrix"),
@@ -118,13 +119,55 @@ function bindTheme(): void {
   });
 }
 
+function applyDemoMode(): boolean {
+  const scene = new URLSearchParams(window.location.search).get("demo");
+  if (!scene) {
+    return false;
+  }
+  document.body.classList.add("demo-mode");
+  document.body.dataset["demo"] = scene;
+  document.documentElement.dataset.theme = "light";
+  const caption = document.getElementById("demo-caption");
+  if (caption) {
+    caption.hidden = false;
+    caption.textContent =
+      scene === "schema"
+        ? "1. Paste one JSON Schema"
+        : scene === "diag"
+          ? "3. Diagnostics explain the rewrite"
+          : "2. Compare every provider";
+  }
+  return true;
+}
+
+function syncDetailsForViewport(): void {
+  const compact = window.matchMedia("(max-width: 700px), (max-height: 740px)").matches;
+  const demo = document.body.classList.contains("demo-mode");
+  const advanced = document.getElementById("advanced-input");
+  if (advanced instanceof HTMLDetailsElement) {
+    advanced.open = !compact && !demo;
+  }
+  for (const id of ["matrix-details", "diff-details", "validate-details"]) {
+    const details = document.getElementById(id);
+    if (details instanceof HTMLDetailsElement) {
+      details.open = false;
+    }
+  }
+}
+
 function main(): void {
-  bindTheme();
+  const demo = applyDemoMode();
+  if (!demo) {
+    bindTheme();
+  }
   const els = elements();
   fillExampleSelect(els.example);
   let state = decodeState(window.location.hash) ?? defaultState();
   writeForm(els, state);
   let timer = 0;
+  syncDetailsForViewport();
+  window.matchMedia("(max-width: 700px)").addEventListener("change", syncDetailsForViewport);
+  window.matchMedia("(max-height: 740px)").addEventListener("change", syncDetailsForViewport);
 
   const refresh = (next: PlaygroundState): void => {
     state = next;
@@ -156,6 +199,18 @@ function main(): void {
     const selected = applyExample(readForm(els, state), els.example.value);
     writeForm(els, selected);
     refresh(selected);
+  });
+  els.targets.addEventListener("click", (event) => {
+    const item =
+      event.target instanceof Element ? event.target.closest("[data-jump-target]") : null;
+    if (!(item instanceof HTMLElement)) {
+      return;
+    }
+    const jumpTarget = item.dataset["jumpTarget"];
+    if (!jumpTarget) {
+      return;
+    }
+    document.getElementById(jumpTarget)?.scrollIntoView({ behavior: "smooth", block: "start" });
   });
   requiredElement<HTMLButtonElement>("validate").addEventListener("click", () => {
     const current = readForm(els, state);

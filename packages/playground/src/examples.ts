@@ -12,10 +12,32 @@ export interface PlaygroundExample {
 
 export const EXAMPLES: readonly PlaygroundExample[] = [
   {
+    id: "json-one-of",
+    title: "oneOf union",
+    lesson:
+      "oneOf becomes anyOf on OpenAI and Anthropic (lossy). Gemini cannot represent either union form (unsupported). That spread is the point of llm-abi.",
+    kind: "json",
+    typeName: "",
+    source: `{
+  "type": "object",
+  "properties": {
+    "value": {
+      "oneOf": [{ "type": "string" }, { "type": "number" }]
+    }
+  },
+  "required": ["value"]
+}
+`,
+    instance: `{
+  "value": "ok"
+}
+`,
+  },
+  {
     id: "ts-user",
     title: "TypeScript user",
     lesson:
-      "The schema ABI starts from a closed TypeScript subset. OpenAI rewrites optional fields; Anthropic and Gemini keep them optional.",
+      "Start from a closed TypeScript subset. OpenAI rewrites optional fields; Anthropic and Gemini keep them optional.",
     kind: "typescript",
     typeName: "User",
     source: `export type User = {
@@ -56,7 +78,7 @@ export const EXAMPLES: readonly PlaygroundExample[] = [
     id: "json-optional",
     title: "Optional properties",
     lesson:
-      "OpenAI strict structured outputs require every property and treat missing optionals as null. That rewrite is lossy and always diagnosed.",
+      "OpenAI strict structured outputs require every property and treat missing optionals as null. That rewrite is diagnosed; compatibility is runtime-safe, not lossless.",
     kind: "json",
     typeName: "",
     source: `{
@@ -70,28 +92,6 @@ export const EXAMPLES: readonly PlaygroundExample[] = [
 `,
     instance: `{
   "name": "Ada"
-}
-`,
-  },
-  {
-    id: "json-one-of",
-    title: "oneOf union",
-    lesson:
-      "oneOf becomes anyOf on OpenAI and Anthropic (lossy). Gemini cannot represent either union form here.",
-    kind: "json",
-    typeName: "",
-    source: `{
-  "type": "object",
-  "properties": {
-    "value": {
-      "oneOf": [{ "type": "string" }, { "type": "number" }]
-    }
-  },
-  "required": ["value"]
-}
-`,
-    instance: `{
-  "value": "ok"
 }
 `,
   },
@@ -190,7 +190,7 @@ export const EXAMPLES: readonly PlaygroundExample[] = [
   },
 ];
 
-export const DEFAULT_EXAMPLE_ID: string = "ts-user";
+export const DEFAULT_EXAMPLE_ID: string = "json-one-of";
 
 export function exampleById(id: string): PlaygroundExample | undefined {
   return EXAMPLES.find((example) => example.id === id);

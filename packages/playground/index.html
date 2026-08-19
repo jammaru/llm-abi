@@ -2,10 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta
       name="description"
-      content="Compile a TypeScript type or JSON Schema against OpenAI, Anthropic, Gemini, and more. See diagnostics, loss, and conservative size — not a compatibility percentage."
+      content="Paste a TypeScript type or JSON Schema. Compare OpenAI, Anthropic, Gemini, and more as lossless, runtime-safe, lossy, or unsupported — not a compatibility percentage."
     />
     <meta name="color-scheme" content="light dark" />
     <meta name="theme-color" content="#ffffff" />
@@ -14,12 +14,15 @@
     <script src="./theme-boot.js"></script>
   </head>
   <body>
+    <p id="demo-caption" class="demo-caption" hidden></p>
     <a class="skip" href="#results">Skip to results</a>
     <header class="site-header">
       <div class="brand">
         <a class="wordmark" href="./">llm-abi</a>
-        <p class="tagline">
-          One schema. Every model. The schema ABI between TypeScript and LLM providers.
+        <p class="tagline">One schema. Every model.</p>
+        <p class="tagline-sub">
+          Paste a TypeScript type or JSON Schema. See what OpenAI, Claude, Gemini, DeepSeek, and
+          others actually accept.
         </p>
       </div>
       <div class="header-actions">
@@ -85,6 +88,7 @@
     <main class="layout">
       <section class="panel panel-input" aria-labelledby="input-heading">
         <h2 id="input-heading">Input</h2>
+        <p class="input-lead">Results update as you type. The schema never leaves this browser.</p>
         <div class="row">
           <label>
             Example
@@ -113,67 +117,99 @@
             autocomplete="off"
           ></textarea>
         </label>
-        <label>
-          Type name (TypeScript)
-          <input id="type-name" type="text" spellcheck="false" />
-        </label>
-        <div class="checks">
+        <details class="advanced" id="advanced-input">
+          <summary>Type name and options</summary>
           <label>
-            <input id="optimize" type="checkbox" />
-            <span>Optimize redundant titles</span>
+            Type name (TypeScript)
+            <input id="type-name" type="text" spellcheck="false" />
           </label>
-        </div>
-        <label>
-          Constraint fallback
-          <select id="fallback">
-            <option value="description">description</option>
-            <option value="strip">strip</option>
-          </select>
-        </label>
+          <div class="checks">
+            <label>
+              <input id="optimize" type="checkbox" />
+              <span>Optimize redundant titles</span>
+            </label>
+          </div>
+          <label>
+            Constraint fallback
+            <select id="fallback">
+              <option value="description">description</option>
+              <option value="strip">strip</option>
+            </select>
+          </label>
+        </details>
         <p class="privacy">
-          Compilation runs in this browser with profiles shipped in llm-abi. The schema is not
-          uploaded. Tokens are ceil(UTF-8 bytes / 3), a conservative overhead hint, not billing and
-          not a score.
+          Compilation uses profiles shipped in llm-abi. Tokens are ceil(UTF-8 bytes / 3), a
+          conservative overhead hint, not billing and not a score.
         </p>
       </section>
       <section class="panel panel-results" id="results" aria-labelledby="results-heading">
         <h2 id="results-heading">Results</h2>
+        <p class="results-lead">
+          Each provider is <code>lossless</code>, <code>runtime-safe</code>, <code>lossy</code>, or
+          <code>unsupported</code>. There is no compatibility percentage.
+        </p>
+        <ul class="compat-legend">
+          <li>
+            <span class="compat compat-lossless">lossless</span>
+            kept
+          </li>
+          <li>
+            <span class="compat compat-runtime-safe">runtime-safe</span>
+            validate()
+          </li>
+          <li>
+            <span class="compat compat-lossy">lossy</span>
+            rewritten
+          </li>
+          <li>
+            <span class="compat compat-unsupported">unsupported</span>
+            cannot represent
+          </li>
+        </ul>
         <p id="error" class="error" hidden></p>
+        <p id="lesson" class="lesson" hidden></p>
+        <div id="targets" class="targets"></div>
+        <div id="analysis"></div>
         <p class="fingerprint-row">
           Input fingerprint
           <span id="fingerprint" class="fingerprint"></span>
         </p>
-        <div id="analysis"></div>
-        <h2>Per target</h2>
-        <div id="targets" class="targets"></div>
-        <h2>Diagnostic matrix</h2>
-        <div id="matrix"></div>
-        <h2>Emitted JSON diff</h2>
-        <div class="compare-controls">
+        <details class="extra-results" id="matrix-details">
+          <summary>Diagnostic matrix</summary>
+          <div id="matrix"></div>
+        </details>
+        <details class="extra-results" id="diff-details">
+          <summary>Emitted JSON diff</summary>
+          <div class="compare-controls">
+            <label>
+              Left
+              <select id="compare-left"></select>
+            </label>
+            <label>
+              Right
+              <select id="compare-right"></select>
+            </label>
+          </div>
+          <div id="diff"></div>
+        </details>
+        <details class="extra-results" id="validate-details">
+          <summary>Validate original schema</summary>
           <label>
-            Left
-            <select id="compare-left"></select>
+            JSON instance
+            <textarea id="instance" spellcheck="false"></textarea>
           </label>
-          <label>
-            Right
-            <select id="compare-right"></select>
-          </label>
-        </div>
-        <div id="diff"></div>
-        <h2>Validate original schema</h2>
-        <label>
-          JSON instance
-          <textarea id="instance" spellcheck="false"></textarea>
-        </label>
-        <p class="actions">
-          <button id="validate" class="btn btn-primary" type="button">Validate</button>
-        </p>
-        <div id="validate-out"></div>
-        <h2>Share</h2>
-        <p class="actions">
-          <button id="share" class="btn btn-ghost" type="button">Copy share URL</button>
-        </p>
-        <p id="share-status" class="muted" aria-live="polite"></p>
+          <p class="actions">
+            <button id="validate" class="btn btn-primary" type="button">Validate</button>
+          </p>
+          <div id="validate-out"></div>
+        </details>
+        <section class="share-block" aria-labelledby="share-heading">
+          <h2 id="share-heading">Share</h2>
+          <p class="actions">
+            <button id="share" class="btn btn-ghost" type="button">Copy share URL</button>
+          </p>
+          <p id="share-status" class="muted" aria-live="polite"></p>
+        </section>
       </section>
     </main>
     <footer class="site-footer">

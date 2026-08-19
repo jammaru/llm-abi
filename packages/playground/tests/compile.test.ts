@@ -1,10 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { runPlayground, toSchemaInput, validateInstance } from "../src/compile.ts";
-import { defaultExample } from "../src/examples.ts";
+import { exampleById } from "../src/examples.ts";
 
 describe("playground compile", () => {
   it("compares every built-in target for TypeScript input", () => {
-    const example = defaultExample();
+    const example = exampleById("ts-user");
+    expect(example).toBeDefined();
+    if (!example) {
+      return;
+    }
     const result = runPlayground(example.source, {
       kind: "typescript",
       typeName: example.typeName,

@@ -2,11 +2,13 @@
 
 **One schema. Every model.**
 
-![Paste one schema and compare provider-safe output and diagnostics](docs/assets/playground-demo.gif)
+![Paste one schema and compare lossless, runtime-safe, lossy, and unsupported per provider](docs/assets/playground-demo.gif)
 
 ```bash
 npm i llm-abi
 ```
+
+Paste a JSON Schema (or a TypeScript type) in the [playground](https://llm-abi.pages.dev/). Each provider comes back `lossless`, `runtime-safe`, `lossy`, or `unsupported`, with diagnostics for every rewrite.
 
 The schema compatibility compiler between TypeScript and LLM providers.
 
