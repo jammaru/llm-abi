@@ -974,6 +974,23 @@ body.demo-mode .share-block {
   display: none;
 }
 
+body.demo-mode[data-demo="schema"] #input-heading,
+body.demo-mode[data-demo="schema"] .row,
+body.demo-mode[data-demo="schema"] .segmented,
+body.demo-mode[data-demo="schema"] label:has(#source) > span {
+  display: none;
+}
+
+body.demo-mode[data-demo="grid"] .compat-legend {
+  display: flex;
+}
+
+body.demo-mode[data-demo="grid"] #results-heading,
+body.demo-mode[data-demo="diag"] #results-heading,
+body.demo-mode[data-demo="diag"] .lesson {
+  display: none;
+}
+
 body.demo-mode[data-demo="schema"] .layout,
 body.demo-mode[data-demo="grid"] .layout,
 body.demo-mode[data-demo="diag"] .layout {

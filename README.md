@@ -2,7 +2,7 @@
 
 **One schema. Every model.**
 
-![Paste one schema and compare lossless, runtime-safe, lossy, and unsupported per provider](docs/assets/playground-demo.gif)
+![Same oneOf schema: lossy on OpenAI, unsupported on Gemini](docs/assets/playground-demo.gif)
 
 ```bash
 npm i llm-abi

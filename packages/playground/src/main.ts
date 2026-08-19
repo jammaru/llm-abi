@@ -148,10 +148,10 @@ function applyDemoMode(): boolean {
     caption.hidden = false;
     caption.textContent =
       scene === "schema"
-        ? "1. Paste one JSON Schema"
+        ? "1. One schema with oneOf"
         : scene === "diag"
-          ? "3. Diagnostics explain the rewrite"
-          : "2. Compare every provider";
+          ? "3. Every rewrite is diagnosed"
+          : "2. OpenAI: lossy. Gemini: unsupported.";
   }
   return true;
 }
