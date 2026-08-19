@@ -48,7 +48,7 @@ See [docs/targets/README.md](docs/targets/README.md) for the profile fields and 
 pnpm playground
 ```
 
-The app is static. Compilation uses the `llm-abi` workspace package in the browser. Cloudflare Pages deploys `packages/playground/dist` from `main` with `pnpm dlx wrangler`. The workflow needs the `CLOUDFLARE_API_TOKEN` repository secret.
+The app is static. Compilation uses the `llm-abi` workspace package in the browser. Cloudflare Pages builds `packages/playground/dist` from `main` when the GitHub repository is connected in the project settings.
 
 ## Release
 
