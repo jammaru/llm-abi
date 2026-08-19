@@ -46,6 +46,11 @@ describe("targets", () => {
     expect(resolveTarget("mcp").id).toBe("mcp/2026-06/tools");
     expect(resolveTarget("mcp/tools").id).toBe("mcp/2026-06/tools");
     expect(resolveTarget("mcp/2025-11/tools").id).toBe("mcp/2026-06/tools");
+    expect(resolveTarget("openai").evidence.source).toMatch(/^https:\/\//);
+    expect(resolveTarget("openai").evidence.live).toBe("nightly");
+    expect(resolveTarget("deepseek").evidence.live).toBe("not-configured");
+    expect("capabilities" in resolveTarget("openai")).toBe(false);
+    expect("liveAdapter" in resolveTarget("openai")).toBe(false);
   });
 
   it("lists registered targets", () => {
@@ -58,6 +63,16 @@ describe("targets", () => {
     expect(ids).toContain("openrouter/structured");
     expect(ids).toContain("mcp/2026-06/tools");
     expect(ids.length).toBeGreaterThanOrEqual(9);
+  });
+
+  it("exposes auditable evidence for every target", () => {
+    for (const target of listTargets()) {
+      expect(["supported", "partial", "experimental"]).toContain(target.maturity);
+      expect(["documented", "sdk-observed", "empirical"]).toContain(target.evidence.kind);
+      expect(target.evidence.source).toMatch(/^https:\/\//);
+      expect(target.evidence.lastVerified).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      expect(["nightly", "not-configured"]).toContain(target.evidence.live);
+    }
   });
 
   it("throws on unknown targets", () => {

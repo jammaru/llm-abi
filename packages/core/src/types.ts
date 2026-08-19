@@ -53,6 +53,17 @@ export type Support = "supported" | "runtime-only" | "lossy" | "unsupported";
 
 export type Evidence = "documented" | "sdk-observed" | "empirical";
 
+export type TargetMaturity = "supported" | "partial" | "experimental";
+
+export interface TargetEvidence {
+  readonly kind: Evidence;
+  readonly source: string;
+  /** ISO calendar date when the profile was checked against `source`. */
+  readonly lastVerified: string;
+  /** Whether the repository has a secret-gated nightly adapter for this target. */
+  readonly live: "nightly" | "not-configured";
+}
+
 export type TargetId = string;
 
 export interface ResolvedTarget {
@@ -61,6 +72,8 @@ export interface ResolvedTarget {
   readonly mode: string;
   readonly revision: string;
   readonly aliases: readonly string[];
+  readonly maturity: TargetMaturity;
+  readonly evidence: TargetEvidence;
 }
 
 export interface LossItem {

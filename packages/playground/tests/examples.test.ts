@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { EXAMPLES } from "../src/examples.ts";
+import { defaultExample, EXAMPLES } from "../src/examples.ts";
 import { runPlayground } from "../src/compile.ts";
 
 describe("playground examples", () => {
@@ -87,5 +87,29 @@ describe("playground examples", () => {
         expect(target.compatibility).not.toMatch(/\d/);
       }
     }
+  });
+});
+
+describe("playground default example", () => {
+  it("opens on a schema that is lossy on OpenAI and unsupported on Gemini", () => {
+    const example = defaultExample();
+    expect(example.id).toBe("json-one-of");
+    const result = runPlayground(example.source, {
+      kind: example.kind,
+      typeName: example.typeName,
+      optimize: false,
+      constraintFallback: "description",
+    });
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+    const levels = new Set(result.targets.map((target) => target.compatibility));
+    expect(levels.has("lossy")).toBe(true);
+    expect(levels.has("unsupported")).toBe(true);
+    const openai = result.targets.find((target) => target.target.vendor === "openai");
+    const gemini = result.targets.find((target) => target.target.vendor === "google");
+    expect(openai?.compatibility).toBe("lossy");
+    expect(gemini?.compatibility).toBe("unsupported");
   });
 });

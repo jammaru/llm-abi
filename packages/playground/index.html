@@ -2,31 +2,36 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta
       name="description"
-      content="Compile a TypeScript type or JSON Schema against OpenAI, Anthropic, Gemini, and more. See diagnostics, loss, and conservative size — not a compatibility percentage."
+      content="Paste a TypeScript type or JSON Schema. Compare OpenAI, Anthropic, Gemini, and more as lossless, runtime-safe, lossy, or unsupported — not a compatibility percentage."
     />
     <meta name="color-scheme" content="light dark" />
     <meta name="theme-color" content="#ffffff" />
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
     <title>llm-abi playground</title>
     <script src="./theme-boot.js"></script>
+    <script src="./locale-boot.js"></script>
   </head>
   <body>
-    <a class="skip" href="#results">Skip to results</a>
+    <p id="demo-caption" class="demo-caption" hidden></p>
+    <a class="skip" href="#results" data-i18n="skip">Skip to results</a>
     <header class="site-header">
       <div class="brand">
         <a class="wordmark" href="./">llm-abi</a>
-        <p class="tagline">
-          One schema. Every model. The schema ABI between TypeScript and LLM providers.
+        <p class="tagline" data-i18n="tagline">One schema. Every model.</p>
+        <p class="tagline-sub" data-i18n="taglineSub">
+          Paste a TypeScript type or JSON Schema. See what OpenAI, Claude, Gemini, DeepSeek, and
+          others actually accept.
         </p>
       </div>
       <div class="header-actions">
-        <nav class="nav" aria-label="Project">
+        <nav class="nav" data-i18n-aria="project" aria-label="Project">
           <a
             class="icon-link"
             href="https://github.com/jammaru/llm-abi"
+            data-i18n-aria="github"
             aria-label="GitHub repository"
           >
             <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -39,11 +44,29 @@
           <a
             class="icon-link"
             href="https://www.npmjs.com/package/llm-abi"
+            data-i18n-aria="npm"
             aria-label="npm package"
           >
             <span>npm</span>
           </a>
         </nav>
+        <div class="locale-toggle" data-locale-toggle>
+          <div
+            class="locale-list"
+            role="radiogroup"
+            data-i18n-aria="language"
+            aria-label="Language"
+          >
+            <label class="locale-option">
+              <input id="locale-en" name="locale" type="radio" value="en" />
+              <span>EN</span>
+            </label>
+            <label class="locale-option locale-option-ja">
+              <input id="locale-ja" name="locale" type="radio" value="ja" />
+              <span>日本語</span>
+            </label>
+          </div>
+        </div>
         <div class="theme-toggle" data-theme-toggle>
           <button
             id="theme-toggle"
@@ -84,15 +107,18 @@
     </header>
     <main class="layout">
       <section class="panel panel-input" aria-labelledby="input-heading">
-        <h2 id="input-heading">Input</h2>
+        <h2 id="input-heading" data-i18n="inputHeading">Input</h2>
+        <p class="input-lead" data-i18n="inputLead">
+          Results update as you type. The schema never leaves this browser.
+        </p>
         <div class="row">
           <label>
-            Example
+            <span data-i18n="example">Example</span>
             <select id="example"></select>
           </label>
         </div>
         <fieldset class="segmented">
-          <legend class="legend">Kind</legend>
+          <legend class="legend" data-i18n="kind">Kind</legend>
           <div class="segmented-list">
             <label class="segmented-option">
               <input id="kind-ts" name="kind" type="radio" value="typescript" checked />
@@ -105,7 +131,7 @@
           </div>
         </fieldset>
         <label>
-          Source
+          <span data-i18n="source">Source</span>
           <textarea
             id="source"
             spellcheck="false"
@@ -113,74 +139,114 @@
             autocomplete="off"
           ></textarea>
         </label>
-        <label>
-          Type name (TypeScript)
-          <input id="type-name" type="text" spellcheck="false" />
-        </label>
-        <div class="checks">
+        <details class="advanced" id="advanced-input">
+          <summary data-i18n="advanced">Type name and options</summary>
           <label>
-            <input id="optimize" type="checkbox" />
-            <span>Optimize redundant titles</span>
+            <span data-i18n="typeName">Type name (TypeScript)</span>
+            <input id="type-name" type="text" spellcheck="false" />
           </label>
-        </div>
-        <label>
-          Constraint fallback
-          <select id="fallback">
-            <option value="description">description</option>
-            <option value="strip">strip</option>
-          </select>
-        </label>
-        <p class="privacy">
-          Compilation runs in this browser with profiles shipped in llm-abi. The schema is not
-          uploaded. Tokens are ceil(UTF-8 bytes / 3), a conservative overhead hint, not billing and
-          not a score.
+          <div class="checks">
+            <label>
+              <input id="optimize" type="checkbox" />
+              <span data-i18n="optimize">Optimize redundant titles</span>
+            </label>
+          </div>
+          <label>
+            <span data-i18n="fallback">Constraint fallback</span>
+            <select id="fallback">
+              <option value="description">description</option>
+              <option value="strip">strip</option>
+            </select>
+          </label>
+        </details>
+        <p class="privacy" data-i18n="privacy">
+          Compilation uses profiles shipped in llm-abi. Tokens are ceil(UTF-8 bytes / 3), a
+          conservative overhead hint, not billing and not a score.
         </p>
       </section>
       <section class="panel panel-results" id="results" aria-labelledby="results-heading">
-        <h2 id="results-heading">Results</h2>
+        <h2 id="results-heading" data-i18n="resultsHeading">Results</h2>
+        <p class="results-lead">
+          <span data-i18n="resultsLeadBefore">Each provider is </span>
+          <code>lossless</code>, <code>runtime-safe</code>, <code>lossy</code>,
+          <code>unsupported</code
+          ><span data-i18n="resultsLeadAfter">. There is no compatibility percentage.</span>
+        </p>
+        <ul class="compat-legend">
+          <li>
+            <span class="compat compat-lossless">lossless</span>
+            <span data-i18n="legendLossless">kept</span>
+          </li>
+          <li>
+            <span class="compat compat-runtime-safe">runtime-safe</span>
+            <span data-i18n="legendRuntime">validate()</span>
+          </li>
+          <li>
+            <span class="compat compat-lossy">lossy</span>
+            <span data-i18n="legendLossy">rewritten</span>
+          </li>
+          <li>
+            <span class="compat compat-unsupported">unsupported</span>
+            <span data-i18n="legendUnsupported">cannot represent</span>
+          </li>
+        </ul>
         <p id="error" class="error" hidden></p>
+        <p id="lesson" class="lesson" hidden></p>
+        <div id="targets" class="targets"></div>
+        <div id="analysis"></div>
         <p class="fingerprint-row">
-          Input fingerprint
+          <span data-i18n="fingerprint">Input fingerprint</span>
           <span id="fingerprint" class="fingerprint"></span>
         </p>
-        <div id="analysis"></div>
-        <h2>Per target</h2>
-        <div id="targets" class="targets"></div>
-        <h2>Diagnostic matrix</h2>
-        <div id="matrix"></div>
-        <h2>Emitted JSON diff</h2>
-        <div class="compare-controls">
+        <details class="extra-results" id="matrix-details">
+          <summary data-i18n="matrixSummary">Diagnostic matrix</summary>
+          <div id="matrix"></div>
+        </details>
+        <details class="extra-results" id="diff-details">
+          <summary data-i18n="diffSummary">Emitted JSON diff</summary>
+          <div class="compare-controls">
+            <label>
+              <span data-i18n="compareLeft">Left</span>
+              <select id="compare-left"></select>
+            </label>
+            <label>
+              <span data-i18n="compareRight">Right</span>
+              <select id="compare-right"></select>
+            </label>
+          </div>
+          <div id="diff"></div>
+        </details>
+        <details class="extra-results" id="validate-details">
+          <summary data-i18n="validateSummary">Validate original schema</summary>
           <label>
-            Left
-            <select id="compare-left"></select>
+            <span data-i18n="instance">JSON instance</span>
+            <textarea id="instance" spellcheck="false"></textarea>
           </label>
-          <label>
-            Right
-            <select id="compare-right"></select>
-          </label>
-        </div>
-        <div id="diff"></div>
-        <h2>Validate original schema</h2>
-        <label>
-          JSON instance
-          <textarea id="instance" spellcheck="false"></textarea>
-        </label>
-        <p class="actions">
-          <button id="validate" class="btn btn-primary" type="button">Validate</button>
-        </p>
-        <div id="validate-out"></div>
-        <h2>Share</h2>
-        <p class="actions">
-          <button id="share" class="btn btn-ghost" type="button">Copy share URL</button>
-        </p>
-        <p id="share-status" class="muted" aria-live="polite"></p>
+          <p class="actions">
+            <button id="validate" class="btn btn-primary" type="button" data-i18n="validate">
+              Validate
+            </button>
+          </p>
+          <div id="validate-out"></div>
+        </details>
+        <section class="share-block" aria-labelledby="share-heading">
+          <h2 id="share-heading" data-i18n="shareHeading">Share</h2>
+          <p class="actions">
+            <button id="share" class="btn btn-ghost" type="button" data-i18n="shareButton">
+              Copy share URL
+            </button>
+          </p>
+          <p id="share-status" class="muted" aria-live="polite"></p>
+        </section>
       </section>
     </main>
     <footer class="site-footer">
       <p>
-        Compatibility is <code>lossless</code>, <code>runtime-safe</code>, <code>lossy</code>, or
-        <code>unsupported</code>. llm-abi does not invent percentages.
-        <a href="https://github.com/jammaru/llm-abi">Documentation</a>
+        <span data-i18n="footerBefore">Compatibility is </span>
+        <code>lossless</code>, <code>runtime-safe</code>, <code>lossy</code>,
+        <code>unsupported</code
+        ><span data-i18n="footerAfter">. llm-abi does not invent percentages. </span>
+        <a href="https://github.com/jammaru/llm-abi" data-i18n="documentation">Documentation</a>
       </p>
     </footer>
     <script type="module" src="./src/main.ts"></script>

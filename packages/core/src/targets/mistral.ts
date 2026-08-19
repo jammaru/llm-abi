@@ -14,8 +14,13 @@ export const mistralChatStructured: TargetProfile = defineTarget({
   vendor: "mistral",
   mode: "structured",
   revision: "2026-08",
+  maturity: "experimental",
   dialect: "2020-12",
   evidence: "sdk-observed",
+  evidenceSource:
+    "https://docs.mistral.ai/capabilities/structured-output/custom_structured_output/",
+  lastVerified: "2026-08-18",
+  liveAdapter: false,
   capabilities: {
     anyOf: "supported",
     oneOf: "supported",

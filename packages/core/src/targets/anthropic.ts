@@ -26,8 +26,12 @@ export const anthropicMessagesStructured: TargetProfile = defineTarget({
   vendor: "anthropic",
   mode: "structured",
   revision: "2026-08",
+  maturity: "supported",
   dialect: "2020-12",
   evidence: "documented",
+  evidenceSource: "https://platform.claude.com/docs/en/build-with-claude/structured-outputs",
+  lastVerified: "2026-08-18",
+  liveAdapter: true,
   capabilities: {
     anyOf: "supported",
     oneOf: "lossy",

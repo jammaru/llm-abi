@@ -38,6 +38,23 @@ export function renderLiveReport(result: LiveRunResult): string {
   return [...header, ...body, ...footer].join("\n");
 }
 
+export function renderLiveJson(result: LiveRunResult, generatedAt: string): string {
+  return `${JSON.stringify(
+    {
+      schemaVersion: 1,
+      generatedAt,
+      outcomes: {
+        accepted: result.accepted,
+        rejected: result.rejected,
+        skipped: result.skipped,
+      },
+      rows: result.rows,
+    },
+    null,
+    2,
+  )}\n`;
+}
+
 function escapeCell(value: string): string {
   return value.replaceAll("|", "\\|");
 }

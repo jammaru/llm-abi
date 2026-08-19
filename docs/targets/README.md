@@ -8,10 +8,10 @@ Copy [`packages/core/src/targets/openai.ts`](../../packages/core/src/targets/ope
 
 1. Add `packages/core/src/targets/<vendor>.ts` with `defineTarget(...)`.
 2. Register the profile (and short aliases) in `packages/core/src/targets/registry.ts`.
-3. Set `evidence` to `documented`, `sdk-observed`, or `empirical`.
+3. Set `maturity`, `evidence`, `evidenceSource`, `lastVerified`, and `liveAdapter`.
 4. Add or reuse JSON fixtures under `packages/conformance/fixtures/`. Every fixture is compiled against every registered target.
 5. Add a focused test in `packages/core/tests/lower.test.ts` for the rule that is unique to this vendor.
-6. Update the README target table. Mark `Verified` only when evidence is `documented` or `empirical`. Otherwise `Experimental`.
+6. Update the README target table. Keep maturity, evidence kind, verification date, and live coverage separate.
 7. Run `pnpm test`. The conformance snapshot will change; that is expected for a new target.
 8. Run `pnpm changeset` if the published compiler grows a public target id.
 
@@ -21,7 +21,12 @@ Copy [`packages/core/src/targets/openai.ts`](../../packages/core/src/targets/ope
 | ---------------------- | --------------------------------------------------------------------------------------------------------- |
 | `id`                   | Canonical id, `vendor/api/mode`                                                                           |
 | `aliases`              | What `compile(schema, "vendor")` accepts                                                                  |
-| `revision`             | Doc or observation date shipped with the package                                                          |
+| `revision`             | Profile revision shipped with the package                                                                 |
+| `maturity`             | `supported` \| `partial` \| `experimental`; never inferred from evidence                                  |
+| `evidence`             | `documented` \| `sdk-observed` \| `empirical`                                                             |
+| `evidenceSource`       | Stable URL for the source used to maintain the profile                                                    |
+| `lastVerified`         | ISO date when the profile was checked against `evidenceSource`                                            |
+| `liveAdapter`          | Whether the secret-gated nightly runner exercises this target                                             |
 | `dialect`              | Emitted JSON Schema dialect                                                                               |
 | `capabilities`         | Per-keyword `supported` \| `runtime-only` \| `lossy` \| `unsupported`                                     |
 | `formats`              | Allowed `format` values, or `"any"`                                                                       |
@@ -51,17 +56,21 @@ Profiles record **how we know** a capability, not just the capability.
 | `sdk-observed` | Visible in an official SDK transformer |
 | `empirical`    | Observed against a live API            |
 
-v0.1 OpenAI, Anthropic, and Gemini profiles are `documented` against public structured-output references dated 2026-08. The DeepSeek strict-tools profile is `documented` against the official Tool Calls guide (Beta `strict: true`, `$def`, required-all objects, no `minLength` / `minItems`). The xAI Grok structured profile is `documented` against official structured-output docs (non-circular `$ref`, `omit-false` additionalProperties, optional fields, constraint ceilings). The Qwen tools profile is `documented` against Model Studio JSON Schema mode and function calling (closed type list, optional fields, `additionalProperties` true or false). The Mistral structured profile is `sdk-observed` against the official client's `rec_strict_json_schema` helper (force `additionalProperties: false`, keep optional fields). The OpenRouter structured profile is `documented` as a gateway: enforcement varies by routed provider, so compatibility is floored at `runtime-safe`. The MCP tools profile is `documented` against published `Tool.inputSchema` (`type: "object"`, `properties`, `required`); combinators and `$ref` are diagnosed because Claude Desktop / Claude Code hosts still commonly reject them.
+OpenAI, Anthropic, and Gemini profiles are `documented` against public structured-output references dated 2026-08. The DeepSeek strict-tools profile is `documented` against the official Tool Calls guide (Beta `strict: true`, `$def`, required-all objects, no `minLength` / `minItems`). The xAI Grok structured profile is `documented` against official structured-output docs (non-circular `$ref`, `omit-false` additionalProperties, optional fields, constraint ceilings). The Qwen tools profile is `documented` against Model Studio JSON Schema mode and function calling (closed type list, optional fields, `additionalProperties` true or false). The Mistral structured profile is `sdk-observed` against the official client's `rec_strict_json_schema` helper (force `additionalProperties: false`, keep optional fields). The OpenRouter structured profile is `documented` as a gateway: enforcement varies by routed provider, so compatibility is floored at `runtime-safe`.
+
+The MCP profile is a conservative deployed-host target. The current protocol specification accepts a full JSON Schema object, so the repository tracks a separate protocol-profile refresh instead of treating this host-safe subset as the protocol ceiling.
 
 When a doc and a live API disagree, prefer the live API, mark `empirical`, and keep a fixture.
 
-## Status in the README
+## Maturity in the README
 
-| README status  | When                                                 |
-| -------------- | ---------------------------------------------------- |
-| `Verified`     | `documented` or `empirical`, plus fixtures           |
-| `Partial`      | Some modes work; others are missing or `unsupported` |
-| `Experimental` | `sdk-observed` only, or the live API is still moving |
+| Maturity       | When                                                          |
+| -------------- | ------------------------------------------------------------- |
+| `Supported`    | Maintained public profile with fixtures                       |
+| `Partial`      | A gateway, host family, or API surface is intentionally broad |
+| `Experimental` | The behavior or SDK surface is still moving                   |
+
+Maturity does not imply a live API check. `lastVerified` means only that the profile was checked against its linked evidence source on that date. Set `liveAdapter: true` only when the nightly runner contains an adapter for the exact target surface.
 
 Do not invent a compatibility percentage.
 

@@ -9,8 +9,12 @@ export const googleGeminiStructured: TargetProfile = defineTarget({
   vendor: "google",
   mode: "structured",
   revision: "2026-08",
+  maturity: "supported",
   dialect: "2020-12",
   evidence: "documented",
+  evidenceSource: "https://ai.google.dev/gemini-api/docs/generate-content/structured-output",
+  lastVerified: "2026-08-18",
+  liveAdapter: true,
   capabilities: {
     anyOf: "unsupported",
     oneOf: "unsupported",

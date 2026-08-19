@@ -1,4 +1,4 @@
-import type { Compatibility, Evidence, Support } from "../types.ts";
+import type { Compatibility, Evidence, Support, TargetMaturity } from "../types.ts";
 
 export interface TargetLimits {
   readonly maxDepth?: number;
@@ -69,8 +69,12 @@ export interface TargetProfile {
   readonly vendor: string;
   readonly mode: string;
   readonly revision: string;
+  readonly maturity: TargetMaturity;
   readonly dialect: "draft-07" | "2020-12" | "provider";
   readonly evidence: Evidence;
+  readonly evidenceSource: string;
+  readonly lastVerified: string;
+  readonly liveAdapter: boolean;
   readonly capabilities: TargetCapabilities;
   readonly formats: ReadonlySet<string> | "any";
   readonly minItemsAllowed?: ReadonlySet<number>;

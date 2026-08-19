@@ -38,7 +38,7 @@ Coverage, gzip size, and Node 24 are a manual `Extra` workflow, not a PR gate. L
 2. Register the profile in `registry.ts`.
 3. Add fixtures and tests.
 4. Record evidence: `documented`, `sdk-observed`, or `empirical`.
-5. Mark the README status honestly (`Verified` / `Partial` / `Experimental`).
+5. Mark the README status honestly (`Supported` / `Partial` / `Experimental`). Maturity is not a live API check.
 
 See [docs/targets/README.md](docs/targets/README.md) for the profile fields and evidence rules. `.agents/skills/add-target/SKILL.md` is the same checklist for agents.
 

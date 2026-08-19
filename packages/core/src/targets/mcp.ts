@@ -18,8 +18,12 @@ export const mcp202606Tools: TargetProfile = defineTarget({
   vendor: "mcp",
   mode: "tools",
   revision: "2026-08",
+  maturity: "partial",
   dialect: "2020-12",
   evidence: "documented",
+  evidenceSource: "https://modelcontextprotocol.io/specification/2026-07-28/server/tools",
+  lastVerified: "2026-08-18",
+  liveAdapter: false,
   capabilities: {
     anyOf: "unsupported",
     oneOf: "unsupported",

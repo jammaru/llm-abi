@@ -12,8 +12,12 @@ export const alibabaQwenTools: TargetProfile = defineTarget({
   vendor: "alibaba",
   mode: "tools",
   revision: "2026-08",
+  maturity: "supported",
   dialect: "2020-12",
   evidence: "documented",
+  evidenceSource: "https://help.aliyun.com/en/model-studio/qwen-function-calling",
+  lastVerified: "2026-08-18",
+  liveAdapter: false,
   capabilities: {
     anyOf: "unsupported",
     oneOf: "unsupported",

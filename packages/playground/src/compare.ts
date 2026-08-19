@@ -18,14 +18,19 @@ export interface DiagnosticRow {
 
 const MAX_DIFFS: number = 80;
 
-export function diffSchemas(left: unknown, right: unknown): readonly SchemaDiff[] {
+export function diffSchemas(
+  left: unknown,
+  right: unknown,
+  rootPath = "(root)",
+): readonly SchemaDiff[] {
   const diffs: SchemaDiff[] = [];
-  walk(left, right, [], diffs);
+  walk(left, right, [], diffs, rootPath);
   return diffs.slice(0, MAX_DIFFS);
 }
 
 export function diagnosticMatrix(
   targets: readonly PlaygroundTargetView[],
+  rootPath = "(root)",
 ): readonly DiagnosticRow[] {
   const rows = new Map<string, DiagnosticRow>();
   for (const target of targets) {
@@ -37,7 +42,7 @@ export function diagnosticMatrix(
           key,
           code: diagnostic.code,
           keyword: diagnostic.keyword ?? "",
-          path: formatPath(diagnostic.path),
+          path: formatPath(diagnostic.path, rootPath),
           byTarget: new Map(),
         };
         rows.set(key, row);
@@ -52,7 +57,13 @@ function diagnosticKey(diagnostic: Diagnostic): string {
   return `${diagnostic.code}|${diagnostic.keyword ?? ""}|${diagnostic.path.join("/")}`;
 }
 
-function walk(left: unknown, right: unknown, path: readonly string[], diffs: SchemaDiff[]): void {
+function walk(
+  left: unknown,
+  right: unknown,
+  path: readonly string[],
+  diffs: SchemaDiff[],
+  rootPath: string,
+): void {
   if (diffs.length >= MAX_DIFFS) {
     return;
   }
@@ -62,19 +73,19 @@ function walk(left: unknown, right: unknown, path: readonly string[], diffs: Sch
   if (isObject(left) && isObject(right)) {
     const keys = [...new Set([...Object.keys(left), ...Object.keys(right)])].toSorted();
     for (const key of keys) {
-      walk(left[key], right[key], [...path, key], diffs);
+      walk(left[key], right[key], [...path, key], diffs, rootPath);
     }
     return;
   }
   if (Array.isArray(left) && Array.isArray(right)) {
     const length = Math.max(left.length, right.length);
     for (let index = 0; index < length; index += 1) {
-      walk(left[index], right[index], [...path, String(index)], diffs);
+      walk(left[index], right[index], [...path, String(index)], diffs, rootPath);
     }
     return;
   }
   diffs.push({
-    path: path.length === 0 ? "(root)" : path.join("."),
+    path: path.length === 0 ? rootPath : path.join("."),
     left,
     right,
   });

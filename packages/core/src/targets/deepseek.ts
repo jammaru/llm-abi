@@ -13,8 +13,12 @@ export const deepseekChatStrictTools: TargetProfile = defineTarget({
   vendor: "deepseek",
   mode: "strict-tools",
   revision: "2026-08",
+  maturity: "supported",
   dialect: "2020-12",
   evidence: "documented",
+  evidenceSource: "https://api-docs.deepseek.com/guides/tool_calls",
+  lastVerified: "2026-08-18",
+  liveAdapter: false,
   defsKeyword: "$def",
   capabilities: {
     anyOf: "supported",

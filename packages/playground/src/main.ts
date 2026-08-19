@@ -4,8 +4,10 @@ import "@fontsource/ibm-plex-mono/latin-400.css";
 import "@fontsource/ibm-plex-mono/latin-500.css";
 import "./styles.css";
 import { runPlayground, validateInstance } from "./compile.ts";
+import { applyChrome, copyFor } from "./copy.ts";
 import { applyExample, decodeState, defaultState, encodeState, shareTooLong } from "./state.ts";
 import type { PlaygroundState } from "./state.ts";
+import { readStoredLocale, resolveLocale, writeStoredLocale, type Locale } from "./locale.ts";
 import {
   nextResolvedTheme,
   readStoredPreference,
@@ -43,6 +45,7 @@ function elements(): PlaygroundElements {
     kindJson: requiredElement("kind-json"),
     kindTypescript: requiredElement("kind-ts"),
     error: requiredElement("error"),
+    lesson: requiredElement("lesson"),
     analysis: requiredElement("analysis"),
     targets: requiredElement("targets"),
     matrix: requiredElement("matrix"),
@@ -86,7 +89,7 @@ function currentResolved(): ResolvedTheme {
   return resolvedTheme(readStoredPreference(window.localStorage), prefersDark());
 }
 
-function paintTheme(resolved: ResolvedTheme): void {
+function paintTheme(resolved: ResolvedTheme, locale: Locale): void {
   document.documentElement.dataset.theme = resolved;
   const themeColor = document.querySelector('meta[name="theme-color"]');
   if (themeColor) {
@@ -99,39 +102,126 @@ function paintTheme(resolved: ResolvedTheme): void {
   const button = document.getElementById("theme-toggle");
   if (button instanceof HTMLButtonElement) {
     const dark = resolved === "dark";
+    const copy = copyFor(locale);
     button.setAttribute("aria-pressed", dark ? "true" : "false");
-    button.setAttribute("aria-label", dark ? "Switch to light theme" : "Switch to dark theme");
+    button.setAttribute("aria-label", dark ? copy.themeToLight : copy.themeToDark);
   }
 }
 
-function bindTheme(): void {
-  paintTheme(currentResolved());
+function paintLocale(locale: Locale): void {
+  document.documentElement.lang = locale;
+  document.documentElement.dataset.locale = locale;
+  const en = document.getElementById("locale-en");
+  const ja = document.getElementById("locale-ja");
+  if (en instanceof HTMLInputElement) {
+    en.checked = locale === "en";
+  }
+  if (ja instanceof HTMLInputElement) {
+    ja.checked = locale === "ja";
+  }
+}
+
+function bindTheme(localeOf: () => Locale): void {
+  paintTheme(currentResolved(), localeOf());
   requiredElement<HTMLButtonElement>("theme-toggle").addEventListener("click", () => {
     const next = nextResolvedTheme(currentResolved());
     writeStoredPreference(window.localStorage, next);
-    paintTheme(next);
+    paintTheme(next, localeOf());
   });
   window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
     if (readStoredPreference(window.localStorage) === "auto") {
-      paintTheme(currentResolved());
+      paintTheme(currentResolved(), localeOf());
     }
   });
 }
 
+function applyDemoMode(): boolean {
+  const scene = new URLSearchParams(window.location.search).get("demo");
+  if (!scene) {
+    return false;
+  }
+  document.body.classList.add("demo-mode");
+  document.body.dataset["demo"] = scene;
+  document.documentElement.dataset.theme = "light";
+  const caption = document.getElementById("demo-caption");
+  if (caption) {
+    caption.hidden = false;
+    caption.textContent =
+      scene === "schema"
+        ? "1. One schema with oneOf"
+        : scene === "diag"
+          ? "3. Every rewrite is diagnosed"
+          : "2. OpenAI: lossy. Gemini: unsupported.";
+  }
+  return true;
+}
+
+function syncDetailsForViewport(): void {
+  const compact = window.matchMedia("(max-width: 700px), (max-height: 740px)").matches;
+  const demo = document.body.classList.contains("demo-mode");
+  const advanced = document.getElementById("advanced-input");
+  if (advanced instanceof HTMLDetailsElement) {
+    advanced.open = !compact && !demo;
+  }
+  for (const id of ["matrix-details", "diff-details", "validate-details"]) {
+    const details = document.getElementById(id);
+    if (details instanceof HTMLDetailsElement) {
+      details.open = false;
+    }
+  }
+}
+
 function main(): void {
-  bindTheme();
+  const demo = applyDemoMode();
   const els = elements();
-  fillExampleSelect(els.example);
+  let locale: Locale = resolveLocale(
+    readStoredLocale(window.localStorage),
+    navigator.languages.length > 0 ? [...navigator.languages] : [navigator.language],
+  );
+  if (demo) {
+    locale = "en";
+  } else {
+    bindTheme(() => locale);
+  }
+  paintLocale(locale);
+  applyChrome(copyFor(locale));
+  fillExampleSelect(els.example, locale);
   let state = decodeState(window.location.hash) ?? defaultState();
   writeForm(els, state);
   let timer = 0;
+  syncDetailsForViewport();
+  window.matchMedia("(max-width: 700px)").addEventListener("change", syncDetailsForViewport);
+  window.matchMedia("(max-height: 740px)").addEventListener("change", syncDetailsForViewport);
 
   const refresh = (next: PlaygroundState): void => {
     state = next;
+    const copy = copyFor(locale);
     const result = runPlayground(state.source, compileOptions(state));
-    renderResult(els, result, state);
+    renderResult(els, result, state, copy, locale);
     syncHash(state);
   };
+
+  const setLocale = (next: Locale): void => {
+    locale = next;
+    writeStoredLocale(window.localStorage, next);
+    paintLocale(next);
+    applyChrome(copyFor(next));
+    fillExampleSelect(els.example, next);
+    els.example.value = state.exampleId;
+    if (!demo) {
+      paintTheme(currentResolved(), next);
+    }
+    refresh(state);
+  };
+
+  if (!demo) {
+    requiredElement<HTMLInputElement>("locale-en").addEventListener("change", () => {
+      setLocale("en");
+    });
+    requiredElement<HTMLInputElement>("locale-ja").addEventListener("change", () => {
+      setLocale("ja");
+    });
+  }
 
   const schedule = (): void => {
     window.clearTimeout(timer);
@@ -157,26 +247,39 @@ function main(): void {
     writeForm(els, selected);
     refresh(selected);
   });
+  els.targets.addEventListener("click", (event) => {
+    const item =
+      event.target instanceof Element ? event.target.closest("[data-jump-target]") : null;
+    if (!(item instanceof HTMLElement)) {
+      return;
+    }
+    const jumpTarget = item.dataset["jumpTarget"];
+    if (!jumpTarget) {
+      return;
+    }
+    document.getElementById(jumpTarget)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
   requiredElement<HTMLButtonElement>("validate").addEventListener("click", () => {
     const current = readForm(els, state);
     state = current;
     renderValidation(
       els,
       validateInstance(current.source, compileOptions(current), current.instance),
+      copyFor(locale),
     );
   });
   requiredElement<HTMLButtonElement>("share").addEventListener("click", async () => {
     const current = readForm(els, state);
     state = current;
     const encoded = encodeState(current);
-    renderShareStatus(els, encoded, false);
+    renderShareStatus(els, encoded, false, copyFor(locale));
     if (shareTooLong(encoded)) {
       return;
     }
     const url = `${window.location.origin}${window.location.pathname}#${encoded}`;
     try {
       await navigator.clipboard.writeText(url);
-      renderShareStatus(els, encoded, true);
+      renderShareStatus(els, encoded, true, copyFor(locale));
     } catch {
       els.shareStatus.textContent = url;
     }
