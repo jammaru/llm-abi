@@ -28,6 +28,7 @@ describe("cli", () => {
     const output = chunks.join("");
     expect(output).toContain("llm-abi 0.1.0");
     expect(output).toContain("mcp/2026-06/tools");
+    expect(output).toContain("openai/gpt-5.6");
   });
 
   it("explains anthropic runtime-only constraints", () => {
@@ -141,6 +142,51 @@ describe("cli", () => {
       process.stdout.write = original;
     }
     expect(chunks.join("")).toContain("PASS");
+  });
+
+  it("checks a request file and fails --ci when unsupported", () => {
+    const file = withSchema({
+      provider: "openai",
+      model: "gpt-5.6-terra",
+      endpoint: "chat-completions",
+      tools: true,
+    });
+    const chunks: string[] = [];
+    const original = process.stdout.write.bind(process.stdout);
+    process.stdout.write = ((chunk: string | Uint8Array) => {
+      chunks.push(String(chunk));
+      return true;
+    }) as typeof process.stdout.write;
+    try {
+      expect(run(["node", "llm-abi", "request", file])).toBe(0);
+      expect(run(["node", "llm-abi", "request", file, "--ci"])).toBe(1);
+    } finally {
+      process.stdout.write = original;
+    }
+    const output = chunks.join("");
+    expect(output).toContain("Request compatibility");
+    expect(output).toContain("chat-tools-reasoning");
+    expect(output).toContain("medium (model default)");
+    expect(output).toContain("Coverage     profiled");
+    expect(output).toContain("endpoint → responses");
+    expect(output).not.toContain("%");
+  });
+
+  it("passes request --ci when reasoning_effort is none", () => {
+    const file = withSchema({
+      provider: "openai",
+      model: "gpt-5.6-terra",
+      endpoint: "chat-completions",
+      tools: true,
+      reasoningEffort: "none",
+    });
+    const original = process.stdout.write.bind(process.stdout);
+    process.stdout.write = (() => true) as typeof process.stdout.write;
+    try {
+      expect(run(["node", "llm-abi", "request", file, "--ci"])).toBe(0);
+    } finally {
+      process.stdout.write = original;
+    }
   });
 
   it("accepts a schema path after --", () => {

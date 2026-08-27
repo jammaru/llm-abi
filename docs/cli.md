@@ -8,6 +8,7 @@ npx llm-abi check user.ts --type User
 npx llm-abi compile schema.json --target anthropic
 npx llm-abi explain schema.json --target gemini
 npx llm-abi analyze schema.json
+npx llm-abi request request.json
 npx llm-abi doctor
 ```
 
@@ -17,6 +18,7 @@ npx llm-abi doctor
 | `compile` | Emit the provider schema                       |
 | `explain` | Print diagnostics and loss for one target      |
 | `analyze` | Node counts plus conservative size/token hint  |
+| `request` | Request compatibility for one provider payload |
 | `doctor`  | Version, runtime, and profile revisions        |
 
 | Flag       | Meaning                                                                                                          |
@@ -27,7 +29,20 @@ npx llm-abi doctor
 | `--json`   | Machine-readable output                                                                                          |
 | `--ci`     | Exit 1 when any target is `unsupported`                                                                          |
 
-`llm-abi doctor --json` is intended for bug reports.
+`llm-abi request` reads a JSON object:
+
+```json
+{
+  "provider": "openai",
+  "model": "gpt-5.6-terra",
+  "endpoint": "chat-completions",
+  "tools": true
+}
+```
+
+`--ci` exits 1 when that request is `unsupported`.
+
+`llm-abi doctor --json` is intended for bug reports. Doctor also lists request profiles.
 
 ## GitHub Action
 

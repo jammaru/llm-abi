@@ -3,7 +3,17 @@
 Named exports only. There is no default export.
 
 ```ts
-import { compile, check, analyze, fingerprint, listTargets, resolveTarget } from "llm-abi";
+import {
+  compile,
+  check,
+  checkRequest,
+  analyze,
+  fingerprint,
+  listTargets,
+  resolveTarget,
+  listRequestProfiles,
+  resolveRequestProfile,
+} from "llm-abi";
 ```
 
 ## `compile(schema, target | options)`
@@ -50,6 +60,36 @@ Returns fingerprint, node/depth/property stats, unused root `$defs` count, input
 
 Canonical SHA-256 of the input schema. Property order does not matter.
 
+## `checkRequest(request)`
+
+Checks whether a provider request combination is representable. This is not `compile()`. It does not call a model, rewrite a payload, or pick an SDK.
+
+```ts
+const result = checkRequest({
+  provider: "openai",
+  model: "gpt-5.6-terra",
+  endpoint: "chat-completions",
+  tools: true,
+});
+```
+
+| Field           | Meaning                                                                       |
+| --------------- | ----------------------------------------------------------------------------- |
+| `coverage`      | `profiled` if a request profile matched; `unknown` if no shipped rule applies |
+| `compatibility` | `lossless` \| `runtime-safe` \| `lossy` \| `unsupported`                      |
+| `diagnostics`   | Stable `code` values, reasons, and suggested actions                          |
+| `effective`     | Request after model defaults. Omitted `reasoningEffort` may become `medium`   |
+| `profile`       | Matched request profile, or `undefined` when no shipped rule applies          |
+| `fixes`         | Suggested endpoint or parameter changes. Nothing is applied automatically     |
+
+`provider` is `openai`, `azure-openai`, or `azure` for the shipped OpenAI-compatible family. `endpoint` accepts `chat-completions`, `responses`, and short aliases (`chat`, `/v1/chat/completions`). `tools: true` or `tools: "function"` means function tools are present.
+
+`checkRequest()` is pure: no network, filesystem, clocks, or randomness. Same input returns the same result.
+
+If no request profile matches the provider and model, `coverage` is `unknown`, `compatibility` is `lossless`, `profile` is `undefined`, and no default is invented. Treat `unknown` as unchecked, not as safe to send.
+
+The shipped GPT-5.6 rule: Chat Completions plus function tools is compatible only when effective reasoning is `none`. GPT-5.6 defaults omitted `reasoning_effort` to `medium`, so omitting it is enough to fail. Responses accepts function tools with reasoning.
+
 ## `listTargets()` / `resolveTarget(id)`
 
 `resolveTarget("claude")` returns the same `ResolvedTarget` as `listTargets()` for the Anthropic structured profile. `resolveTarget("deepseek")` returns `deepseek/chat/strict-tools`. `resolveTarget("grok")` returns `xai/grok/structured`. `resolveTarget("qwen")` returns `alibaba/qwen/tools`. `resolveTarget("mistral")` returns `mistral/chat/structured`. `resolveTarget("openrouter")` returns `openrouter/structured`. `resolveTarget("mcp")` returns `mcp/2026-06/tools`. Unknown ids throw `LlmAbiError`.
@@ -69,3 +109,7 @@ Each resolved target includes:
 ```
 
 Maturity, documentary evidence, and live coverage are independent signals. A documentation verification date does not claim a successful live API request.
+
+## `listRequestProfiles()` / `resolveRequestProfile(id)`
+
+`resolveRequestProfile("openai/gpt-5.6")` returns the GPT-5.6 request family. Unknown ids throw `LlmAbiError`.

@@ -21,18 +21,27 @@ Keep it small:
 - `analyze(schema)`
 - `fingerprint(schema)`
 - `listTargets()` / `resolveTarget(id)`
+- `checkRequest(request)`
+- `listRequestProfiles()` / `resolveRequestProfile(id)`
 
 Named exports only. No default export.
+
+`compile()` is the schema ABI. `checkRequest()` is the request ABI. Do not fold model, endpoint, or `reasoning_effort` rules into `compile()`.
 
 ## Architecture
 
 ```text
-Input → IR → analyze → lower(profile) → emit → diagnostics
+Schema ABI
+  Input → IR → analyze → lower(profile) → emit → diagnostics
+
+Request ABI
+  Request → resolve profile → apply defaults → evaluate rules → diagnostics
 ```
 
 - IR lives in `packages/core/src/ir/`
-- Provider differences live in `packages/core/src/targets/`
-- Lowering is generic and data-driven
+- Provider schema differences live in `packages/core/src/targets/`
+- Request compatibility lives in `packages/core/src/request/`
+- Lowering and request rules are generic and data-driven
 - CLI is a separate tsdown entry and may use Node APIs
 - Library entry must stay platform-neutral
 
@@ -56,10 +65,18 @@ Input → IR → analyze → lower(profile) → emit → diagnostics
 5. Document evidence (`documented` | `sdk-observed` | `empirical`)
 6. Update README target table honestly (`Supported` / `Partial` / `Experimental`)
 
+## Adding a request profile
+
+1. Add `packages/core/src/request/<vendor>.ts` with `defineRequestProfile(...)`
+2. Register it in `packages/core/src/request/registry.ts`
+3. Test omitted defaults and the failing combination
+4. Document evidence (`documented` | `sdk-observed` | `empirical`)
+5. Do not fold the rule into `compile()`
+
 ## Agent files
 
 - `AGENTS.md` (this file) is the cross-tool guide
-- `.agents/skills/` holds task checklists (`add-target`, `review-compiler`, `release`)
+- `.agents/skills/` holds task checklists (`add-target`, `add-request-profile`, `review-compiler`, `release`)
 - `CLAUDE.md` points here so Claude Code uses the same rules
 
 ## Commands

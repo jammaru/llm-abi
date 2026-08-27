@@ -77,7 +77,9 @@ export function parseArgs(argv: readonly string[]): CliArgs {
     }
     if (
       command === "help" &&
-      ["check", "compile", "explain", "analyze", "doctor", "help", "version"].includes(token)
+      ["check", "compile", "explain", "analyze", "request", "doctor", "help", "version"].includes(
+        token,
+      )
     ) {
       command = token;
       continue;

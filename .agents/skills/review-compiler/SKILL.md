@@ -17,5 +17,7 @@ Check, then fix:
 8. Fixtures cover the new construct × each target.
 9. README status (`Supported` / `Partial` / `Experimental`) matches the evidence field and live coverage.
 10. Public API did not grow without an explicit decision.
+11. Request rules stayed in `packages/core/src/request/`, not in `compile()`.
+12. Omitted request fields are evaluated after profile defaults, not treated as "unset means safe".
 
 Reject agent-framework features and provider SDK wrappers in `packages/core`.

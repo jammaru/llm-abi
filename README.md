@@ -99,7 +99,7 @@ npm install llm-abi
 ```
 
 ```ts
-import { compile, check, analyze, fingerprint } from "llm-abi";
+import { compile, check, checkRequest, analyze, fingerprint } from "llm-abi";
 ```
 
 Zero runtime dependencies. The compiler library is about 14 KB gzip. Node, Bun, Deno, browsers, and edge runtimes can import it. The CLI requires Node.js 22+.
@@ -194,6 +194,34 @@ The MCP target is deliberately conservative for deployed hosts. The current prot
 
 Cohere, Groq, and Together are planned. New providers are data: add a target profile, fixtures, and expected diagnostics.
 
+### Request compatibility
+
+`compile()` makes a schema provider-safe. It does not inspect `model`, `endpoint`, or `reasoning_effort`. Use `checkRequest()` for those combinations.
+
+GPT-5.6 on Chat Completions rejects function tools unless effective reasoning is `none`. Omitting `reasoning_effort` still fails because the model default is `medium`. Responses accepts tools with reasoning.
+
+```ts
+import { checkRequest } from "llm-abi";
+
+const result = checkRequest({
+  provider: "openai",
+  model: "gpt-5.6-terra",
+  endpoint: "chat-completions",
+  tools: true,
+});
+
+result.coverage;
+// "profiled"
+result.compatibility;
+// "unsupported"
+result.effective.reasoningEffort;
+// "medium"  (model default)
+result.fixes;
+// [{ preferred: true, endpoint: "responses", ... }, { reasoningEffort: "none", ... }]
+```
+
+`checkRequest()` does not send the request or rewrite it. If no request profile matches, `coverage` is `unknown`. That is unchecked, not safe to send.
+
 ## CLI
 
 ```bash
@@ -201,6 +229,7 @@ npx llm-abi check schema.json
 npx llm-abi compile schema.json --target anthropic
 npx llm-abi explain schema.json --target gemini
 npx llm-abi analyze schema.json
+npx llm-abi request request.json
 npx llm-abi doctor
 ```
 
@@ -253,8 +282,9 @@ llm-abi **does**:
 
 - Compile one schema into a provider-safe schema
 - Tell you exactly what was rewritten, stripped, or moved to runtime validation
-- Keep `compile()` pure: no network, no filesystem, no clocks, no hidden config
-- Keep provider profiles versioned with the package
+- Check request combinations (model, endpoint, tools, reasoning) before a provider 400
+- Keep `compile()` and `checkRequest()` pure: no network, no filesystem, no clocks, no hidden config
+- Keep provider and request profiles versioned with the package
 
 llm-abi **does not**:
 
@@ -274,6 +304,8 @@ JSON Schema / Standard Schema / TypeScript type subset
  Analyze → Lower → Emit
             ↓
  Provider schema + diagnostics + fingerprint + size + validate()
+
+Request → profile defaults → rules → compatibility + fixes
 ```
 
 Provider differences live in **profiles**, not scattered `if (provider === "anthropic")` branches.
@@ -297,6 +329,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). Adding a provider should be a profile fi
 - [CLI](docs/cli.md)
 - [Architecture](docs/architecture.md)
 - [Target profiles](docs/targets/README.md)
+- [Request profiles](docs/requests/README.md)
 - [Examples](examples/README.md)
 - [Playground](https://llm-abi.pages.dev/)
 

@@ -3,9 +3,15 @@
 Published compiler for [llm-abi](https://github.com/jammaru/llm-abi).
 
 ```ts
-import { compile } from "llm-abi";
+import { compile, checkRequest } from "llm-abi";
 
 const result = compile(schema, "anthropic");
+const request = checkRequest({
+  provider: "openai",
+  model: "gpt-5.6-terra",
+  endpoint: "chat-completions",
+  tools: true,
+});
 ```
 
 ```bash

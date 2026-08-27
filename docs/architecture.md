@@ -3,6 +3,7 @@
 llm-abi is a compiler, not a converter.
 
 ```text
+Schema ABI
 JSON Schema / Standard JSON Schema / TypeScript type subset
               ↓
         Normalized IR
@@ -10,7 +11,20 @@ JSON Schema / Standard JSON Schema / TypeScript type subset
    analyze  →  lower(profile)  →  emit
               ↓
  provider JSON Schema + diagnostics + fingerprint + size
+
+Request ABI
+provider + model + endpoint + tools + reasoning
+              ↓
+     resolve request profile
+              ↓
+     apply model defaults
+              ↓
+     evaluate rules
+              ↓
+ compatibility + diagnostics + fixes
 ```
+
+`compile()` does not inspect `model`, `endpoint`, or `reasoning_effort`. Those combinations belong to `checkRequest()`.
 
 ## IR
 
@@ -31,6 +45,12 @@ A profile is data:
 - revision string shipped with the package
 
 The lowering pass reads the profile. Adding a vendor should not require a new compiler.
+
+## Request profiles
+
+A request profile is also data: model family matchers, omitted-parameter defaults, and endpoint rules. `checkRequest()` applies those defaults before evaluating rules, so an omitted `reasoningEffort` can still be incompatible when the model default is not `none`.
+
+Adding a request family should not require a new checker. See [docs/requests/README.md](./requests/README.md).
 
 ## Safety
 

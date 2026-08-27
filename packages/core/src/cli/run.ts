@@ -2,11 +2,22 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { analyze } from "../analyze.ts";
 import { check } from "../check.ts";
+import { checkRequest } from "../check-request.ts";
 import { compile } from "../compile.ts";
+import { isPlainObject } from "../json/safe-record.ts";
+import { listRequestProfiles } from "../request/registry.ts";
+import type { CheckRequestInput, ReasoningEffort } from "../request/types.ts";
 import { listTargets } from "../targets/registry.ts";
 import type { JsonSchema, SchemaInput } from "../types.ts";
 import { parseArgs } from "./args.ts";
-import { HELP, renderAnalyze, renderCheck, renderCompile, renderExplain } from "./render.ts";
+import {
+  HELP,
+  renderAnalyze,
+  renderCheck,
+  renderCompile,
+  renderExplain,
+  renderRequest,
+} from "./render.ts";
 
 const VERSION = "0.1.0";
 
@@ -41,9 +52,15 @@ function runInner(argv: readonly string[]): number {
   }
 
   if (!args.file) {
-    process.stderr.write("Missing schema file.\n\n");
+    process.stderr.write(
+      args.command === "request" ? "Missing request file.\n\n" : "Missing schema file.\n\n",
+    );
     process.stdout.write(`${HELP}\n`);
     return 1;
+  }
+
+  if (args.command === "request") {
+    return runRequest(args.file, args.json, args.ci);
   }
 
   const schema = readSchema(args.file);
@@ -105,12 +122,61 @@ function readSchema(file: string): SchemaInput {
   return JSON.parse(raw) as JsonSchema;
 }
 
+function runRequest(file: string, json: boolean, ci: boolean): number {
+  const request = readRequest(file);
+  const result = checkRequest(request);
+  if (json) {
+    process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+  } else {
+    process.stdout.write(`${renderRequest(result)}\n`);
+  }
+  return ci && result.compatibility === "unsupported" ? 1 : 0;
+}
+
+function readRequest(file: string): CheckRequestInput {
+  const path = resolve(file);
+  const raw = readFileSync(path, "utf8");
+  const parsed: unknown = JSON.parse(raw);
+  if (!isPlainObject(parsed)) {
+    throw new Error("Request file must be a JSON object.");
+  }
+  const provider = parsed["provider"];
+  const model = parsed["model"];
+  const endpoint = parsed["endpoint"];
+  if (typeof provider !== "string" || typeof model !== "string" || typeof endpoint !== "string") {
+    throw new Error("Request file must include string provider, model, and endpoint.");
+  }
+  const input: {
+    provider: string;
+    model: string;
+    endpoint: string;
+    tools?: boolean | "function";
+    reasoningEffort?: ReasoningEffort;
+  } = { provider, model, endpoint };
+  const tools = parsed["tools"];
+  if (tools !== undefined) {
+    if (tools !== true && tools !== false && tools !== "function") {
+      throw new Error('Request tools must be true, false, or "function".');
+    }
+    input.tools = tools;
+  }
+  const reasoningEffort = parsed["reasoningEffort"];
+  if (reasoningEffort !== undefined) {
+    if (typeof reasoningEffort !== "string") {
+      throw new Error("Request reasoningEffort must be a string.");
+    }
+    input.reasoningEffort = reasoningEffort as ReasoningEffort;
+  }
+  return input;
+}
+
 function doctor(json: boolean): number {
   const info = {
     name: "llm-abi",
     version: VERSION,
     runtime: `node ${process.version}`,
     targets: listTargets(),
+    requestProfiles: listRequestProfiles(),
   };
   if (json) {
     process.stdout.write(`${JSON.stringify(info, null, 2)}\n`);
@@ -121,6 +187,8 @@ function doctor(json: boolean): number {
         `Runtime   ${info.runtime}`,
         "Targets",
         ...info.targets.map((target) => `  ${target.id}  (${target.revision})`),
+        "Request profiles",
+        ...info.requestProfiles.map((profile) => `  ${profile.id}  (${profile.revision})`),
         "",
       ].join("\n"),
     );

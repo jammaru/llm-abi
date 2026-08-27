@@ -1,3 +1,4 @@
+import type { CheckRequestResult } from "../request/types.ts";
 import type { Analysis, CheckResult, CompileResult, Diagnostic } from "../types.ts";
 
 const MARK: Record<string, string> = {
@@ -84,11 +85,80 @@ export function renderAnalyze(result: Analysis): string {
   return lines.join("\n");
 }
 
+export function renderRequest(result: CheckRequestResult): string {
+  const effort = formatEffort(result.effective);
+  const mark = MARK[result.compatibility] ?? result.compatibility;
+  const profile = result.profile ? `${result.profile.id}  (${result.profile.revision})` : "none";
+  const lines = [
+    "Request compatibility",
+    "",
+    `Provider     ${result.effective.provider}`,
+    `Model        ${result.effective.model}`,
+    `Endpoint     ${result.effective.endpoint}`,
+    `Tools        ${result.effective.tools ? "true" : "false"}`,
+    `Reasoning    ${effort}`,
+    `Profile      ${profile}`,
+    `Coverage     ${result.coverage}`,
+    `Result       ${mark}`,
+  ];
+  if (result.diagnostics.length > 0) {
+    lines.push("", "Diagnostics");
+    for (const diagnostic of result.diagnostics) {
+      lines.push(formatRequestDiagnostic(diagnostic));
+    }
+  }
+  if (result.fixes.length > 0) {
+    lines.push("", "Fixes");
+    for (const fix of result.fixes) {
+      const label = fix.preferred ? "preferred" : "alternative";
+      const parts: string[] = [];
+      if (fix.endpoint) {
+        parts.push(`endpoint → ${fix.endpoint}`);
+      }
+      if (fix.reasoningEffort) {
+        parts.push(`reasoningEffort → ${fix.reasoningEffort}`);
+      }
+      lines.push(`  ${label}  ${parts.join("  ")}`);
+      lines.push(`    ${fix.message}`);
+    }
+  }
+  return lines.join("\n");
+}
+
 export function formatDiagnostic(diagnostic: Diagnostic): string {
   const path = diagnostic.path.length === 0 ? "<root>" : diagnostic.path.join(".");
   const keyword = diagnostic.keyword ? ` \`${diagnostic.keyword}\`` : "";
   const action = diagnostic.action ? `\n  ${diagnostic.action}` : "";
   return `[${diagnostic.severity}] ${diagnostic.code}${keyword}\n  ${path}\n  ${diagnostic.message}${action}`;
+}
+
+function formatRequestDiagnostic(diagnostic: {
+  readonly severity: string;
+  readonly code: string;
+  readonly path: readonly string[];
+  readonly message: string;
+  readonly keyword?: string;
+  readonly reason?: string;
+  readonly action?: string;
+}): string {
+  const path = diagnostic.path.length === 0 ? "<request>" : diagnostic.path.join(".");
+  const keyword = diagnostic.keyword ? ` \`${diagnostic.keyword}\`` : "";
+  const reason = diagnostic.reason ? `\n  ${diagnostic.reason}` : "";
+  const action = diagnostic.action ? `\n  ${diagnostic.action}` : "";
+  return `[${diagnostic.severity}] ${diagnostic.code}${keyword}\n  ${path}\n  ${diagnostic.message}${reason}${action}`;
+}
+
+function formatEffort(effective: CheckRequestResult["effective"]): string {
+  if (effective.reasoningEffort === undefined) {
+    return "omitted";
+  }
+  if (effective.reasoningEffortSource === "model-default") {
+    return `${effective.reasoningEffort} (model default)`;
+  }
+  if (effective.reasoningEffortSource === "explicit") {
+    return `${effective.reasoningEffort} (explicit)`;
+  }
+  return effective.reasoningEffort;
 }
 
 export const HELP: string = `llm-abi — schema compatibility compiler for LLM providers
@@ -98,7 +168,11 @@ Usage:
   llm-abi compile <schema.json|.ts> --target <id>
   llm-abi explain <schema.json|.ts> --target <id>
   llm-abi analyze <schema.json|.ts>
+  llm-abi request <request.json> [--ci]
   llm-abi doctor
+
+Request file:
+  JSON object with provider, model, endpoint, optional tools, optional reasoningEffort
 
 Targets:
   openai            openai/responses/structured
@@ -117,7 +191,7 @@ Options:
   --optimize        Drop redundant titles and duplicate descriptions
   --type            Type or interface name for TypeScript input
   --json            Machine-readable output
-  --ci              Exit 1 when any target is unsupported
+  --ci              Exit 1 when a target or request is unsupported
   --help, -h
   --version, -v
 `;
