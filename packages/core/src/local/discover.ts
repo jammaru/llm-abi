@@ -1,5 +1,5 @@
 import { inferQwen38Family } from "../deployment/model/identity.ts";
-import type { DeploymentDescriptor, RuntimeKind } from "../deployment/types.ts";
+import type { DeploymentDescriptor, EngineKind, RuntimeKind } from "../deployment/types.ts";
 import { detectLlamaCpp } from "./adapters/llamacpp.ts";
 import { detectLmStudio } from "./adapters/lmstudio.ts";
 import { detectOllama } from "./adapters/ollama.ts";
@@ -9,7 +9,10 @@ import type { RuntimeTransport } from "./transport.ts";
 import { endpointKindOf, parseBaseURL } from "./url.ts";
 import type { DiscoverOptions, DiscoveredDeployment, DiscoveredModel } from "./types.ts";
 
-const DEFAULT_ENDPOINTS: readonly { readonly runtime?: RuntimeKind; readonly baseURL: string }[] = [
+export const DEFAULT_LOCAL_ENDPOINTS: readonly {
+  readonly runtime?: RuntimeKind;
+  readonly baseURL: string;
+}[] = [
   { runtime: "lmstudio", baseURL: "http://127.0.0.1:1234" },
   { runtime: "ollama", baseURL: "http://127.0.0.1:11434" },
   { baseURL: "http://127.0.0.1:8080" },
@@ -20,7 +23,7 @@ export async function discoverLocalDeployments(
 ): Promise<readonly DiscoveredDeployment[]> {
   const transport = options.transport ?? createFetchTransport();
   const timeoutMs = options.timeoutMs ?? DISCOVERY_TIMEOUT_MS;
-  const endpoints = options.endpoints ?? DEFAULT_ENDPOINTS;
+  const endpoints = options.endpoints ?? DEFAULT_LOCAL_ENDPOINTS;
   const found: DiscoveredDeployment[] = [];
   // Serial on purpose: parallel GETs can evict local models under memory pressure.
   for (const endpoint of endpoints) {
@@ -98,6 +101,19 @@ function toDiscovered(
   };
 }
 
+function discoveredEngine(kind: EngineKind | undefined): DiscoveredModel["engine"] {
+  if (
+    kind === "llamacpp" ||
+    kind === "mlx" ||
+    kind === "outlines" ||
+    kind === "ollama" ||
+    kind === "unknown"
+  ) {
+    return kind;
+  }
+  return undefined;
+}
+
 function toDescriptor(runtime: RuntimeKind, model: DiscoveredModel): DeploymentDescriptor {
   const inferred = inferQwen38Family(model.id);
   return {
@@ -118,4 +134,73 @@ function toDescriptor(runtime: RuntimeKind, model: DiscoveredModel): DeploymentD
       contextLength: model.contextLength,
     },
   };
+}
+
+export function pickLoadedDeployment(
+  discovered: readonly DiscoveredDeployment[],
+  runtime?: RuntimeKind,
+): DiscoveredDeployment | undefined {
+  for (const item of discovered) {
+    if (!item.deployment || item.models.length === 0) {
+      continue;
+    }
+    if (runtime && item.detection.runtime !== runtime) {
+      continue;
+    }
+    return item;
+  }
+  return undefined;
+}
+
+export interface ProbeSelection {
+  readonly discovered: DiscoveredDeployment;
+  readonly modelId: string;
+  readonly descriptor: DeploymentDescriptor;
+}
+
+export function selectProbeDeployment(
+  discovered: readonly DiscoveredDeployment[],
+  options: { readonly runtime?: RuntimeKind; readonly model?: string } = {},
+): ProbeSelection | undefined {
+  const loaded = pickLoadedDeployment(discovered, options.runtime);
+  if (loaded?.deployment && loaded.detection.runtime) {
+    const modelId = options.model ?? loaded.models[0]?.id;
+    if (!modelId) {
+      return undefined;
+    }
+    return {
+      discovered: loaded,
+      modelId,
+      descriptor: options.model
+        ? toDescriptor(loaded.detection.runtime, {
+            id: options.model,
+            loaded: false,
+            format: loaded.deployment.model.format,
+            architecture: loaded.deployment.model.architecture,
+            quantization: loaded.deployment.model.quantization,
+            digest: loaded.deployment.model.digest,
+            parameters: loaded.deployment.model.parameters,
+            contextLength: loaded.deployment.model.contextLength,
+            engine: discoveredEngine(loaded.deployment.runtime.engine?.kind),
+          })
+        : loaded.deployment,
+    };
+  }
+  if (!options.model) {
+    return undefined;
+  }
+  for (const item of discovered) {
+    if (!item.detection.runtime) {
+      continue;
+    }
+    if (options.runtime && item.detection.runtime !== options.runtime) {
+      continue;
+    }
+    return {
+      discovered: item,
+      modelId: options.model,
+      descriptor: toDescriptor(item.detection.runtime, { id: options.model, loaded: false }),
+    };
+  }
+  return undefined;
 }

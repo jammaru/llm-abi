@@ -211,7 +211,7 @@ Usage:
   llm-abi request <request.json> [--ci]
   llm-abi doctor
   llm-abi local doctor [--url <http://127.0.0.1:1234>]
-  llm-abi local probe [--url <http://127.0.0.1:1234>] [--suite smoke]
+  llm-abi local probe [--url <http://127.0.0.1:1234>] [--runtime <id>] [--model <id>] [--suite smoke]
 
 Request file:
   JSON object with provider, model, endpoint, optional tools, optional reasoningEffort
@@ -241,6 +241,8 @@ Options:
   --json            Machine-readable output
   --ci              Exit 1 when a target or request is unsupported
   --url             Explicit runtime base URL (non-loopback is labeled remote)
+  --runtime         Hint for local doctor/probe: lmstudio, ollama, llamacpp
+  --model           Model id for local probe. May cause the runtime to load it
   --suite           local probe suite: smoke (default) or full
   --help, -h
   --version, -v

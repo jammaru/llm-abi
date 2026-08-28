@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { discoverLocalDeployments } from "../src/local/discover.ts";
+import {
+  DEFAULT_LOCAL_ENDPOINTS,
+  discoverLocalDeployments,
+  pickLoadedDeployment,
+  selectProbeDeployment,
+} from "../src/local/discover.ts";
 import { probeDeployment } from "../src/local/probe.ts";
+import { readBoundedJSON } from "../src/local/transport.ts";
 import type { RuntimeTransport } from "../src/local/transport.ts";
 
 function jsonResponse(status: number, body: unknown): Response {
@@ -96,14 +102,78 @@ describe("local discovery", () => {
     expect(found[0]?.deployment?.model.family).toBe("qwen3.8");
     expect(found[0]?.deployment?.model.familySource).toBe("id-pattern");
   });
+
+  it("picks the first loaded deployment and can filter by runtime", () => {
+    expect(DEFAULT_LOCAL_ENDPOINTS.map((item) => item.baseURL)).toEqual([
+      "http://127.0.0.1:1234",
+      "http://127.0.0.1:11434",
+      "http://127.0.0.1:8080",
+    ]);
+    const lmstudio = {
+      baseURL: "http://127.0.0.1:1234",
+      endpointKind: "loopback" as const,
+      detection: { runtime: "lmstudio" as const, confidence: "exact" as const, evidence: [] },
+      models: [],
+    };
+    const ollama = {
+      baseURL: "http://127.0.0.1:11434",
+      endpointKind: "loopback" as const,
+      detection: { runtime: "ollama" as const, confidence: "exact" as const, evidence: [] },
+      models: [{ id: "qwen3.8:27b", loaded: true }],
+      deployment: {
+        runtime: { kind: "ollama" as const, apiSurface: "mixed" as const },
+        model: { id: "qwen3.8:27b" },
+      },
+    };
+    expect(pickLoadedDeployment([lmstudio, ollama])?.baseURL).toBe("http://127.0.0.1:11434");
+    expect(pickLoadedDeployment([lmstudio, ollama], "ollama")?.detection.runtime).toBe("ollama");
+    expect(pickLoadedDeployment([lmstudio, ollama], "lmstudio")).toBeUndefined();
+  });
+
+  it("selects an explicit --model even when nothing is loaded", () => {
+    const emptyLmStudio = {
+      baseURL: "http://127.0.0.1:1234",
+      endpointKind: "loopback" as const,
+      detection: { runtime: "lmstudio" as const, confidence: "exact" as const, evidence: [] },
+      models: [],
+    };
+    const selected = selectProbeDeployment([emptyLmStudio], { model: "Qwen3.8-27B" });
+    expect(selected?.modelId).toBe("Qwen3.8-27B");
+    expect(selected?.descriptor.runtime.kind).toBe("lmstudio");
+    expect(selected?.descriptor.model.id).toBe("Qwen3.8-27B");
+    expect(selectProbeDeployment([emptyLmStudio])).toBeUndefined();
+  });
 });
 
 describe("local probe", () => {
   it("records observations without upgrading static compatibility", async () => {
     const transport: RuntimeTransport = {
-      async fetch(): Promise<Response> {
+      async fetch(_input: string, init?: RequestInit): Promise<Response> {
+        const body =
+          typeof init?.body === "string"
+            ? (JSON.parse(init.body) as { stream?: boolean; messages?: { content?: string }[] })
+            : {};
+        const prompt = body.messages?.[0]?.content ?? "";
+        if (body.stream) {
+          return new Response('data: {"choices":[{"delta":{"content":"{\\"ok\\":true}"}}]}\n\n', {
+            status: 200,
+            headers: { "content-type": "text/event-stream" },
+          });
+        }
+        if (prompt.includes("OTHER")) {
+          return jsonResponse(200, {
+            choices: [{ message: { content: '{"status":"ABI_SENTINEL"}', tool_calls: [] } }],
+          });
+        }
+        if (prompt.includes("lookup_order")) {
+          return jsonResponse(200, {
+            choices: [
+              { message: { content: "", tool_calls: [{ function: { name: "lookup_order" } }] } },
+            ],
+          });
+        }
         return jsonResponse(200, {
-          choices: [{ message: { content: '{"status":"ABI_SENTINEL"}', tool_calls: [] } }],
+          choices: [{ message: { content: '{"ok":true}', tool_calls: [] } }],
         });
       },
     };
@@ -128,6 +198,67 @@ describe("local probe", () => {
       result.observations.some((item) => item.id === "P02-structured" && item.status === "passed"),
     ).toBe(true);
     expect(result.staticCompatibility).not.toBe("unsupported");
+    expect(
+      result.observations.some((item) => item.id === "P03-enum" && item.status === "passed"),
+    ).toBe(true);
+    expect(
+      result.observations.some((item) => item.id === "P05-stream" && item.status === "passed"),
+    ).toBe(true);
+  });
+
+  it("sends Ollama structured probes to native /api/chat using the Ollama schema target", async () => {
+    const urls: string[] = [];
+    const bodies: unknown[] = [];
+    const transport: RuntimeTransport = {
+      async fetch(input: string, init?: RequestInit): Promise<Response> {
+        urls.push(input);
+        if (typeof init?.body === "string") {
+          bodies.push(JSON.parse(init.body));
+        }
+        return jsonResponse(200, {
+          message: { content: '{"ok":true,"status":"ABI_SENTINEL"}', tool_calls: [] },
+        });
+      },
+    };
+    await probeDeployment({
+      baseURL: "http://127.0.0.1:11434",
+      model: "qwen3.8:27b",
+      transport,
+      input: {
+        deployment: {
+          runtime: { kind: "ollama", apiSurface: "openai" },
+          model: { id: "qwen3.8:27b", format: "gguf" },
+        },
+        request: { endpoint: "chat-completions", structuredOutput: true, tools: true },
+      },
+    });
+    expect(urls.every((url) => url.includes("/api/chat"))).toBe(true);
+    expect(
+      bodies.some((body) => typeof body === "object" && body !== null && "format" in body),
+    ).toBe(true);
+  });
+
+  it("skips structured probes when no schema target can be resolved", async () => {
+    const transport: RuntimeTransport = {
+      async fetch(): Promise<Response> {
+        return jsonResponse(200, { choices: [{ message: { content: "ABI_SMOKE" } }] });
+      },
+    };
+    const result = await probeDeployment({
+      baseURL: "http://127.0.0.1:1234",
+      model: "Qwen3.8-27B",
+      transport,
+      input: {
+        deployment: {
+          runtime: { kind: "lmstudio", apiSurface: "openai" },
+          model: { id: "Qwen3.8-27B" },
+        },
+        request: { endpoint: "chat-completions", structuredOutput: true },
+      },
+    });
+    expect(result.observations.find((item) => item.id === "P02-structured")?.status).toBe(
+      "skipped",
+    );
   });
 
   it("treats connection failure as skipped, not unsupported", async () => {
@@ -150,5 +281,11 @@ describe("local probe", () => {
     });
     expect(result.skippedReason).toMatch(/ECONNREFUSED/);
     expect(result.staticCompatibility).toBe("lossless");
+  });
+
+  it("stops reading oversized probe responses", async () => {
+    const body = "x".repeat(1_048_577);
+    const response = new Response(body, { status: 200 });
+    await expect(readBoundedJSON(response, 1024)).rejects.toThrow(/exceeded/);
   });
 });

@@ -25,13 +25,17 @@ npx llm-abi local probe --suite smoke
 | `local doctor` | Loopback GET metadata for loaded models. Never generates |
 | `local probe`  | Explicit smoke inference. Synthetic fixtures only        |
 
-| Flag       | Meaning                                                                                                                                               |
-| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `--target` | Profile id or alias (`openai`, `anthropic`, `gemini`, `deepseek`, `xai`, `qwen` = Model Studio, `mistral`, `openrouter`, `mcp`, `llamacpp`, `ollama`) |
-| `--strict` | Fail when the schema is unsupported                                                                                                                   |
-| `--type`   | Type or interface name when the input is TypeScript                                                                                                   |
-| `--json`   | Machine-readable output                                                                                                                               |
-| `--ci`     | Exit 1 when any target is `unsupported`                                                                                                               |
+| Flag        | Meaning                                                                                                                                               |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--target`  | Profile id or alias (`openai`, `anthropic`, `gemini`, `deepseek`, `xai`, `qwen` = Model Studio, `mistral`, `openrouter`, `mcp`, `llamacpp`, `ollama`) |
+| `--strict`  | Fail when the schema is unsupported                                                                                                                   |
+| `--type`    | Type or interface name when the input is TypeScript                                                                                                   |
+| `--json`    | Machine-readable output                                                                                                                               |
+| `--ci`      | Exit 1 when any target is `unsupported`                                                                                                               |
+| `--url`     | Explicit runtime base URL for `local doctor` / `local probe`. Non-loopback is labeled `remote`                                                        |
+| `--runtime` | Hint for local discovery: `lmstudio`, `ollama`, `llamacpp`                                                                                            |
+| `--model`   | Model id for `local probe`. May cause the runtime to load that model                                                                                  |
+| `--suite`   | `local probe` suite: `smoke` (default) or `full`                                                                                                      |
 
 `llm-abi request` reads a JSON object:
 
@@ -48,7 +52,7 @@ npx llm-abi local probe --suite smoke
 
 `llm-abi doctor --json` is intended for bug reports. Doctor also lists request, runtime, and model profiles. It does not talk to localhost.
 
-`llm-abi local doctor --json` starts with `schemaVersion: 1`. Non-loopback `--url` is labeled `remote`. Default discovery does not leave `127.0.0.1`.
+`llm-abi local doctor --json` starts with `schemaVersion: 1`. Non-loopback `--url` is labeled `remote`. Default discovery does not leave `127.0.0.1`. `local probe` without `--url` uses the same loopback list as `local doctor`. `--model` may cause the runtime to load that model; omit it to probe only what is already loaded.
 
 ## GitHub Action
 

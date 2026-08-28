@@ -1,4 +1,10 @@
-export { discoverLocalDeployments } from "./local/discover.ts";
+export {
+  DEFAULT_LOCAL_ENDPOINTS,
+  discoverLocalDeployments,
+  pickLoadedDeployment,
+  selectProbeDeployment,
+} from "./local/discover.ts";
+export type { ProbeSelection } from "./local/discover.ts";
 export { probeDeployment } from "./local/probe.ts";
 export { createFetchTransport } from "./local/transport.ts";
 export type { RuntimeTransport } from "./local/transport.ts";

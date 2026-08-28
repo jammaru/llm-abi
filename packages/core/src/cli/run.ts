@@ -6,7 +6,7 @@ import { checkRequest } from "../check-request.ts";
 import { compile } from "../compile.ts";
 import type { CheckDeploymentInput, RuntimeKind } from "../deployment/types.ts";
 import { isPlainObject } from "../json/safe-record.ts";
-import { discoverLocalDeployments } from "../local/discover.ts";
+import { discoverLocalDeployments, selectProbeDeployment } from "../local/discover.ts";
 import { probeDeployment } from "../local/probe.ts";
 import { listModelProfiles } from "../deployment/model/registry.ts";
 import { listRuntimeProfiles } from "../deployment/runtime/registry.ts";
@@ -243,13 +243,16 @@ async function runLocalProbe(args: {
   readonly suite: "smoke" | "full";
 }): Promise<number> {
   try {
-    const baseURL = args.url ?? "http://127.0.0.1:1234";
-    const discovered = await discoverLocalDeployments({
-      endpoints: [{ baseURL, runtime: parseRuntimeHint(args.runtime) }],
+    const discovered = await discoverLocalDeployments(
+      args.url
+        ? { endpoints: [{ baseURL: args.url, runtime: parseRuntimeHint(args.runtime) }] }
+        : undefined,
+    );
+    const selected = selectProbeDeployment(discovered, {
+      runtime: parseRuntimeHint(args.runtime),
+      model: args.model,
     });
-    const first = discovered[0];
-    const modelId = args.model ?? first?.models[0]?.id;
-    if (!first || !modelId || !first.deployment) {
+    if (!selected) {
       const payload = {
         schemaVersion: 1 as const,
         command: "local-probe",
@@ -265,7 +268,7 @@ async function runLocalProbe(args: {
     }
     const input: CheckDeploymentInput = {
       schema: args.schema ? readSchema(args.schema) : undefined,
-      deployment: first.deployment,
+      deployment: selected.descriptor,
       request: {
         endpoint: "chat-completions",
         structuredOutput: true,
@@ -273,8 +276,8 @@ async function runLocalProbe(args: {
       },
     };
     const result = await probeDeployment({
-      baseURL: first.baseURL,
-      model: modelId,
+      baseURL: selected.discovered.baseURL,
+      model: selected.modelId,
       input,
       suite: args.suite,
     });
@@ -282,15 +285,18 @@ async function runLocalProbe(args: {
       process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
     } else {
       const lines = [
-        `Endpoint     ${first.baseURL}`,
-        `EndpointKind ${first.endpointKind}`,
-        `Model        ${modelId}`,
+        `Endpoint     ${selected.discovered.baseURL}`,
+        `EndpointKind ${selected.discovered.endpointKind}`,
+        `Model        ${selected.modelId}`,
         `Static       ${result.staticCompatibility ?? "n/a"}`,
         "",
         "Probe",
         ...result.observations.map((item) => `  ${item.id}  ${item.status}  ${item.detail}`),
         "",
         "Probe success does not upgrade static compatibility.",
+        args.model
+          ? "An explicit --model may cause the runtime to load that model."
+          : "Only a currently loaded model was probed.",
         "",
       ];
       process.stdout.write(`${lines.join("\n")}\n`);

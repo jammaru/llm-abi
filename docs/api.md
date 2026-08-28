@@ -151,4 +151,4 @@ Ollama Responses with `stateful: true` is `unsupported` (`previous_response_id` 
 import { discoverLocalDeployments, probeDeployment } from "llm-abi/local";
 ```
 
-Node only. Default discovery is `127.0.0.1:1234`, `:11434`, and `:8080`. It does not scan a LAN, follow redirects, or load models. `local doctor` is GET metadata. `local probe` is explicit generation with synthetic fixtures. A probe pass does not upgrade static compatibility.
+Node only. Default discovery is `127.0.0.1:1234`, `:11434`, and `:8080`. It does not scan a LAN or follow redirects. `local doctor` is GET metadata and lists loaded models only. `local probe` is explicit generation with synthetic fixtures. An explicit `model` may cause the runtime to load that model. A probe pass does not upgrade static compatibility.
