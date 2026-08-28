@@ -1,5 +1,11 @@
 # llm-abi
 
+## 0.5.0
+
+### Minor Changes
+
+- [#39](https://github.com/jammaru/llm-abi/pull/39) [`8341e88`](https://github.com/jammaru/llm-abi/commit/8341e88ac2db457d2fae9d7c17bb2af711271ac2) Thanks [@jammaru](https://github.com/jammaru)! - Add experimental vLLM and SGLang runtime schema targets from documented OpenAI-compatible structured outputs. Keyword tables stay example-proven. Default check() and the qwen alias do not change.
+
 ## 0.4.0
 
 ### Minor Changes

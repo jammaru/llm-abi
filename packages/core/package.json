@@ -1,6 +1,6 @@
 {
   "name": "llm-abi",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "One schema. Every model. Compile TypeScript and JSON Schema into provider-safe schemas for OpenAI, Claude, Gemini, and more.",
   "keywords": [
     "abi",
