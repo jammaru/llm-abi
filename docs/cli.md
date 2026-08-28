@@ -10,24 +10,28 @@ npx llm-abi explain schema.json --target gemini
 npx llm-abi analyze schema.json
 npx llm-abi request request.json
 npx llm-abi doctor
+npx llm-abi local doctor
+npx llm-abi local probe --suite smoke
 ```
 
-| Command   | Purpose                                        |
-| --------- | ---------------------------------------------- |
-| `check`   | Compatibility matrix for every built-in target |
-| `compile` | Emit the provider schema                       |
-| `explain` | Print diagnostics and loss for one target      |
-| `analyze` | Node counts plus conservative size/token hint  |
-| `request` | Request compatibility for one provider payload |
-| `doctor`  | Version, runtime, and profile revisions        |
+| Command        | Purpose                                                  |
+| -------------- | -------------------------------------------------------- |
+| `check`        | Compatibility matrix for every built-in target           |
+| `compile`      | Emit the provider schema                                 |
+| `explain`      | Print diagnostics and loss for one target                |
+| `analyze`      | Node counts plus conservative size/token hint            |
+| `request`      | Request compatibility for one provider payload           |
+| `doctor`       | Version, runtime, and profile revisions                  |
+| `local doctor` | Loopback GET metadata for loaded models. Never generates |
+| `local probe`  | Explicit smoke inference. Synthetic fixtures only        |
 
-| Flag       | Meaning                                                                                                          |
-| ---------- | ---------------------------------------------------------------------------------------------------------------- |
-| `--target` | Profile id or alias (`openai`, `anthropic`, `gemini`, `deepseek`, `xai`, `qwen`, `mistral`, `openrouter`, `mcp`) |
-| `--strict` | Fail when the schema is unsupported                                                                              |
-| `--type`   | Type or interface name when the input is TypeScript                                                              |
-| `--json`   | Machine-readable output                                                                                          |
-| `--ci`     | Exit 1 when any target is `unsupported`                                                                          |
+| Flag       | Meaning                                                                                                                                               |
+| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--target` | Profile id or alias (`openai`, `anthropic`, `gemini`, `deepseek`, `xai`, `qwen` = Model Studio, `mistral`, `openrouter`, `mcp`, `llamacpp`, `ollama`) |
+| `--strict` | Fail when the schema is unsupported                                                                                                                   |
+| `--type`   | Type or interface name when the input is TypeScript                                                                                                   |
+| `--json`   | Machine-readable output                                                                                                                               |
+| `--ci`     | Exit 1 when any target is `unsupported`                                                                                                               |
 
 `llm-abi request` reads a JSON object:
 
@@ -42,7 +46,9 @@ npx llm-abi doctor
 
 `--ci` exits 1 when that request is `unsupported`.
 
-`llm-abi doctor --json` is intended for bug reports. Doctor also lists request profiles.
+`llm-abi doctor --json` is intended for bug reports. Doctor also lists request, runtime, and model profiles. It does not talk to localhost.
+
+`llm-abi local doctor --json` starts with `schemaVersion: 1`. Non-loopback `--url` is labeled `remote`. Default discovery does not leave `127.0.0.1`.
 
 ## GitHub Action
 

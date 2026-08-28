@@ -56,6 +56,16 @@
         "default": "./dist/index.cjs"
       }
     },
+    "./local": {
+      "import": {
+        "types": "./dist/local.d.ts",
+        "default": "./dist/local.js"
+      },
+      "require": {
+        "types": "./dist/local.d.cts",
+        "default": "./dist/local.cjs"
+      }
+    },
     "./package.json": "./package.json"
   },
   "publishConfig": {

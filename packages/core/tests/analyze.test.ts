@@ -62,11 +62,12 @@ describe("targets", () => {
     expect(ids).toContain("mistral/chat/structured");
     expect(ids).toContain("openrouter/structured");
     expect(ids).toContain("mcp/2026-06/tools");
-    expect(ids.length).toBeGreaterThanOrEqual(9);
+    expect(ids).toHaveLength(9);
+    expect(ids).not.toContain("llamacpp/server/structured");
   });
 
   it("exposes auditable evidence for every target", () => {
-    for (const target of listTargets()) {
+    for (const target of listTargets({ scope: "all" })) {
       expect(["supported", "partial", "experimental"]).toContain(target.maturity);
       expect(["documented", "sdk-observed", "empirical"]).toContain(target.evidence.kind);
       expect(target.evidence.source).toMatch(/^https:\/\//);

@@ -4,7 +4,12 @@ import { analyze } from "../analyze.ts";
 import { check } from "../check.ts";
 import { checkRequest } from "../check-request.ts";
 import { compile } from "../compile.ts";
+import type { CheckDeploymentInput, RuntimeKind } from "../deployment/types.ts";
 import { isPlainObject } from "../json/safe-record.ts";
+import { discoverLocalDeployments } from "../local/discover.ts";
+import { probeDeployment } from "../local/probe.ts";
+import { listModelProfiles } from "../deployment/model/registry.ts";
+import { listRuntimeProfiles } from "../deployment/runtime/registry.ts";
 import { listRequestProfiles } from "../request/registry.ts";
 import type { CheckRequestInput, ReasoningEffort } from "../request/types.ts";
 import { listTargets } from "../targets/registry.ts";
@@ -16,12 +21,12 @@ import {
   renderCheck,
   renderCompile,
   renderExplain,
+  renderLocalDoctor,
   renderRequest,
 } from "./render.ts";
+import { VERSION } from "./version.ts";
 
-const VERSION = "0.1.0";
-
-export function run(argv: readonly string[]): number {
+export function run(argv: readonly string[]): number | Promise<number> {
   try {
     return runInner(argv);
   } catch (error) {
@@ -30,7 +35,7 @@ export function run(argv: readonly string[]): number {
   }
 }
 
-function runInner(argv: readonly string[]): number {
+function runInner(argv: readonly string[]): number | Promise<number> {
   let args;
   try {
     args = parseArgs(argv);
@@ -39,32 +44,38 @@ function runInner(argv: readonly string[]): number {
     return 1;
   }
 
-  if (args.command === "help") {
+  if (args.kind === "help") {
     process.stdout.write(`${HELP}\n`);
     return 0;
   }
-  if (args.command === "version") {
+  if (args.kind === "version") {
     process.stdout.write(`${VERSION}\n`);
     return 0;
   }
-  if (args.command === "doctor") {
+  if (args.kind === "doctor") {
     return doctor(args.json);
+  }
+  if (args.kind === "local-doctor") {
+    return runLocalDoctor(args.json, args.url);
+  }
+  if (args.kind === "local-probe") {
+    return runLocalProbe(args);
   }
 
   if (!args.file) {
     process.stderr.write(
-      args.command === "request" ? "Missing request file.\n\n" : "Missing schema file.\n\n",
+      args.kind === "request" ? "Missing request file.\n\n" : "Missing schema file.\n\n",
     );
     process.stdout.write(`${HELP}\n`);
     return 1;
   }
 
-  if (args.command === "request") {
+  if (args.kind === "request") {
     return runRequest(args.file, args.json, args.ci);
   }
 
   const schema = readSchema(args.file);
-  if (args.command === "analyze") {
+  if (args.kind === "analyze") {
     const result = analyze(schema, { typeName: args.typeName });
     if (args.json) {
       process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
@@ -73,7 +84,7 @@ function runInner(argv: readonly string[]): number {
     }
     return 0;
   }
-  if (args.command === "check") {
+  if (args.kind === "check") {
     const result = check(schema, { optimize: args.optimize, typeName: args.typeName });
     if (args.json) {
       process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
@@ -89,11 +100,11 @@ function runInner(argv: readonly string[]): number {
   const target = args.target ?? "openai";
   const compiled = compile(schema, {
     target,
-    strict: args.strict,
+    strict: args.kind === "compile" ? args.strict : false,
     optimize: args.optimize,
     typeName: args.typeName,
   });
-  if (args.command === "compile") {
+  if (args.kind === "compile") {
     if (args.json) {
       process.stdout.write(`${JSON.stringify(compiled, null, 2)}\n`);
     } else {
@@ -101,16 +112,12 @@ function runInner(argv: readonly string[]): number {
     }
     return compiled.compatibility === "unsupported" && args.ci ? 1 : 0;
   }
-  if (args.command === "explain") {
-    if (args.json) {
-      process.stdout.write(`${JSON.stringify(compiled, null, 2)}\n`);
-    } else {
-      process.stdout.write(`${renderExplain(compiled)}\n`);
-    }
-    return 0;
+  if (args.json) {
+    process.stdout.write(`${JSON.stringify(compiled, null, 2)}\n`);
+  } else {
+    process.stdout.write(`${renderExplain(compiled)}\n`);
   }
-
-  return 1;
+  return 0;
 }
 
 function readSchema(file: string): SchemaInput {
@@ -176,7 +183,10 @@ function doctor(json: boolean): number {
     version: VERSION,
     runtime: `node ${process.version}`,
     targets: listTargets(),
+    runtimeTargets: listTargets({ scope: "runtime" }),
     requestProfiles: listRequestProfiles(),
+    runtimeProfiles: listRuntimeProfiles(),
+    modelProfiles: listModelProfiles(),
   };
   if (json) {
     process.stdout.write(`${JSON.stringify(info, null, 2)}\n`);
@@ -187,11 +197,124 @@ function doctor(json: boolean): number {
         `Runtime   ${info.runtime}`,
         "Targets",
         ...info.targets.map((target) => `  ${target.id}  (${target.revision})`),
+        "Runtime schema targets",
+        ...info.runtimeTargets.map((target) => `  ${target.id}  (${target.revision})`),
         "Request profiles",
         ...info.requestProfiles.map((profile) => `  ${profile.id}  (${profile.revision})`),
+        "Runtime profiles",
+        ...info.runtimeProfiles.map((profile) => `  ${profile.id}  (${profile.revision})`),
+        "Model profiles",
+        ...info.modelProfiles.map((profile) => `  ${profile.id}  (${profile.revision})`),
         "",
       ].join("\n"),
     );
   }
   return 0;
+}
+
+async function runLocalDoctor(json: boolean, url?: string): Promise<number> {
+  try {
+    const discovered = await discoverLocalDeployments(
+      url ? { endpoints: [{ baseURL: url }] } : undefined,
+    );
+    const payload = {
+      schemaVersion: 1 as const,
+      command: "local-doctor",
+      deployments: discovered,
+    };
+    if (json) {
+      process.stdout.write(`${JSON.stringify(payload, null, 2)}\n`);
+    } else {
+      process.stdout.write(`${renderLocalDoctor(discovered)}\n`);
+    }
+    return 0;
+  } catch (error) {
+    process.stderr.write(`${error instanceof Error ? error.message : String(error)}\n`);
+    return 1;
+  }
+}
+
+async function runLocalProbe(args: {
+  readonly json: boolean;
+  readonly url?: string;
+  readonly runtime?: string;
+  readonly model?: string;
+  readonly schema?: string;
+  readonly suite: "smoke" | "full";
+}): Promise<number> {
+  try {
+    const baseURL = args.url ?? "http://127.0.0.1:1234";
+    const discovered = await discoverLocalDeployments({
+      endpoints: [{ baseURL, runtime: parseRuntimeHint(args.runtime) }],
+    });
+    const first = discovered[0];
+    const modelId = args.model ?? first?.models[0]?.id;
+    if (!first || !modelId || !first.deployment) {
+      const payload = {
+        schemaVersion: 1 as const,
+        command: "local-probe",
+        skippedReason: "runtime unreachable or no loaded model",
+        observations: [],
+      };
+      process.stdout.write(
+        args.json
+          ? `${JSON.stringify(payload, null, 2)}\n`
+          : "No loaded local deployment to probe.\n",
+      );
+      return 0;
+    }
+    const input: CheckDeploymentInput = {
+      schema: args.schema ? readSchema(args.schema) : undefined,
+      deployment: first.deployment,
+      request: {
+        endpoint: "chat-completions",
+        structuredOutput: true,
+        tools: true,
+      },
+    };
+    const result = await probeDeployment({
+      baseURL: first.baseURL,
+      model: modelId,
+      input,
+      suite: args.suite,
+    });
+    if (args.json) {
+      process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+    } else {
+      const lines = [
+        `Endpoint     ${first.baseURL}`,
+        `EndpointKind ${first.endpointKind}`,
+        `Model        ${modelId}`,
+        `Static       ${result.staticCompatibility ?? "n/a"}`,
+        "",
+        "Probe",
+        ...result.observations.map((item) => `  ${item.id}  ${item.status}  ${item.detail}`),
+        "",
+        "Probe success does not upgrade static compatibility.",
+        "",
+      ];
+      process.stdout.write(`${lines.join("\n")}\n`);
+    }
+    return result.observations.some((item) => item.status === "failed") ? 1 : 0;
+  } catch (error) {
+    process.stderr.write(`${error instanceof Error ? error.message : String(error)}\n`);
+    return 1;
+  }
+}
+
+function parseRuntimeHint(value: string | undefined): RuntimeKind | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+  const known: readonly RuntimeKind[] = [
+    "lmstudio",
+    "ollama",
+    "llamacpp",
+    "mlx-lm",
+    "vllm",
+    "sglang",
+    "transformers",
+    "unknown",
+  ];
+  return known.includes(value as RuntimeKind) ? (value as RuntimeKind) : undefined;
 }

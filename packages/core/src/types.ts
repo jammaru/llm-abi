@@ -55,6 +55,8 @@ export type Evidence = "documented" | "sdk-observed" | "empirical";
 
 export type TargetMaturity = "supported" | "partial" | "experimental";
 
+export type TargetScope = "provider" | "runtime";
+
 export interface TargetEvidence {
   readonly kind: Evidence;
   readonly source: string;
@@ -73,6 +75,7 @@ export interface ResolvedTarget {
   readonly revision: string;
   readonly aliases: readonly string[];
   readonly maturity: TargetMaturity;
+  readonly scope: TargetScope;
   readonly evidence: TargetEvidence;
 }
 
@@ -140,6 +143,10 @@ export interface CheckRow {
   readonly compatibility: Compatibility;
   readonly diagnostics: readonly Diagnostic[];
   readonly size: SchemaSize;
+}
+
+export interface ListTargetsOptions {
+  readonly scope?: TargetScope | "all";
 }
 
 export interface CheckOptions {

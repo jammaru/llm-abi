@@ -192,6 +192,17 @@ Maturity and evidence are separate. `Supported` means the profile is maintained 
 
 The MCP target is deliberately conservative for deployed hosts. The current protocol specification allows a full JSON Schema object; a future protocol target and host-specific compatibility profiles are tracked separately.
 
+`qwen` is Alibaba Model Studio, not a laptop Qwen GGUF. Local / self-hosted schema engines are separate Experimental targets. They are compile-addressable and stay out of default `check()`:
+
+| Alias           | Profile                      | Maturity     | Evidence                                                                           | Last verified | Live adapter |
+| --------------- | ---------------------------- | ------------ | ---------------------------------------------------------------------------------- | ------------- | ------------ |
+| `llamacpp`      | `llamacpp/server/structured` | Experimental | [documented](https://github.com/ggml-org/llama.cpp/blob/master/grammars/README.md) | 2026-08-28    | —            |
+| `lmstudio/gguf` | `lmstudio/gguf/structured`   | Experimental | [documented](https://lmstudio.ai/docs/developer/openai-compat/structured-output)   | 2026-08-28    | —            |
+| `lmstudio/mlx`  | `lmstudio/mlx/structured`    | Experimental | [documented](https://lmstudio.ai/docs/developer/openai-compat/structured-output)   | 2026-08-28    | —            |
+| `ollama`        | `ollama/chat/structured`     | Experimental | [documented](https://docs.ollama.com/capabilities/structured-outputs)              | 2026-08-28    | —            |
+
+LM Studio GGUF shares llama.cpp grammar constants and keeps its own evidence URL. MLX uses Outlines and does not copy those limits. There is no short `lmstudio` alias: format is required.
+
 Cohere, Groq, and Together are planned. New providers are data: add a target profile, fixtures, and expected diagnostics.
 
 ### Request compatibility
@@ -222,6 +233,25 @@ result.fixes;
 
 `checkRequest()` does not send the request or rewrite it. If no request profile matches, `coverage` is `unknown`. That is unchecked, not safe to send.
 
+### Runtime compatibility
+
+`checkDeployment()` answers whether a contract can hold on a runtime × engine × model. It reuses `compile()` when the schema engine is known. It does not generate, route, or load models.
+
+```ts
+import { checkDeployment } from "llm-abi";
+
+const result = checkDeployment({
+  schema,
+  deployment: {
+    runtime: { kind: "lmstudio", apiSurface: "openai", engine: { kind: "llamacpp" } },
+    model: { id: "Qwen3.8-27B-Q4_K_M", format: "gguf" },
+  },
+  request: { endpoint: "chat-completions", structuredOutput: true, tools: true },
+});
+```
+
+Ollama Responses with `stateful: true` is `unsupported`. LM Studio without `format` does not guess GGUF vs MLX. Node discovery and smoke probe are `import { discoverLocalDeployments } from "llm-abi/local"`.
+
 ## CLI
 
 ```bash
@@ -231,6 +261,8 @@ npx llm-abi explain schema.json --target gemini
 npx llm-abi analyze schema.json
 npx llm-abi request request.json
 npx llm-abi doctor
+npx llm-abi local doctor
+npx llm-abi local probe --suite smoke
 ```
 
 `--ci` exits with status 1 when any target is `unsupported`.

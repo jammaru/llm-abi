@@ -599,4 +599,45 @@ describe("lowering", () => {
     expect((result.schema as { additionalProperties?: unknown }).additionalProperties).toBe(false);
     expect(result.compatibility).toBe("lossy");
   });
+
+  it("marks llama.cpp oneOf as unsupported and keeps array roots", () => {
+    const union = compile(
+      {
+        type: "object",
+        properties: { value: { oneOf: [{ type: "string" }, { type: "number" }] } },
+        required: ["value"],
+      },
+      "llamacpp/server/structured",
+    );
+    expect(union.compatibility).toBe("unsupported");
+    const arrayRoot = compile({ type: "array", items: { type: "string" } }, "llamacpp");
+    expect(arrayRoot.diagnostics.some((item) => item.code === "root-must-be-object")).toBe(false);
+  });
+
+  it("does not copy llama.cpp grammar limits onto Ollama or LM Studio MLX", () => {
+    const schema = {
+      type: "object",
+      properties: { status: { enum: ["ABI_SENTINEL"] } },
+      required: ["status"],
+    };
+    expect(compile(schema, "ollama/chat/structured").compatibility).toBe("lossless");
+    const mlx = compile(
+      {
+        type: "object",
+        properties: { tags: { type: "array", items: { type: "string" }, minItems: 1 } },
+        required: ["tags"],
+      },
+      "lmstudio/mlx/structured",
+    );
+    expect(mlx.compatibility).toBe("lossless");
+    const gguf = compile(
+      {
+        type: "object",
+        properties: { value: { oneOf: [{ type: "string" }, { type: "number" }] } },
+        required: ["value"],
+      },
+      "lmstudio/gguf/structured",
+    );
+    expect(gguf.compatibility).toBe("unsupported");
+  });
 });

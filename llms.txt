@@ -40,3 +40,5 @@ result.validate(modelOutput);
 OpenAI Responses structured outputs, Anthropic Messages structured outputs, Google Gemini structured output, DeepSeek strict tools, xAI Grok structured output, Alibaba Qwen tools, Mistral structured output, OpenRouter structured output, and a conservative MCP host profile.
 
 Every resolved target includes a maturity level, linked evidence source, last-verification date, and whether a secret-gated nightly live adapter exists. Do not infer live verification from documentary evidence alone.
+
+`checkDeployment()` is a pure runtime ABI for local and self-hosted servers. Default `check()` stays on cloud/provider targets. `compile(schema, "qwen")` is Alibaba Model Studio, not local Qwen. Discovery and probe live in `llm-abi/local`.

@@ -22,9 +22,20 @@ provider + model + endpoint + tools + reasoning
      evaluate rules
               ↓
  compatibility + diagnostics + fixes
+
+Runtime ABI
+runtime + model + request (+ optional schema)
+              ↓
+     resolve runtime / model profiles
+              ↓
+     compile() when a schema engine is known
+              ↓
+ compatibility + coverage + diagnostics + fixes
 ```
 
-`compile()` does not inspect `model`, `endpoint`, or `reasoning_effort`. Those combinations belong to `checkRequest()`.
+`compile()` does not inspect `model`, `endpoint`, or `reasoning_effort`. Those combinations belong to `checkRequest()`. Runtime, engine, and model-format combinations belong to `checkDeployment()`.
+
+Runtime schema targets use `scope: "runtime"`. Default `check()` and `listTargets()` stay on provider targets so the cloud matrix does not mix in LM Studio or Ollama rows that need format context.
 
 ## IR
 
@@ -58,4 +69,4 @@ Untrusted schemas are bounded by max depth, max nodes, and max `$ref` count. Dic
 
 ## Playground
 
-`packages/playground` is a static Vite app hosted on Cloudflare Pages. It imports the public `llm-abi` API, compiles in the browser, and never fetches provider profiles. Compatibility is shown as discrete levels, never a percentage.
+`packages/playground` is a static Vite app hosted on Cloudflare Pages. It imports the public `llm-abi` API, compiles in the browser, and never fetches provider profiles or localhost runtimes. Compatibility is shown as discrete levels, never a percentage.
