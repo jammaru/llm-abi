@@ -211,7 +211,11 @@ Usage:
   llm-abi request <request.json> [--ci]
   llm-abi doctor
   llm-abi local doctor [--url <http://127.0.0.1:1234>]
+  llm-abi local check [schema.json] [--url <http://127.0.0.1:1234>]
   llm-abi local probe [--url <http://127.0.0.1:1234>] [--runtime <id>] [--model <id>] [--suite smoke]
+  llm-abi local matrix [schema.json] [--probe]
+  llm-abi local lock [schema.json] [--out llm-abi.local.lock.json]
+  llm-abi local diff <lock.json> [other.lock.json|schema.json]
 
 Request file:
   JSON object with provider, model, endpoint, optional tools, optional reasoningEffort
@@ -244,6 +248,8 @@ Options:
   --runtime         Hint for local doctor/probe: lmstudio, ollama, llamacpp
   --model           Model id for local probe. May cause the runtime to load it
   --suite           local probe suite: smoke (default) or full
+  --probe           Run smoke inference during local matrix/lock
+  --out             Path for local lock output
   --help, -h
   --version, -v
 `;

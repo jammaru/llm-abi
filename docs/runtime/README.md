@@ -13,6 +13,8 @@ Schema keyword support stays on `compile()` targets with `scope: "runtime"`. Mod
 5. Add tests for the failing combination and for an unknown deployment.
 6. Update [docs/api.md](../api.md) and run `pnpm test` plus `pnpm changeset`.
 
+`llm-abi local matrix` compares loaded models. `local lock` / `local diff` snapshot contract, deployment, and profile fingerprints without URLs, secrets, or absolute paths. The playground can paste `local doctor --json`; it does not open localhost.
+
 ## Out of scope
 
 - Generating, routing, or loading models

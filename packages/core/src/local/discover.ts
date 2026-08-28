@@ -101,6 +101,13 @@ function toDiscovered(
   };
 }
 
+export function descriptorForModel(
+  runtime: RuntimeKind,
+  model: DiscoveredModel,
+): DeploymentDescriptor {
+  return toDescriptor(runtime, model);
+}
+
 function toDescriptor(runtime: RuntimeKind, model: DiscoveredModel): DeploymentDescriptor {
   const inferred = inferQwen38Family(model.id);
   return {

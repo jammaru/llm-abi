@@ -215,6 +215,41 @@ describe("cli", () => {
       model: undefined,
       schema: "schema.json",
       suite: "smoke",
+      typeName: undefined,
+    });
+    expect(
+      parseArgs(["node", "llm-abi", "local", "lock", "schema.ts", "--type", "Ticket"]),
+    ).toEqual({
+      kind: "local-lock",
+      json: false,
+      url: undefined,
+      runtime: undefined,
+      model: undefined,
+      file: "schema.ts",
+      out: undefined,
+      probe: false,
+      typeName: "Ticket",
+    });
+    expect(parseArgs(["node", "llm-abi", "local", "matrix", "schema.json", "--probe"])).toEqual({
+      kind: "local-matrix",
+      json: false,
+      url: undefined,
+      runtime: undefined,
+      file: "schema.json",
+      probe: true,
+      typeName: undefined,
+    });
+    expect(
+      parseArgs(["node", "llm-abi", "local", "diff", "old.lock.json", "new.lock.json"]),
+    ).toEqual({
+      kind: "local-diff",
+      json: false,
+      url: undefined,
+      runtime: undefined,
+      model: undefined,
+      file: "old.lock.json",
+      file2: "new.lock.json",
+      typeName: undefined,
     });
   });
 });

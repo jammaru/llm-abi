@@ -53,10 +53,10 @@ First runtime schema targets are `experimental` and `documented` against:
 
 Keyword tables stay conservative. Undocumented keywords are `runtime-only` except where llama.cpp documents a break.
 
-## Not in this change
+## Later in this series
 
-- `local matrix`, lock, or diff
-- Full keyword probe
-- Playground localhost discovery
-- vLLM / SGLang profiles
+`local matrix`, `local lock` / `local diff`, and a keyword probe suite ship as follow-up CLI on `llm-abi/local`. The playground can paste `local doctor --json`; it still does not open localhost. vLLM / SGLang profiles remain deferred.
+
+## Never
+
 - `generate()`, `chat()`, `route()`, model download/load
