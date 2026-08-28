@@ -18,4 +18,4 @@ const request = checkRequest({
 npx llm-abi check schema.json
 ```
 
-Zero runtime dependencies. See the [repository README](https://github.com/jammaru/llm-abi) for targets, compatibility levels, and CLI docs.
+Zero runtime dependencies. See the [documentation](https://llm-abi.pages.dev/docs/) for targets, compatibility levels, and CLI.

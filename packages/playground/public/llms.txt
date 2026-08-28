@@ -4,10 +4,16 @@
 
 Compile JSON Schema, Standard JSON Schema, or a closed TypeScript type subset for OpenAI, Anthropic, Gemini, DeepSeek, xAI, Qwen, Mistral, OpenRouter, and conservative MCP hosts. Results include a provider schema, discrete compatibility, diagnostics, loss items, a fingerprint, size hints, and runtime validation against the original schema.
 
-- Documentation: https://github.com/jammaru/llm-abi#readme
+- Documentation: https://llm-abi.pages.dev/docs/
 - Playground: https://llm-abi.pages.dev/
 - Package: https://www.npmjs.com/package/llm-abi
-- API: https://github.com/jammaru/llm-abi/blob/main/docs/api.md
-- Guarantees: https://github.com/jammaru/llm-abi/blob/main/docs/guarantees.md
+- API: https://llm-abi.pages.dev/docs/api/
+- CLI: https://llm-abi.pages.dev/docs/cli/
+- Profiles: https://llm-abi.pages.dev/docs/profiles/
+- Requests: https://llm-abi.pages.dev/docs/requests/
+- Local runtimes: https://llm-abi.pages.dev/docs/local/
+- Guarantees: https://llm-abi.pages.dev/docs/guarantees/
+- Architecture: https://llm-abi.pages.dev/docs/architecture/
+- Source: https://github.com/jammaru/llm-abi
 
 Install with `npm install llm-abi`, then call `compile(schema, "anthropic")` or another built-in target. llm-abi does not make model calls; it is the provider-compatibility gate used before the SDK or framework that does.

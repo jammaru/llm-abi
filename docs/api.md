@@ -47,7 +47,7 @@ const same = compile(schema, { target: "anthropic/messages/structured" });
 
 `constraintFallback: "description" | "strip"` controls whether runtime-only constraints are appended to `description`.
 
-`optimize: true` drops titles that duplicate the property name and descriptions that duplicate the title. Each omission emits `redundant-annotation-removed`. Default is `false`, so v0.1 emitted JSON stays the same.
+`optimize: true` drops titles that duplicate the property name and descriptions that duplicate the title. Each omission emits `redundant-annotation-removed`. Default is `false`, so previously emitted JSON stays the same when you leave it off.
 
 `typeName` selects which `type` or `interface` to compile from TypeScript source. Default: the last exported declaration, otherwise the last declaration.
 

@@ -4,17 +4,11 @@ import "@fontsource/ibm-plex-mono/latin-400.css";
 import "@fontsource/ibm-plex-mono/latin-500.css";
 import "./styles.css";
 import { runPlayground, validateInstance } from "./compile.ts";
+import { bindLocaleRadios, bindTheme, currentResolved, paintLocale, paintTheme } from "./chrome.ts";
 import { applyChrome, copyFor } from "./copy.ts";
 import { applyExample, decodeState, defaultState, encodeState, shareTooLong } from "./state.ts";
 import type { PlaygroundState } from "./state.ts";
 import { readStoredLocale, resolveLocale, writeStoredLocale, type Locale } from "./locale.ts";
-import {
-  nextResolvedTheme,
-  readStoredPreference,
-  resolvedTheme,
-  writeStoredPreference,
-  type ResolvedTheme,
-} from "./theme.ts";
 import {
   fillExampleSelect,
   readForm,
@@ -81,60 +75,6 @@ function syncHash(state: PlaygroundState): void {
   if (window.location.hash !== next) {
     history.replaceState(null, "", next);
   }
-}
-
-function prefersDark(): boolean {
-  return window.matchMedia("(prefers-color-scheme: dark)").matches;
-}
-
-function currentResolved(): ResolvedTheme {
-  return resolvedTheme(readStoredPreference(window.localStorage), prefersDark());
-}
-
-function paintTheme(resolved: ResolvedTheme, locale: Locale): void {
-  document.documentElement.dataset.theme = resolved;
-  const themeColor = document.querySelector('meta[name="theme-color"]');
-  if (themeColor) {
-    themeColor.setAttribute("content", resolved === "dark" ? "#0f1115" : "#ffffff");
-  }
-  const toggle = document.querySelector("[data-theme-toggle]");
-  if (toggle) {
-    toggle.setAttribute("data-mode", resolved);
-  }
-  const button = document.getElementById("theme-toggle");
-  if (button instanceof HTMLButtonElement) {
-    const dark = resolved === "dark";
-    const copy = copyFor(locale);
-    button.setAttribute("aria-pressed", dark ? "true" : "false");
-    button.setAttribute("aria-label", dark ? copy.themeToLight : copy.themeToDark);
-  }
-}
-
-function paintLocale(locale: Locale): void {
-  document.documentElement.lang = locale;
-  document.documentElement.dataset.locale = locale;
-  const en = document.getElementById("locale-en");
-  const ja = document.getElementById("locale-ja");
-  if (en instanceof HTMLInputElement) {
-    en.checked = locale === "en";
-  }
-  if (ja instanceof HTMLInputElement) {
-    ja.checked = locale === "ja";
-  }
-}
-
-function bindTheme(localeOf: () => Locale): void {
-  paintTheme(currentResolved(), localeOf());
-  requiredElement<HTMLButtonElement>("theme-toggle").addEventListener("click", () => {
-    const next = nextResolvedTheme(currentResolved());
-    writeStoredPreference(window.localStorage, next);
-    paintTheme(next, localeOf());
-  });
-  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
-    if (readStoredPreference(window.localStorage) === "auto") {
-      paintTheme(currentResolved(), localeOf());
-    }
-  });
 }
 
 function applyDemoMode(): boolean {
@@ -217,12 +157,7 @@ function main(): void {
   };
 
   if (!demo) {
-    requiredElement<HTMLInputElement>("locale-en").addEventListener("change", () => {
-      setLocale("en");
-    });
-    requiredElement<HTMLInputElement>("locale-ja").addEventListener("change", () => {
-      setLocale("ja");
-    });
+    bindLocaleRadios(setLocale);
   }
 
   const schedule = (): void => {

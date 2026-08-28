@@ -37,6 +37,9 @@ export type UiKey =
   | "footerBefore"
   | "footerAfter"
   | "documentation"
+  | "docs"
+  | "playground"
+  | "skipDoc"
   | "project"
   | "github"
   | "npm"
@@ -126,6 +129,9 @@ const EN: Copy = {
     footerBefore: "Compatibility is ",
     footerAfter: ". llm-abi does not invent percentages. ",
     documentation: "Documentation",
+    docs: "Docs",
+    playground: "Playground",
+    skipDoc: "Skip to documentation",
     project: "Project",
     github: "GitHub repository",
     npm: "npm package",
@@ -225,6 +231,9 @@ const JA: Copy = {
     footerBefore: "互換性は ",
     footerAfter: " です。llm-abi はパーセントを作りません。 ",
     documentation: "ドキュメント",
+    docs: "ドキュメント",
+    playground: "プレイグラウンド",
+    skipDoc: "ドキュメントへスキップ",
     project: "プロジェクト",
     github: "GitHub リポジトリ",
     npm: "npm パッケージ",
@@ -306,10 +315,12 @@ export function localizePlaygroundError(copy: Copy, code: string, message: strin
 }
 
 export function applyChrome(copy: Copy): void {
-  document.title = copy.documentTitle;
-  const description = document.querySelector('meta[name="description"]');
-  if (description) {
-    description.setAttribute("content", copy.metaDescription);
+  if (!document.body.classList.contains("docs-page")) {
+    document.title = copy.documentTitle;
+    const description = document.querySelector('meta[name="description"]');
+    if (description) {
+      description.setAttribute("content", copy.metaDescription);
+    }
   }
   for (const node of document.querySelectorAll("[data-i18n]")) {
     const key = node.getAttribute("data-i18n");

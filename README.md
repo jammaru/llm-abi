@@ -20,6 +20,8 @@ Compile TypeScript and JSON Schema into provider-safe schemas for OpenAI, Claude
 
 [Playground](https://llm-abi.pages.dev/) — paste a TypeScript type or JSON Schema, then compare every built-in target, diagnostics, loss, and emitted JSON.
 
+[Docs](https://llm-abi.pages.dev/docs/) — `compile`, `checkRequest`, `checkDeployment`, CLI, profiles, and local runtimes.
+
 Your JSON Schema works on OpenAI.
 
 It fails on Gemini.
@@ -363,13 +365,24 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). Adding a provider should be a profile fi
 
 ## Documentation
 
-- [API](docs/api.md)
-- [CLI](docs/cli.md)
-- [Architecture](docs/architecture.md)
+Published at [llm-abi.pages.dev/docs](https://llm-abi.pages.dev/docs/):
+
+- [Guide](https://llm-abi.pages.dev/docs/)
+- [API](https://llm-abi.pages.dev/docs/api/)
+- [CLI](https://llm-abi.pages.dev/docs/cli/)
+- [Profiles](https://llm-abi.pages.dev/docs/profiles/)
+- [Requests](https://llm-abi.pages.dev/docs/requests/)
+- [Local runtimes](https://llm-abi.pages.dev/docs/local/)
+- [Guarantees](https://llm-abi.pages.dev/docs/guarantees/)
+- [Architecture](https://llm-abi.pages.dev/docs/architecture/)
+- [Playground](https://llm-abi.pages.dev/)
+
+Source markdown lives in `docs/`. Contributor checklists stay in the repo:
+
 - [Target profiles](docs/targets/README.md)
 - [Request profiles](docs/requests/README.md)
+- [Runtime profiles](docs/runtime/README.md)
 - [Examples](examples/README.md)
-- [Playground](https://llm-abi.pages.dev/)
 
 ## License
 
