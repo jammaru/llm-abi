@@ -22,7 +22,7 @@ git tag -a vX.Y.Z origin/main -m "llm-abi X.Y.Z"
 git push origin vX.Y.Z
 ```
 
-5. The Release workflow publishes to npm (OIDC, no `NPM_TOKEN`), then creates the GitHub Release. Confirm `npm view llm-abi version` and the Releases page.
+5. The Release workflow publishes from `packages/core` with `npm publish --provenance` (OIDC, no `NPM_TOKEN`), then creates the GitHub Release. Confirm `npm view llm-abi version` and the Releases page. Do not use `changeset publish` for the npm step; it does not pass the OIDC token.
 
 ## Do not
 

@@ -18,6 +18,9 @@ jobs:
     if: github.repository == 'jammaru/llm-abi'
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    permissions:
+      contents: write
+      id-token: write
     steps:
       - uses: actions/checkout@v7
 
@@ -39,16 +42,20 @@ jobs:
           echo "Publishing llm-abi@$VERSION"
 
       - name: Publish to npm
+        working-directory: packages/core
         env:
           NPM_CONFIG_PROVENANCE: "true"
         run: |
           set -euo pipefail
-          VERSION="$(node -p "require('./packages/core/package.json').version")"
+          VERSION="$(node -p "require('./package.json').version")"
           if npm view "llm-abi@$VERSION" version >/dev/null 2>&1; then
             echo "llm-abi@$VERSION already on npm — skip publish"
-          else
-            pnpm release
+            exit 0
           fi
+          pnpm --filter llm-abi build
+          # changeset publish does not pass GitHub OIDC to npm. Publish the
+          # package directory directly so trusted publishing can exchange a token.
+          npm publish --access public --provenance
 
       - name: Create GitHub Release
         env:
