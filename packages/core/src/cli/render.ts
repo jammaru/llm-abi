@@ -1,3 +1,4 @@
+import type { DiscoveredDeployment } from "../local/types.ts";
 import type { CheckRequestResult } from "../request/types.ts";
 import type { Analysis, CheckResult, CompileResult, Diagnostic } from "../types.ts";
 
@@ -161,6 +162,45 @@ function formatEffort(effective: CheckRequestResult["effective"]): string {
   return effective.reasoningEffort;
 }
 
+export function renderLocalDoctor(deployments: readonly DiscoveredDeployment[]): string {
+  const lines = ["Local deployments", ""];
+  if (deployments.length === 0) {
+    lines.push(
+      "No loopback runtime detected.",
+      "Default ports: 1234 (LM Studio), 11434 (Ollama), 8080 (unspecified).",
+      "",
+    );
+    return lines.join("\n");
+  }
+  for (const item of deployments) {
+    const runtime = item.detection.runtime ?? "unknown";
+    lines.push(runtime);
+    lines.push(`  URL       ${item.baseURL}`);
+    lines.push(`  Endpoint  ${item.endpointKind}`);
+    if (item.models.length === 0) {
+      lines.push("  Model     none loaded");
+    }
+    for (const model of item.models) {
+      lines.push(`  Model     ${model.id}`);
+      if (model.format) {
+        lines.push(`  Format    ${model.format}`);
+      }
+      if (model.engine) {
+        lines.push(`  Engine    ${model.engine}`);
+      }
+      if (model.contextLength !== undefined) {
+        lines.push(`  Context   ${String(model.contextLength)}`);
+      }
+      if (model.parallel !== undefined) {
+        lines.push(`  Parallel  ${String(model.parallel)}`);
+      }
+    }
+    lines.push("");
+  }
+  lines.push("No generation was performed.");
+  return lines.join("\n");
+}
+
 export const HELP: string = `llm-abi — schema compatibility compiler for LLM providers
 
 Usage:
@@ -170,6 +210,8 @@ Usage:
   llm-abi analyze <schema.json|.ts>
   llm-abi request <request.json> [--ci]
   llm-abi doctor
+  llm-abi local doctor [--url <http://127.0.0.1:1234>]
+  llm-abi local probe [--url <http://127.0.0.1:1234>] [--runtime <id>] [--model <id>] [--suite smoke]
 
 Request file:
   JSON object with provider, model, endpoint, optional tools, optional reasoningEffort
@@ -180,10 +222,16 @@ Targets:
   gemini            google/gemini/structured
   deepseek          deepseek/chat/strict-tools
   xai               xai/grok/structured
-  qwen              alibaba/qwen/tools
+  qwen              alibaba/qwen/tools   (Alibaba Model Studio, not local Qwen)
   mistral           mistral/chat/structured
   openrouter        openrouter/structured
   mcp               mcp/2026-06/tools
+
+Runtime schema targets (compile by id; not in default check):
+  llamacpp          llamacpp/server/structured
+  ollama            ollama/chat/structured
+  lmstudio/gguf     lmstudio/gguf/structured
+  lmstudio/mlx      lmstudio/mlx/structured
 
 Options:
   --target, -t      Target profile id or alias
@@ -192,6 +240,10 @@ Options:
   --type            Type or interface name for TypeScript input
   --json            Machine-readable output
   --ci              Exit 1 when a target or request is unsupported
+  --url             Explicit runtime base URL (non-loopback is labeled remote)
+  --runtime         Hint for local doctor/probe: lmstudio, ollama, llamacpp
+  --model           Model id for local probe. May cause the runtime to load it
+  --suite           local probe suite: smoke (default) or full
   --help, -h
   --version, -v
 `;

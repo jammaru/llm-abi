@@ -8,7 +8,7 @@ description: Add an llm-abi LLM provider target profile with fixtures, tests, an
 ## Steps
 
 1. Create `packages/core/src/targets/<vendor>.ts` with `defineTarget`.
-2. Register the profile and aliases in `packages/core/src/targets/registry.ts`.
+2. Register the profile and aliases in `packages/core/src/targets/registry.ts`. Set `scope: "runtime"` for local schema engines so they stay out of default `check()`.
 3. Set `maturity`, `evidence`, `evidenceSource`, `lastVerified`, and `liveAdapter`.
 4. Add JSON fixtures under `packages/conformance/fixtures/`.
 5. Add a focused test for the vendor-specific lowering rule.

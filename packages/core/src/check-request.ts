@@ -11,6 +11,7 @@ import type {
   RequestProfile,
   RequestRule,
 } from "./request/types.ts";
+import { worstCompatibility } from "./compatibility/rank.ts";
 import type { Compatibility } from "./types.ts";
 
 const MAX_MODEL_ID = 256;
@@ -34,13 +35,6 @@ const ENDPOINT_ALIASES = new Map<string, RequestEndpoint>([
   ["/v1/responses", "responses"],
   ["v1/responses", "responses"],
 ]);
-
-const RANK: Record<Compatibility, number> = {
-  lossless: 0,
-  "runtime-safe": 1,
-  lossy: 2,
-  unsupported: 3,
-};
 
 export function checkRequest(input: CheckRequestInput): CheckRequestResult {
   const provider = normalizeProvider(input.provider);
@@ -167,16 +161,6 @@ function collectFixes(diagnostics: readonly RequestDiagnostic[]): RequestFix[] {
     }
   }
   return fixes;
-}
-
-function worstCompatibility(levels: readonly Compatibility[]): Compatibility {
-  let level: Compatibility = "lossless";
-  for (const item of levels) {
-    if (RANK[item] > RANK[level]) {
-      level = item;
-    }
-  }
-  return level;
 }
 
 function normalizeProvider(provider: string): string {

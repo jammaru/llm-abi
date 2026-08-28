@@ -55,7 +55,7 @@ export function runPlayground(source: string, options: PlaygroundOptions): Playg
   const typeName = typeNameOf(options);
   try {
     const analysis = analyze(schema, { typeName });
-    const targets = listTargets().map((target): PlaygroundTargetView => {
+    const targets = listTargets({ scope: "provider" }).map((target): PlaygroundTargetView => {
       const compiled = compile(schema, {
         target: target.id,
         optimize: options.optimize,
@@ -117,7 +117,7 @@ export function validateInstance(
     };
   }
   try {
-    const first = listTargets()[0];
+    const first = listTargets({ scope: "provider" })[0];
     if (!first) {
       return { status: "error", message: "No compile targets are registered.", code: "no-targets" };
     }

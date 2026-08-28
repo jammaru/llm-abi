@@ -1,0 +1,62 @@
+import { defineTarget } from "./types.ts";
+import type { TargetProfile } from "./types.ts";
+
+/**
+ * Ollama native `format` JSON Schema on `/api/chat`.
+ * This is not OpenAI strict mode and not llama.cpp grammar.
+ */
+export const ollamaChatStructured: TargetProfile = defineTarget({
+  id: "ollama/chat/structured",
+  aliases: ["ollama", "ollama/structured"],
+  vendor: "ollama",
+  mode: "structured",
+  revision: "2026-08",
+  maturity: "experimental",
+  dialect: "2020-12",
+  evidence: "documented",
+  evidenceSource: "https://docs.ollama.com/capabilities/structured-outputs",
+  lastVerified: "2026-08-28",
+  liveAdapter: false,
+  scope: "runtime",
+  capabilities: {
+    anyOf: "runtime-only",
+    oneOf: "runtime-only",
+    allOf: "runtime-only",
+    not: "runtime-only",
+    refs: "runtime-only",
+    recursiveRefs: "runtime-only",
+    defs: "runtime-only",
+    nullableTypeArray: "runtime-only",
+    optionalProperties: "supported",
+    additionalPropertiesTrue: "runtime-only",
+    additionalPropertiesSchema: "runtime-only",
+    pattern: "runtime-only",
+    format: "runtime-only",
+    minLength: "runtime-only",
+    maxLength: "runtime-only",
+    minimum: "runtime-only",
+    maximum: "runtime-only",
+    exclusiveMinimum: "runtime-only",
+    exclusiveMaximum: "runtime-only",
+    multipleOf: "runtime-only",
+    minItems: "runtime-only",
+    maxItems: "runtime-only",
+    uniqueItems: "runtime-only",
+    prefixItems: "runtime-only",
+    minProperties: "runtime-only",
+    maxProperties: "runtime-only",
+    enum: "supported",
+    const: "runtime-only",
+    integer: "supported",
+    nullType: "runtime-only",
+  },
+  formats: new Set(),
+  limits: {},
+  objectPolicy: {
+    additionalProperties: "preserve",
+    requireAllProperties: false,
+    optionalAsNullable: false,
+  },
+  rootMustBeObject: true,
+  rootAnyOf: "runtime-only",
+});

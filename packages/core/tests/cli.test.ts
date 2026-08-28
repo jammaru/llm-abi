@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { parseArgs } from "../src/cli/args.ts";
 import { run } from "../src/cli/run.ts";
+import { VERSION } from "../src/cli/version.ts";
 
 function withSchema(schema: unknown): string {
   const directory = mkdtempSync(join(tmpdir(), "llm-abi-"));
@@ -26,7 +27,8 @@ describe("cli", () => {
       process.stdout.write = original;
     }
     const output = chunks.join("");
-    expect(output).toContain("llm-abi 0.1.0");
+    expect(output).toContain(`llm-abi ${VERSION}`);
+    expect(output).toContain("llamacpp/server/structured");
     expect(output).toContain("mcp/2026-06/tools");
     expect(output).toContain("openai/gpt-5.6");
   });
@@ -191,16 +193,28 @@ describe("cli", () => {
 
   it("accepts a schema path after --", () => {
     expect(parseArgs(["node", "llm-abi", "check", "--ci", "--json", "--", "-weird.json"])).toEqual({
-      command: "check",
+      kind: "check",
       file: "-weird.json",
-      target: undefined,
       json: true,
       ci: true,
-      strict: false,
       optimize: false,
       typeName: undefined,
-      help: false,
-      version: false,
+    });
+    expect(parseArgs(["node", "llm-abi", "local", "doctor", "--json"])).toEqual({
+      kind: "local-doctor",
+      json: true,
+      url: undefined,
+    });
+    expect(
+      parseArgs(["node", "llm-abi", "local", "probe", "schema.json", "--suite", "smoke"]),
+    ).toEqual({
+      kind: "local-probe",
+      json: false,
+      url: undefined,
+      runtime: undefined,
+      model: undefined,
+      schema: "schema.json",
+      suite: "smoke",
     });
   });
 });

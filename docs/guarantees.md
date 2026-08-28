@@ -14,6 +14,8 @@ Given the same:
 
 Given the same request input and package version, `checkRequest()` returns the same `compatibility`, `diagnostics`, `effective` values, and `fixes`. Omitted fields are resolved through the shipped request profile defaults before rules run.
 
+Given the same deployment descriptor, request, optional schema, and package version, `checkDeployment()` returns the same `compatibility`, `coverage`, diagnostics, and resolved deployment. It does not read the network, filesystem, clock, or environment.
+
 `result.validate(value)` validates against the **original** schema (or the original Standard Schema validator), not the lowered provider schema.
 
 ## What v0.1 does not guarantee
@@ -22,6 +24,7 @@ Given the same request input and package version, `checkRequest()` returns the s
 - That a provider API will accept every emitted schema (live APIs change; nightly checks record accepted / rejected / skipped)
 - That every model behind OpenRouter / Groq / Together behaves like the named vendor
 - That a request with `coverage: "unknown"` is accepted by the live API (`checkRequest` reports no shipped rule, not a guarantee)
+- That a local probe pass upgrades static compatibility. Probe is an observation. Failure may add diagnostics; success does not raise `lossless`.
 - That every MCP host has shipped SEP-2106 full JSON Schema 2020-12
 - 100% identical validation results between providers
 

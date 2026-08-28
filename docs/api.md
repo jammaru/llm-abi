@@ -7,12 +7,17 @@ import {
   compile,
   check,
   checkRequest,
+  checkDeployment,
   analyze,
   fingerprint,
   listTargets,
   resolveTarget,
   listRequestProfiles,
   resolveRequestProfile,
+  listRuntimeProfiles,
+  resolveRuntimeProfile,
+  listModelProfiles,
+  resolveModelProfile,
 } from "llm-abi";
 ```
 
@@ -50,7 +55,7 @@ TypeScript input is a closed subset: `type` / `interface`, primitives, literals,
 
 ## `check(schema, options?)`
 
-Runs `compile` for every built-in target (or `options.targets`). Each row includes that target's emitted `size`. `options.optimize` is forwarded to each compile.
+Runs `compile` for every built-in **provider** target (or `options.targets`). Runtime schema targets are omitted unless listed explicitly. Each row includes that target's emitted `size`. `options.optimize` is forwarded to each compile.
 
 ## `analyze(schema)`
 
@@ -92,7 +97,7 @@ The shipped GPT-5.6 rule: Chat Completions plus function tools is compatible onl
 
 ## `listTargets()` / `resolveTarget(id)`
 
-`resolveTarget("claude")` returns the same `ResolvedTarget` as `listTargets()` for the Anthropic structured profile. `resolveTarget("deepseek")` returns `deepseek/chat/strict-tools`. `resolveTarget("grok")` returns `xai/grok/structured`. `resolveTarget("qwen")` returns `alibaba/qwen/tools`. `resolveTarget("mistral")` returns `mistral/chat/structured`. `resolveTarget("openrouter")` returns `openrouter/structured`. `resolveTarget("mcp")` returns `mcp/2026-06/tools`. Unknown ids throw `LlmAbiError`.
+`resolveTarget("claude")` returns the same `ResolvedTarget` as `listTargets()` for the Anthropic structured profile. `resolveTarget("deepseek")` returns `deepseek/chat/strict-tools`. `resolveTarget("grok")` returns `xai/grok/structured`. `resolveTarget("qwen")` returns `alibaba/qwen/tools` (Alibaba Model Studio tools/structured output, **not** local Qwen / LM Studio / Ollama / llama.cpp). `resolveTarget("mistral")` returns `mistral/chat/structured`. `resolveTarget("openrouter")` returns `openrouter/structured`. `resolveTarget("mcp")` returns `mcp/2026-06/tools`. `listTargets()` defaults to `scope: "provider"`. Pass `{ scope: "runtime" }` or `{ scope: "all" }` for local schema engines such as `llamacpp/server/structured`. Unknown ids throw `LlmAbiError`.
 
 Each resolved target includes:
 
@@ -113,3 +118,37 @@ Maturity, documentary evidence, and live coverage are independent signals. A doc
 ## `listRequestProfiles()` / `resolveRequestProfile(id)`
 
 `resolveRequestProfile("openai/gpt-5.6")` returns the GPT-5.6 request family. Unknown ids throw `LlmAbiError`.
+
+## `checkDeployment(input)`
+
+Checks whether a schema and request contract can be represented on a runtime × engine × model deployment. This is not `compile()` and not a generator.
+
+```ts
+const result = checkDeployment({
+  schema,
+  deployment: {
+    runtime: { kind: "lmstudio", apiSurface: "openai", engine: { kind: "llamacpp" } },
+    model: { id: "Qwen3.8-27B-Q4_K_M", format: "gguf" },
+  },
+  request: { endpoint: "chat-completions", structuredOutput: true, tools: true },
+});
+```
+
+| Field           | Meaning                                                                                         |
+| --------------- | ----------------------------------------------------------------------------------------------- |
+| `coverage`      | `profiled` if a runtime profile matched and required features are known; `partial` or `unknown` |
+| `compatibility` | Worst of schema compile and runtime/model feature rules                                         |
+| `schema`        | Present only when a runtime schema target could be resolved                                     |
+| `fixes`         | Suggested request changes. Nothing is applied automatically                                     |
+
+`checkDeployment()` is pure. If no runtime profile matches, `coverage` is `unknown` and `compatibility` is `lossless`. Unknown features do not become `unsupported`. Probe results never live here.
+
+Ollama Responses with `stateful: true` is `unsupported` (`previous_response_id` is documented unsupported). LM Studio without `format` does not guess GGUF vs MLX.
+
+## `llm-abi/local`
+
+```ts
+import { discoverLocalDeployments, probeDeployment } from "llm-abi/local";
+```
+
+Node only. Default discovery is `127.0.0.1:1234`, `:11434`, and `:8080`. It does not scan a LAN or follow redirects. `local doctor` is GET metadata and lists loaded models only. `local probe` is explicit generation with synthetic fixtures. An explicit `model` may cause the runtime to load that model. A probe pass does not upgrade static compatibility.

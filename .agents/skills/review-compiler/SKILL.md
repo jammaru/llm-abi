@@ -19,5 +19,7 @@ Check, then fix:
 10. Public API did not grow without an explicit decision.
 11. Request rules stayed in `packages/core/src/request/`, not in `compile()`.
 12. Omitted request fields are evaluated after profile defaults, not treated as "unset means safe".
+13. Runtime rules stay in `packages/core/src/deployment/`, not in `compile()`. Probe and discovery stay out of the neutral `index` entry.
+14. `listTargets()` default scope stays `provider`. The `qwen` alias stays `alibaba/qwen/tools`.
 
 Reject agent-framework features and provider SDK wrappers in `packages/core`.

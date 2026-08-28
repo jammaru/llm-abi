@@ -1,3 +1,4 @@
+import { worseCompatibility } from "../compatibility/rank.ts";
 import type { Compatibility, Diagnostic, JsonValue, LossItem, LossReport } from "../types.ts";
 import type { SchemaDocument, SchemaNode } from "../ir/types.ts";
 import { isUnsafePattern } from "../json/pattern.ts";
@@ -821,18 +822,8 @@ function push(
   loss?: LossItem,
 ): void {
   ctx.diagnostics.push(diagnostic);
-  ctx.level = worse(ctx.level, level);
+  ctx.level = worseCompatibility(ctx.level, level);
   if (loss) {
     ctx.removed.push(loss);
   }
-}
-
-function worse(current: Compatibility, next: Compatibility): Compatibility {
-  const rank: Record<Compatibility, number> = {
-    lossless: 0,
-    "runtime-safe": 1,
-    lossy: 2,
-    unsupported: 3,
-  };
-  return rank[next] > rank[current] ? next : current;
 }

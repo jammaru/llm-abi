@@ -4,11 +4,13 @@ export default defineConfig([
   {
     entry: {
       index: "src/index.ts",
+      local: "src/local.ts",
     },
     platform: "neutral",
     target: "es2023",
     format: ["esm", "cjs"],
     dts: true,
+    splitting: false,
     clean: true,
     sourcemap: false,
     minify: false,

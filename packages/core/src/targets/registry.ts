@@ -1,5 +1,5 @@
 import { LlmAbiError } from "../errors.ts";
-import type { ResolvedTarget, TargetId } from "../types.ts";
+import type { ListTargetsOptions, ResolvedTarget, TargetId } from "../types.ts";
 import { anthropicMessagesStructured } from "./anthropic.ts";
 import { deepseekChatStrictTools } from "./deepseek.ts";
 import { googleGeminiStructured } from "./gemini.ts";
@@ -7,6 +7,9 @@ import { mcp202606Tools } from "./mcp.ts";
 import { mistralChatStructured } from "./mistral.ts";
 import { openaiResponsesStructured } from "./openai.ts";
 import { openrouterStructured } from "./openrouter.ts";
+import { llamaCppServerStructured } from "./llamacpp.ts";
+import { lmStudioGgufStructured, lmStudioMlxStructured } from "./lmstudio.ts";
+import { ollamaChatStructured } from "./ollama.ts";
 import { alibabaQwenTools } from "./qwen.ts";
 import type { TargetProfile } from "./types.ts";
 import { xaiGrokStructured } from "./xai.ts";
@@ -21,6 +24,10 @@ const PROFILES: readonly TargetProfile[] = [
   mistralChatStructured,
   openrouterStructured,
   mcp202606Tools,
+  llamaCppServerStructured,
+  lmStudioGgufStructured,
+  lmStudioMlxStructured,
+  ollamaChatStructured,
 ];
 
 const BY_ID = new Map<string, TargetProfile>();
@@ -32,8 +39,13 @@ for (const profile of PROFILES) {
   }
 }
 
-export function listTargets(): readonly ResolvedTarget[] {
-  return PROFILES.map(toResolved);
+export function listTargets(options: ListTargetsOptions = {}): readonly ResolvedTarget[] {
+  const scope = options.scope ?? "provider";
+  const profiles =
+    scope === "all"
+      ? PROFILES
+      : PROFILES.filter((profile) => (profile.scope ?? "provider") === scope);
+  return profiles.map(toResolved);
 }
 
 export function getTargetProfile(id: TargetId): TargetProfile {
@@ -57,6 +69,7 @@ export function toResolved(profile: TargetProfile): ResolvedTarget {
     revision: profile.revision,
     aliases: profile.aliases,
     maturity: profile.maturity,
+    scope: profile.scope ?? "provider",
     evidence: {
       kind: profile.evidence,
       source: profile.evidenceSource,
@@ -76,5 +89,9 @@ export {
   mistralChatStructured,
   openrouterStructured,
   mcp202606Tools,
+  llamaCppServerStructured,
+  lmStudioGgufStructured,
+  lmStudioMlxStructured,
+  ollamaChatStructured,
 };
 export type { TargetProfile, TargetCapabilities } from "./types.ts";

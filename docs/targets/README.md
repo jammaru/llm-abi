@@ -9,7 +9,7 @@ Copy [`packages/core/src/targets/openai.ts`](../../packages/core/src/targets/ope
 1. Add `packages/core/src/targets/<vendor>.ts` with `defineTarget(...)`.
 2. Register the profile (and short aliases) in `packages/core/src/targets/registry.ts`.
 3. Set `maturity`, `evidence`, `evidenceSource`, `lastVerified`, and `liveAdapter`.
-4. Add or reuse JSON fixtures under `packages/conformance/fixtures/`. Every fixture is compiled against every registered target.
+4. Add or reuse JSON fixtures under `packages/conformance/fixtures/`. Provider targets stay in the default `listTargets()` snapshot. Runtime-scoped targets are compile-tested separately so `llm-abi check` stays a cloud matrix.
 5. Add a focused test in `packages/core/tests/lower.test.ts` for the rule that is unique to this vendor.
 6. Update the README target table. Keep maturity, evidence kind, verification date, and live coverage separate.
 7. Run `pnpm test`. The conformance snapshot will change; that is expected for a new target.
@@ -36,6 +36,7 @@ Copy [`packages/core/src/targets/openai.ts`](../../packages/core/src/targets/ope
 | `limits`               | Depth, property, enum, string budgets, and documented constraint ceilings                                 |
 | `defsKeyword`          | Emitted reusable-def keyword (`$defs` default, `$def` for DeepSeek)                                       |
 | `compatibilityCeiling` | Optional floor (gateways: never claim `lossless` for every routed model)                                  |
+| `scope`                | `provider` (default `check()` / `listTargets()`) or `runtime` (compile-addressable only)                  |
 
 Capability values:
 

@@ -14,7 +14,7 @@ Coverage, gzip size, and Node 24 are a manual `Extra` workflow, not a PR gate. L
 
 ## Project layout
 
-- `packages/core` — compiler, request checker, public API, CLI
+- `packages/core` — compiler, request checker, runtime checker, public API, CLI, Node `llm-abi/local`
 - `packages/conformance` — JSON Schema fixtures and the secret-gated live runner
 - `packages/action` — reusable GitHub Action that runs the CLI
 - `packages/playground` — static browser playground (`pnpm playground`)
@@ -45,6 +45,10 @@ See [docs/targets/README.md](docs/targets/README.md) for the profile fields and 
 ## Adding a request profile
 
 Request compatibility (`checkRequest`) is a separate layer from schema compile. Add a profile under `packages/core/src/request/`, register it, and test omitted defaults. See [docs/requests/README.md](docs/requests/README.md). Do not put model or `reasoning_effort` rules into `compile()`.
+
+## Adding a runtime profile
+
+Runtime compatibility (`checkDeployment`) is a third layer. Add a profile under `packages/core/src/deployment/`, register it, and keep network code in `llm-abi/local`. See [docs/runtime/README.md](docs/runtime/README.md). Do not change the `qwen` compile alias.
 
 ## Playground
 

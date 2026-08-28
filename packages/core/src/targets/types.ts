@@ -1,4 +1,4 @@
-import type { Compatibility, Evidence, Support, TargetMaturity } from "../types.ts";
+import type { Compatibility, Evidence, Support, TargetMaturity, TargetScope } from "../types.ts";
 
 export interface TargetLimits {
   readonly maxDepth?: number;
@@ -75,6 +75,11 @@ export interface TargetProfile {
   readonly evidenceSource: string;
   readonly lastVerified: string;
   readonly liveAdapter: boolean;
+  /**
+   * Provider targets appear in default `check()` / `listTargets()`.
+   * Runtime targets are compile-addressable but stay out of that matrix.
+   */
+  readonly scope?: TargetScope;
   readonly capabilities: TargetCapabilities;
   readonly formats: ReadonlySet<string> | "any";
   readonly minItemsAllowed?: ReadonlySet<number>;

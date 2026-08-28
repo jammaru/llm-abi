@@ -1,4 +1,8 @@
 import { run } from "./cli/run.ts";
 
 const code = run(process.argv);
-process.exitCode = code;
+if (typeof code === "number") {
+  process.exitCode = code;
+} else {
+  process.exitCode = await code;
+}

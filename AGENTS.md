@@ -23,10 +23,13 @@ Keep it small:
 - `listTargets()` / `resolveTarget(id)`
 - `checkRequest(request)`
 - `listRequestProfiles()` / `resolveRequestProfile(id)`
+- `checkDeployment(input)`
+- `listRuntimeProfiles()` / `resolveRuntimeProfile(id)`
+- `listModelProfiles()` / `resolveModelProfile(id)`
 
 Named exports only. No default export.
 
-`compile()` is the schema ABI. `checkRequest()` is the request ABI. Do not fold model, endpoint, or `reasoning_effort` rules into `compile()`.
+`compile()` is the schema ABI. `checkRequest()` is the request ABI. `checkDeployment()` is the runtime ABI. Do not fold model, endpoint, or `reasoning_effort` rules into `compile()`. Do not change the `qwen` alias; it is Alibaba Model Studio, not local Qwen. Discovery and probe belong in `llm-abi/local`, not the neutral entry.
 
 ## Architecture
 
@@ -36,6 +39,9 @@ Schema ABI
 
 Request ABI
   Request → resolve profile → apply defaults → evaluate rules → diagnostics
+
+Runtime ABI
+  Deployment + request → resolve runtime/model profiles → compile() if resolvable → diagnostics
 ```
 
 - IR lives in `packages/core/src/ir/`
@@ -64,6 +70,14 @@ Request ABI
 4. Add focused tests for the vendor-specific rules
 5. Document evidence (`documented` | `sdk-observed` | `empirical`)
 6. Update README target table honestly (`Supported` / `Partial` / `Experimental`)
+
+## Adding a runtime profile
+
+1. Add `packages/core/src/deployment/runtime/<vendor>.ts` with `defineRuntimeProfile(...)`
+2. Register it in `packages/core/src/deployment/runtime/registry.ts`
+3. If structured output has a documented keyword table, add a `scope: "runtime"` compile target
+4. Test omitted/unknown deployments and the failing combination
+5. Do not fold the rule into `compile()`. Do not change the `qwen` alias
 
 ## Adding a request profile
 
