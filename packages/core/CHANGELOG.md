@@ -1,5 +1,11 @@
 # llm-abi
 
+## 0.5.2
+
+### Patch Changes
+
+- [#44](https://github.com/jammaru/llm-abi/pull/44) [`80577f6`](https://github.com/jammaru/llm-abi/commit/80577f6d3d943345dba043f061d28d6abccd110f) Thanks [@jammaru](https://github.com/jammaru)! - Rewrite the published package intro to a short library README: what it is, what you get back, and one `compile()` example.
+
 ## 0.5.1
 
 ### Patch Changes
