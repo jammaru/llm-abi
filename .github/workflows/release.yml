@@ -25,8 +25,15 @@ jobs:
       - uses: actions/checkout@v7
 
       - uses: ./.github/actions/setup
+        with:
+          node-version: "24"
 
-      - run: npm install -g npm@^11.5.1
+      - name: Show publish toolchain
+        run: |
+          set -euo pipefail
+          node --version
+          npm --version
+          echo "OIDC request URL present: ${ACTIONS_ID_TOKEN_REQUEST_URL:+yes}"
 
       - name: Verify tag matches package.json
         id: ver
@@ -43,8 +50,6 @@ jobs:
 
       - name: Publish to npm
         working-directory: packages/core
-        env:
-          NPM_CONFIG_PROVENANCE: "true"
         run: |
           set -euo pipefail
           VERSION="$(node -p "require('./package.json').version")"
@@ -53,11 +58,12 @@ jobs:
             exit 0
           fi
           pnpm --filter llm-abi build
-          # changeset publish does not pass GitHub OIDC to npm. Publish the
-          # package directory directly so trusted publishing can exchange a token.
-          npm publish --access public --provenance
+          unset NODE_AUTH_TOKEN
+          # npm 11+ exchanges GitHub OIDC when no classic token is configured.
+          npm publish --access public
 
       - name: Create GitHub Release
+        if: ${{ always() && steps.ver.outcome == 'success' }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: |

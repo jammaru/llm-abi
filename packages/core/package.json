@@ -33,7 +33,7 @@
     "directory": "packages/core"
   },
   "bin": {
-    "llm-abi": "./dist/cli.mjs"
+    "llm-abi": "dist/cli.mjs"
   },
   "files": [
     "dist",
