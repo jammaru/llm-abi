@@ -9,6 +9,7 @@ Use llm-abi when one schema must target multiple providers and you need to detec
 ## Links
 
 - Documentation: https://llm-abi.pages.dev/docs/
+- Documentation (日本語): https://llm-abi.pages.dev/docs/ja/
 - Playground: https://llm-abi.pages.dev/
 - Package: https://www.npmjs.com/package/llm-abi
 - API: https://llm-abi.pages.dev/docs/api/
@@ -18,6 +19,8 @@ Use llm-abi when one schema must target multiple providers and you need to detec
 - Local runtimes: https://llm-abi.pages.dev/docs/local/
 - Guarantees: https://llm-abi.pages.dev/docs/guarantees/
 - Architecture: https://llm-abi.pages.dev/docs/architecture/
+- Guide (日本語): https://llm-abi.pages.dev/docs/ja/
+- API (日本語): https://llm-abi.pages.dev/docs/ja/api/
 - Source: https://github.com/jammaru/llm-abi
 
 ## Install

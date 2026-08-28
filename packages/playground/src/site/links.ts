@@ -19,6 +19,7 @@ const DOC_FILES: Readonly<Record<string, string>> = {
   "../requests/README.md": "requests",
   "local.md": "local",
   "./local.md": "local",
+  "../local.md": "local",
   "guarantees.md": "guarantees",
   "./guarantees.md": "guarantees",
   "../guarantees.md": "guarantees",

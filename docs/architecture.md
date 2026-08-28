@@ -69,4 +69,4 @@ Untrusted schemas are bounded by max depth, max nodes, and max `$ref` count. Dic
 
 ## Playground
 
-`packages/playground` is a static Vite app hosted on Cloudflare Pages. It imports the public `llm-abi` API, compiles in the browser, and never fetches provider profiles or localhost runtimes. Compatibility is shown as discrete levels, never a percentage. The same deploy serves these pages at `/docs/`, generated from `docs/*.md` at build time.
+`packages/playground` is a static Vite app hosted on Cloudflare Pages. It imports the public `llm-abi` API, compiles in the browser, and never fetches provider profiles or localhost runtimes. Compatibility is shown as discrete levels, never a percentage. The same deploy serves these pages at `/docs/` (English) and `/docs/ja/` (Japanese), generated from `docs/*.md` and `docs/ja/*.md` at build time.

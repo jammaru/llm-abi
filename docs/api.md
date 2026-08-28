@@ -2,6 +2,8 @@
 
 Named exports only. There is no default export.
 
+You will usually call four functions: `compile` (schema), `check` (every cloud provider), `checkRequest` (model + endpoint + tools + reasoning), and `checkDeployment` (local or self-hosted runtime).
+
 ```ts
 import {
   compile,

@@ -321,6 +321,11 @@ export function applyChrome(copy: Copy): void {
     if (description) {
       description.setAttribute("content", copy.metaDescription);
     }
+    const locale = document.documentElement.dataset.locale;
+    const docsHome = locale === "ja" ? "./docs/ja/" : "./docs/";
+    for (const node of document.querySelectorAll("[data-docs-home]")) {
+      node.setAttribute("href", docsHome);
+    }
   }
   for (const node of document.querySelectorAll("[data-i18n]")) {
     const key = node.getAttribute("data-i18n");

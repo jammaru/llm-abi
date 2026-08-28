@@ -5,6 +5,7 @@
 Compile JSON Schema, Standard JSON Schema, or a closed TypeScript type subset for OpenAI, Anthropic, Gemini, DeepSeek, xAI, Qwen, Mistral, OpenRouter, and conservative MCP hosts. Results include a provider schema, discrete compatibility, diagnostics, loss items, a fingerprint, size hints, and runtime validation against the original schema.
 
 - Documentation: https://llm-abi.pages.dev/docs/
+- Documentation (日本語): https://llm-abi.pages.dev/docs/ja/
 - Playground: https://llm-abi.pages.dev/
 - Package: https://www.npmjs.com/package/llm-abi
 - API: https://llm-abi.pages.dev/docs/api/

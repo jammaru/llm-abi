@@ -20,6 +20,8 @@ result.effective.reasoningEffort;
 // "medium"  (model default)
 ```
 
+This example fails because the field was omitted. GPT-5.6 fills omitted `reasoning_effort` with `medium`.
+
 ## How to read the result
 
 | Field           | Meaning                                                                       |

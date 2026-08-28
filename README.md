@@ -20,7 +20,7 @@ Compile TypeScript and JSON Schema into provider-safe schemas for OpenAI, Claude
 
 [Playground](https://llm-abi.pages.dev/) — paste a TypeScript type or JSON Schema, then compare every built-in target, diagnostics, loss, and emitted JSON.
 
-[Docs](https://llm-abi.pages.dev/docs/) — `compile`, `checkRequest`, `checkDeployment`, CLI, profiles, and local runtimes.
+[Docs](https://llm-abi.pages.dev/docs/) — `compile`, `checkRequest`, `checkDeployment`, CLI, profiles, and local runtimes. [日本語](https://llm-abi.pages.dev/docs/ja/).
 
 Your JSON Schema works on OpenAI.
 
@@ -365,7 +365,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). Adding a provider should be a profile fi
 
 ## Documentation
 
-Published at [llm-abi.pages.dev/docs](https://llm-abi.pages.dev/docs/):
+Published at [llm-abi.pages.dev/docs](https://llm-abi.pages.dev/docs/) (English) and [llm-abi.pages.dev/docs/ja](https://llm-abi.pages.dev/docs/ja/) (日本語):
 
 - [Guide](https://llm-abi.pages.dev/docs/)
 - [API](https://llm-abi.pages.dev/docs/api/)
@@ -377,7 +377,7 @@ Published at [llm-abi.pages.dev/docs](https://llm-abi.pages.dev/docs/):
 - [Architecture](https://llm-abi.pages.dev/docs/architecture/)
 - [Playground](https://llm-abi.pages.dev/)
 
-Source markdown lives in `docs/`. Contributor checklists stay in the repo:
+Source markdown lives in `docs/` (English) and `docs/ja/` (日本語). Contributor checklists stay in the repo:
 
 - [Target profiles](docs/targets/README.md)
 - [Request profiles](docs/requests/README.md)

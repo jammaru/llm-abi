@@ -1,8 +1,8 @@
 # Guide
 
-llm-abi is a schema compatibility compiler. You give it one JSON Schema or TypeScript type. It returns the schema a provider will actually accept, plus what changed.
+Give llm-abi one TypeScript type or JSON Schema. It returns the schema each provider will actually accept, and what changed.
 
-It does not call a model. Put `result.schema` on the SDK you already use.
+It does not call a model. Put `result.schema` on the SDK you already use. Compatibility is four labels — never a percentage.
 
 ```bash
 npm install llm-abi
@@ -23,9 +23,7 @@ if (!checked.ok) {
 }
 ```
 
-## Compatibility
-
-There is no percentage.
+## How to read the result
 
 | Result         | Meaning                                            | What you do                          |
 | -------------- | -------------------------------------------------- | ------------------------------------ |
@@ -36,17 +34,17 @@ There is no percentage.
 
 `result.validate` always checks the **original** schema, not the lowered one. If Anthropic moved `minimum` into a description, `age: -1` still fails validation.
 
-## Three surfaces
+## Three questions, three functions
 
-| Surface     | Function            | Question it answers                                                |
-| ----------- | ------------------- | ------------------------------------------------------------------ |
-| Schema ABI  | `compile` / `check` | Can this schema be represented on this provider?                   |
-| Request ABI | `checkRequest`      | Can this model + endpoint + tools + reasoning combination be sent? |
-| Runtime ABI | `checkDeployment`   | Can this contract hold on a local or self-hosted runtime?          |
+| You want to know                                                   | Call                |
+| ------------------------------------------------------------------ | ------------------- |
+| Can this schema be represented on this provider?                   | `compile` / `check` |
+| Can this model + endpoint + tools + reasoning combination be sent? | `checkRequest`      |
+| Can this contract hold on a local or self-hosted runtime?          | `checkDeployment`   |
 
 Do not fold request or runtime rules into `compile()`. `compile(schema, "qwen")` is Alibaba Model Studio, not a laptop Qwen GGUF.
 
-## Try it
+## Next
 
 - [Playground](https://llm-abi.pages.dev/) — paste a type or schema. Compilation stays in the browser.
 - [API](./api.md) — `compile`, `check`, `checkRequest`, `checkDeployment`

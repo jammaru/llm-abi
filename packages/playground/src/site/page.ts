@@ -1,27 +1,43 @@
-import { assetPrefix, DOC_PAGES, docHref, type DocPage } from "./catalog.ts";
+import {
+  assetPrefix,
+  DOC_PAGES,
+  docsCanonical,
+  docsHomeHref,
+  docHref,
+  type DocLocale,
+  type DocPage,
+} from "./catalog.ts";
 import { renderMarkdown } from "./markdown.ts";
 
-export function renderDocPage(page: DocPage, markdown: string): string {
-  const prefix = assetPrefix(page.slug);
+export function renderDocPage(page: DocPage, markdown: string, locale: DocLocale): string {
+  const prefix = assetPrefix(locale, page.slug);
   const body = renderMarkdown(markdown, page.slug);
   const nav = DOC_PAGES.map((item) => {
     const current = item.slug === page.slug;
-    return `<a class="docs-nav-link${current ? " is-current" : ""}" href="${escapeAttr(docHref(page.slug, item.slug))}"${current ? ' aria-current="page"' : ""}>${escapeHtml(item.nav)}</a>`;
+    return `<a class="docs-nav-link${current ? " is-current" : ""}" href="${escapeAttr(docHref(page.slug, item.slug))}"${current ? ' aria-current="page"' : ""}>${escapeHtml(item.nav[locale])}</a>`;
   }).join("");
+  const enUrl = docsCanonical("en", page.slug);
+  const jaUrl = docsCanonical("ja", page.slug);
+  const title = page.title[locale];
+  const description = page.description[locale];
   return `<!doctype html>
-<html lang="en">
+<html lang="${locale}">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="description" content="${escapeAttr(page.description)}" />
+    <meta name="description" content="${escapeAttr(description)}" />
     <meta name="color-scheme" content="light dark" />
     <meta name="theme-color" content="#ffffff" />
+    <link rel="canonical" href="${escapeAttr(docsCanonical(locale, page.slug))}" />
+    <link rel="alternate" hreflang="en" href="${escapeAttr(enUrl)}" />
+    <link rel="alternate" hreflang="ja" href="${escapeAttr(jaUrl)}" />
+    <link rel="alternate" hreflang="x-default" href="${escapeAttr(enUrl)}" />
     <link rel="icon" href="${prefix}/favicon.svg" type="image/svg+xml" />
-    <title>${escapeHtml(page.title)} — llm-abi</title>
+    <title>${escapeHtml(title)} — llm-abi</title>
     <script src="${prefix}/theme-boot.js"></script>
     <script src="${prefix}/locale-boot.js"></script>
   </head>
-  <body class="docs-page">
+  <body class="docs-page" data-docs-locale="${locale}" data-docs-slug="${escapeAttr(page.slug)}">
     <a class="skip" href="#doc" data-i18n="skipDoc">Skip to documentation</a>
     <header class="site-header">
       <div class="brand">
@@ -31,7 +47,7 @@ export function renderDocPage(page: DocPage, markdown: string): string {
       <div class="header-actions">
         <nav class="nav" data-i18n-aria="project" aria-label="Project">
           <a class="nav-text" href="${prefix}/" data-i18n="playground">Playground</a>
-          <a class="nav-text is-current" href="${page.slug === "" ? "./" : "../"}" aria-current="page" data-i18n="docs">Docs</a>
+          <a class="nav-text is-current" href="${docsHomeHref(page.slug)}" aria-current="page" data-i18n="docs">Docs</a>
           <a class="icon-link" href="https://github.com/jammaru/llm-abi" data-i18n-aria="github" aria-label="GitHub repository">
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path fill="currentColor" d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.45-1.16-1.1-1.47-1.1-1.47-.9-.62.07-.6.07-.6 1 .07 1.52 1.03 1.52 1.03.89 1.52 2.34 1.08 2.91.83.09-.65.35-1.08.63-1.33-2.22-.25-4.56-1.11-4.56-4.95 0-1.1.39-1.99 1.03-2.69-.1-.25-.45-1.27.1-2.64 0 0 .84-.27 2.75 1.02A9.56 9.56 0 0 1 12 6.8c.85 0 1.71.11 2.51.33 1.9-1.29 2.74-1.02 2.74-1.02.55 1.37.2 2.39.1 2.64.64.7 1.03 1.6 1.03 2.69 0 3.85-2.34 4.7-4.57 4.95.36.31.68.92.68 1.85v2.74c0 .27.18.58.69.48A10 10 0 0 0 12 2Z"/>
@@ -72,8 +88,8 @@ export function renderDocPage(page: DocPage, markdown: string): string {
       <nav class="docs-nav" data-i18n-aria="documentation" aria-label="Documentation">${nav}</nav>
       <main class="docs-main">
         <p class="docs-kicker" data-i18n="documentation">Documentation</p>
-        <h1 id="doc">${escapeHtml(page.title)}</h1>
-        <p class="docs-lead">${escapeHtml(page.description)}</p>
+        <h1 id="doc">${escapeHtml(title)}</h1>
+        <p class="docs-lead">${escapeHtml(description)}</p>
         <article class="docs-article">${body}</article>
       </main>
     </div>
@@ -86,14 +102,10 @@ export function renderDocPage(page: DocPage, markdown: string): string {
         <a href="${prefix}/" data-i18n="playground">Playground</a>
       </p>
     </footer>
-    <script type="module" src="${docsEntry(page.slug)}"></script>
+    <script type="module" src="${prefix}/src/docs-entry.ts"></script>
   </body>
 </html>
 `;
-}
-
-function docsEntry(slug: string): string {
-  return slug === "" ? "../src/docs-entry.ts" : "../../src/docs-entry.ts";
 }
 
 function escapeHtml(value: string): string {
