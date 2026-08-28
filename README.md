@@ -1,14 +1,43 @@
-# llm-abi
+<!-- prettier-ignore -->
+<p align="center">
+  <img src="docs/assets/llm-abi-logo.png" alt="llm-abi" width="620" />
+</p>
 
-llm-abi is a schema compiler for LLM providers.
+<!-- prettier-ignore -->
+<h1 align="center">llm-abi</h1>
 
-Give it a TypeScript type or JSON Schema. Get back the schema that provider will accept.
+<!-- prettier-ignore -->
+<p align="center">
+  A schema compatibility compiler for LLM providers.
+</p>
 
-![Same oneOf schema: lossy on OpenAI, unsupported on Gemini](docs/assets/playground-demo.gif)
+<!-- prettier-ignore -->
+<p align="center">
+  One schema in. Provider-safe schemas out — with diagnostics, loss reporting, runtime validation, and CI checks.
+</p>
 
-[![CI](https://github.com/jammaru/llm-abi/actions/workflows/ci.yml/badge.svg)](https://github.com/jammaru/llm-abi/actions/workflows/ci.yml)
-[![npm](https://img.shields.io/npm/v/llm-abi)](https://www.npmjs.com/package/llm-abi)
-[![license](https://img.shields.io/npm/l/llm-abi)](./LICENSE)
+<!-- prettier-ignore -->
+<p align="center">
+  <a href="https://github.com/jammaru/llm-abi/actions/workflows/ci.yml"><img src="https://github.com/jammaru/llm-abi/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
+  <a href="https://www.npmjs.com/package/llm-abi"><img src="https://img.shields.io/npm/v/llm-abi" alt="npm" /></a>
+  <a href="./LICENSE"><img src="https://img.shields.io/npm/l/llm-abi" alt="license" /></a>
+</p>
+
+<!-- prettier-ignore -->
+<p align="center">
+  <a href="https://llm-abi.pages.dev/docs/">Docs</a> ·
+  <a href="https://llm-abi.pages.dev/">Playground</a> ·
+  <a href="https://llm-abi.pages.dev/docs/ja/">日本語</a>
+</p>
+
+<!-- prettier-ignore -->
+<p align="center">
+  If llm-abi looks useful, a GitHub ⭐ is appreciated.
+</p>
+
+---
+
+## Quick start
 
 ```bash
 npm i llm-abi
@@ -31,8 +60,6 @@ result.schema;
 result.compatibility;
 result.validate({ name: "Ada" });
 ```
-
-[Docs](https://llm-abi.pages.dev/docs/) · [Playground](https://llm-abi.pages.dev/) · [日本語](https://llm-abi.pages.dev/docs/ja/)
 
 ```bash
 npx llm-abi check schema.json
@@ -73,6 +100,14 @@ LLM providers all say they accept JSON Schema. They do not accept the same JSON 
 llm-abi is not another Zod-to-JSON-Schema converter. It is a **schema compatibility compiler**: one input schema, provider-aware lowering, diagnostics, loss reporting, conservative size/token hints, runtime validation, and a CI checker.
 
 Try that loop in the [compatibility playground](https://llm-abi.pages.dev/). Compilation runs in the browser. Profiles ship with the package. Each target exposes its evidence source and verification date. There is no compatibility percentage.
+
+<!-- prettier-ignore -->
+<p align="center">
+  <img src="docs/assets/playground-demo.gif" alt="Same oneOf schema: lossy on OpenAI, unsupported on Gemini" width="900" />
+</p>
+
+<!-- prettier-ignore -->
+<p align="center"><sub>The same <code>oneOf</code> schema can be lossy on one target and unsupported on another.</sub></p>
 
 ### Where it fits
 
