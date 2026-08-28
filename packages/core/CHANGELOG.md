@@ -1,5 +1,15 @@
 # llm-abi
 
+## 0.3.0
+
+### Minor Changes
+
+- [`153a635`](https://github.com/jammaru/llm-abi/commit/153a635d3acbb890b826a632c3ee68c38ff1c0ca) Thanks [@jammaru](https://github.com/jammaru)! - Expose target maturity, evidence source, last-verification date, and nightly-adapter coverage on resolved targets, including `resolveTarget()`. Deduplicate repeated diagnostics and loss items produced by shared IR nodes. Expand npm keywords for additional providers and schema compatibility.
+
+- [`2177b44`](https://github.com/jammaru/llm-abi/commit/2177b44fe4933e1a310ab1ea366e25773dccfe59) Thanks [@jammaru](https://github.com/jammaru)! - Add `checkRequest()` so GPT-5.6 Chat Completions function-tool calls can be rejected before omitted `reasoning_effort` defaults to `medium` and the API returns 400.
+
+- [#31](https://github.com/jammaru/llm-abi/pull/31) [`5f7ce66`](https://github.com/jammaru/llm-abi/commit/5f7ce66ccb95479fe92d47d18b01bc3caed00014) Thanks [@jammaru](https://github.com/jammaru)! - Add a Runtime ABI next to compile() and checkRequest(): checkDeployment(), runtime-scoped schema targets for llama.cpp / LM Studio / Ollama, and a Node-only llm-abi/local doctor and smoke probe. Default check() stays provider-only. The qwen alias remains Alibaba Model Studio.
+
 ## 0.2.0
 
 ### Minor Changes
