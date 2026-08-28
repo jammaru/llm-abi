@@ -250,7 +250,7 @@ const result = checkDeployment({
 });
 ```
 
-Ollama Responses with `stateful: true` is `unsupported`. LM Studio without `format` does not guess GGUF vs MLX. Node discovery and smoke probe are `import { discoverLocalDeployments } from "llm-abi/local"`.
+Ollama Responses with `stateful: true` is `unsupported`. LM Studio without `format` does not guess GGUF vs MLX. Node discovery, matrix, lock/diff, and smoke/full probe are `import { discoverLocalDeployments } from "llm-abi/local"`. Locks omit URLs, secrets, and absolute paths. Probe success does not upgrade static compatibility.
 
 ## CLI
 
@@ -262,7 +262,11 @@ npx llm-abi analyze schema.json
 npx llm-abi request request.json
 npx llm-abi doctor
 npx llm-abi local doctor
+npx llm-abi local check schema.json
 npx llm-abi local probe --suite smoke
+npx llm-abi local matrix schema.json
+npx llm-abi local lock schema.json
+npx llm-abi local diff llm-abi.local.lock.json
 ```
 
 `--ci` exits with status 1 when any target is `unsupported`.
