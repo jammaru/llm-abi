@@ -53,6 +53,7 @@ export type CliArgs =
       readonly model?: string;
       readonly schema?: string;
       readonly suite: "smoke" | "full";
+      readonly typeName?: string;
     }
   | {
       readonly kind: "local-check";
@@ -61,6 +62,7 @@ export type CliArgs =
       readonly runtime?: string;
       readonly model?: string;
       readonly file?: string;
+      readonly typeName?: string;
     }
   | {
       readonly kind: "local-matrix";
@@ -69,6 +71,7 @@ export type CliArgs =
       readonly runtime?: string;
       readonly file?: string;
       readonly probe: boolean;
+      readonly typeName?: string;
     }
   | {
       readonly kind: "local-lock";
@@ -79,6 +82,7 @@ export type CliArgs =
       readonly file?: string;
       readonly out?: string;
       readonly probe: boolean;
+      readonly typeName?: string;
     }
   | {
       readonly kind: "local-diff";
@@ -88,6 +92,7 @@ export type CliArgs =
       readonly model?: string;
       readonly file?: string;
       readonly file2?: string;
+      readonly typeName?: string;
     };
 
 const ROOT_COMMANDS = new Set([
@@ -259,19 +264,19 @@ export function parseArgs(argv: readonly string[]): CliArgs {
   }
   if (command === "local") {
     if (localSub === "probe") {
-      return { kind: "local-probe", json, url, runtime, model, schema: file, suite };
+      return { kind: "local-probe", json, url, runtime, model, schema: file, suite, typeName };
     }
     if (localSub === "check") {
-      return { kind: "local-check", json, url, runtime, model, file };
+      return { kind: "local-check", json, url, runtime, model, file, typeName };
     }
     if (localSub === "matrix") {
-      return { kind: "local-matrix", json, url, runtime, file, probe };
+      return { kind: "local-matrix", json, url, runtime, file, probe, typeName };
     }
     if (localSub === "lock") {
-      return { kind: "local-lock", json, url, runtime, model, file, out, probe };
+      return { kind: "local-lock", json, url, runtime, model, file, out, probe, typeName };
     }
     if (localSub === "diff") {
-      return { kind: "local-diff", json, url, runtime, model, file, file2 };
+      return { kind: "local-diff", json, url, runtime, model, file, file2, typeName };
     }
     if (localSub === "doctor") {
       return { kind: "local-doctor", json, url };

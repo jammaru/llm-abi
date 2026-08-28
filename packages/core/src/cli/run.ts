@@ -261,6 +261,7 @@ async function runLocalProbe(args: {
   readonly model?: string;
   readonly schema?: string;
   readonly suite: "smoke" | "full";
+  readonly typeName?: string;
 }): Promise<number> {
   try {
     const discovered = await discoverLocalDeployments(
@@ -288,6 +289,7 @@ async function runLocalProbe(args: {
     }
     const input: CheckDeploymentInput = {
       schema: args.schema ? readSchema(args.schema) : undefined,
+      typeName: args.typeName,
       deployment: selected.descriptor,
       request: {
         endpoint: "chat-completions",
@@ -340,6 +342,7 @@ async function runLocalCheck(args: {
   readonly runtime?: string;
   readonly model?: string;
   readonly file?: string;
+  readonly typeName?: string;
 }): Promise<number> {
   try {
     const discovered = await discoverForLocal(args.url, args.runtime);
@@ -353,6 +356,7 @@ async function runLocalCheck(args: {
     }
     const result = checkDeployment({
       schema: args.file ? readSchema(args.file) : undefined,
+      typeName: args.typeName,
       deployment: selected.descriptor,
       request: LOCAL_REQUEST,
     });
@@ -387,12 +391,14 @@ async function runLocalMatrix(args: {
   readonly runtime?: string;
   readonly file?: string;
   readonly probe: boolean;
+  readonly typeName?: string;
 }): Promise<number> {
   try {
     const discovered = await discoverForLocal(args.url, args.runtime);
     const result = await matrixLocalDeployments({
       discovered,
       schema: args.file ? readSchema(args.file) : undefined,
+      typeName: args.typeName,
       request: LOCAL_REQUEST,
       probe: args.probe,
     });
@@ -436,6 +442,7 @@ async function runLocalLock(args: {
   readonly file?: string;
   readonly out?: string;
   readonly probe: boolean;
+  readonly typeName?: string;
 }): Promise<number> {
   try {
     const discovered = await discoverForLocal(args.url, args.runtime);
@@ -450,6 +457,7 @@ async function runLocalLock(args: {
     const schema = args.file ? readSchema(args.file) : undefined;
     const staticResult = checkDeployment({
       schema,
+      typeName: args.typeName,
       deployment: selected.descriptor,
       request: LOCAL_REQUEST,
     });
@@ -457,11 +465,17 @@ async function runLocalLock(args: {
       ? await probeDeployment({
           baseURL: selected.discovered.baseURL,
           model: selected.modelId,
-          input: { schema, deployment: selected.descriptor, request: LOCAL_REQUEST },
+          input: {
+            schema,
+            typeName: args.typeName,
+            deployment: selected.descriptor,
+            request: LOCAL_REQUEST,
+          },
         })
       : undefined;
     const lock = createDeploymentLock({
       schema,
+      typeName: args.typeName,
       request: LOCAL_REQUEST,
       check: staticResult,
       probe,
@@ -489,6 +503,7 @@ async function runLocalDiff(args: {
   readonly model?: string;
   readonly file?: string;
   readonly file2?: string;
+  readonly typeName?: string;
 }): Promise<number> {
   try {
     if (!args.file) {
@@ -524,11 +539,13 @@ async function runLocalDiff(args: {
       }
       const staticResult = checkDeployment({
         schema,
+        typeName: args.typeName,
         deployment: selected.descriptor,
         request: left.contract.request,
       });
       right = createDeploymentLock({
         schema,
+        typeName: args.typeName,
         request: left.contract.request,
         check: staticResult,
         packageVersion: VERSION,

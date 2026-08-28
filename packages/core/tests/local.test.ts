@@ -496,6 +496,13 @@ describe("local lock and matrix", () => {
     expect(diff.drifts).toContain("contract");
     expect(deploymentDiff(diff).contract).toBe(false);
     expect(deploymentDiff(diff).drifts).not.toContain("contract");
+    const upgraded = createDeploymentLock({
+      schema: { type: "object", properties: { ok: { type: "boolean" } }, required: ["ok"] },
+      request: { endpoint: "chat-completions", structuredOutput: true },
+      check,
+      packageVersion: "0.4.0",
+    });
+    expect(diffDeploymentLocks(lock, upgraded).drifts).toEqual([]);
   });
 
   it("builds a static matrix row per loaded model", async () => {

@@ -139,9 +139,7 @@ export function createDeploymentLock(input: {
 export function diffDeploymentLocks(left: DeploymentLock, right: DeploymentLock): LockDiff {
   const contract = left.fingerprints.contract !== right.fingerprints.contract;
   const deployment = left.fingerprints.deployment !== right.fingerprints.deployment;
-  const profile =
-    JSON.stringify(left.profiles) !== JSON.stringify(right.profiles) ||
-    left.generatedBy.version !== right.generatedBy.version;
+  const profile = JSON.stringify(left.profiles) !== JSON.stringify(right.profiles);
   const drifts: LockDriftKind[] = [];
   if (contract) {
     drifts.push("contract");

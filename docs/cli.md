@@ -11,7 +11,7 @@ npx llm-abi analyze schema.json
 npx llm-abi request request.json
 npx llm-abi doctor
 npx llm-abi local doctor
-npx llm-abi local check schema.json
+npx llm-abi local check user.ts --type User
 npx llm-abi local probe --suite smoke
 npx llm-abi local matrix schema.json
 npx llm-abi local lock schema.json
@@ -38,7 +38,7 @@ npx llm-abi local diff llm-abi.local.lock.json schema.json
 | ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `--target`  | Profile id or alias (`openai`, `anthropic`, `gemini`, `deepseek`, `xai`, `qwen` = Model Studio, `mistral`, `openrouter`, `mcp`, `llamacpp`, `ollama`) |
 | `--strict`  | Fail when the schema is unsupported                                                                                                                   |
-| `--type`    | Type or interface name when the input is TypeScript                                                                                                   |
+| `--type`    | Type or interface name when the input is TypeScript. Also used by `local check`, `probe`, `matrix`, `lock`, and `diff`                                |
 | `--json`    | Machine-readable output                                                                                                                               |
 | `--ci`      | Exit 1 when any target is `unsupported`                                                                                                               |
 | `--url`     | Explicit runtime base URL for `local doctor` / `local probe`. Non-loopback is labeled `remote`                                                        |
