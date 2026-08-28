@@ -19,7 +19,7 @@ Coverage, gzip size, and Node 24 are a manual `Extra` workflow, not a PR gate. L
 - `packages/action` — reusable GitHub Action that runs the CLI
 - `packages/playground` — static browser playground (`pnpm playground`)
 - `examples` — copy-paste recipes under existing SDKs (OpenAI, Anthropic, Gemini, AI SDK, MCP). Typechecked and executed in CI. No provider API calls.
-- `docs` — guarantees, API, CLI, and architecture
+- `docs` — user guide, API, CLI, profiles, requests, local runtimes, guarantees, and architecture. The playground build publishes English at `/docs/` and Japanese at `/docs/ja/`
 - `AGENTS.md` — product boundaries for humans and coding agents
 - `.agents/skills` — shared agent checklists
 
@@ -56,7 +56,7 @@ Runtime compatibility (`checkDeployment`) is a third layer. Add a profile under 
 pnpm playground
 ```
 
-The app is static. Compilation uses the `llm-abi` workspace package in the browser. Cloudflare Pages builds `packages/playground/dist` from `main` when the GitHub repository is connected in the project settings.
+The app is static. Compilation uses the `llm-abi` workspace package in the browser. Cloudflare Pages builds `packages/playground/dist` from `main` when the GitHub repository is connected in the project settings. User docs in `docs/*.md` and `docs/ja/*.md` are compiled into `/docs/` and `/docs/ja/` on that same site. Contributor how-tos under `docs/targets`, `docs/requests`, and `docs/runtime` stay in the repository.
 
 ## Release
 

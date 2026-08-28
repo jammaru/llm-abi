@@ -56,7 +56,7 @@ Keyword tables stay conservative. Undocumented keywords are `runtime-only` excep
 
 ## Later in this series
 
-`local matrix`, `local lock` / `local diff`, and a keyword probe suite ship as follow-up CLI on `llm-abi/local`. The playground can paste `local doctor --json`; it still does not open localhost. vLLM / SGLang profiles remain deferred.
+`local matrix`, `local lock` / `local diff`, and a keyword probe suite shipped in 0.4.0. vLLM / SGLang experimental compile targets shipped in 0.5.0. The playground can paste `local doctor --json`; it still does not open localhost.
 
 ## Never
 

@@ -2,7 +2,7 @@
 
 llm-abi compiles one schema into a provider-safe schema and reports what could not be represented.
 
-## What v0.1 guarantees
+## What this package guarantees
 
 Given the same:
 
@@ -18,7 +18,7 @@ Given the same deployment descriptor, request, optional schema, and package vers
 
 `result.validate(value)` validates against the **original** schema (or the original Standard Schema validator), not the lowered provider schema.
 
-## What v0.1 does not guarantee
+## What this package does not guarantee
 
 - Bit-identical JSON across future minor versions if a provider profile is corrected
 - That a provider API will accept every emitted schema (live APIs change; nightly checks record accepted / rejected / skipped)

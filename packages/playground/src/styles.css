@@ -172,6 +172,24 @@ body {
   border-inline-end: 1px solid var(--border);
 }
 
+.nav-text {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.4rem 0.65rem;
+  border-radius: 999px;
+  transition:
+    background 0.12s ease-out,
+    color 0.12s ease-out;
+}
+
+.nav-text:hover,
+.nav-text.is-current {
+  color: var(--fg);
+  background: var(--accent-soft);
+}
+
 .icon-link {
   color: var(--muted);
   width: 2.35rem;

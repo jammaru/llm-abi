@@ -61,7 +61,7 @@ The lowering pass reads the profile. Adding a vendor should not require a new co
 
 A request profile is also data: model family matchers, omitted-parameter defaults, and endpoint rules. `checkRequest()` applies those defaults before evaluating rules, so an omitted `reasoningEffort` can still be incompatible when the model default is not `none`.
 
-Adding a request family should not require a new checker. See [docs/requests/README.md](./requests/README.md).
+Adding a request family should not require a new checker. See [Requests](./requests.md). Contributor profile fields live in the repository under `docs/requests/`.
 
 ## Safety
 
@@ -69,4 +69,4 @@ Untrusted schemas are bounded by max depth, max nodes, and max `$ref` count. Dic
 
 ## Playground
 
-`packages/playground` is a static Vite app hosted on Cloudflare Pages. It imports the public `llm-abi` API, compiles in the browser, and never fetches provider profiles or localhost runtimes. Compatibility is shown as discrete levels, never a percentage.
+`packages/playground` is a static Vite app hosted on Cloudflare Pages. It imports the public `llm-abi` API, compiles in the browser, and never fetches provider profiles or localhost runtimes. Compatibility is shown as discrete levels, never a percentage. The same deploy serves these pages at `/docs/` (English) and `/docs/ja/` (Japanese), generated from `docs/*.md` and `docs/ja/*.md` at build time.

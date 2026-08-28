@@ -8,12 +8,20 @@ Use llm-abi when one schema must target multiple providers and you need to detec
 
 ## Links
 
-- Documentation: https://github.com/jammaru/llm-abi#readme
+- Documentation: https://llm-abi.pages.dev/docs/
+- Documentation (日本語): https://llm-abi.pages.dev/docs/ja/
 - Playground: https://llm-abi.pages.dev/
 - Package: https://www.npmjs.com/package/llm-abi
-- API: https://github.com/jammaru/llm-abi/blob/main/docs/api.md
-- Guarantees: https://github.com/jammaru/llm-abi/blob/main/docs/guarantees.md
-- Target profiles: https://github.com/jammaru/llm-abi/blob/main/docs/targets/README.md
+- API: https://llm-abi.pages.dev/docs/api/
+- CLI: https://llm-abi.pages.dev/docs/cli/
+- Profiles: https://llm-abi.pages.dev/docs/profiles/
+- Requests: https://llm-abi.pages.dev/docs/requests/
+- Local runtimes: https://llm-abi.pages.dev/docs/local/
+- Guarantees: https://llm-abi.pages.dev/docs/guarantees/
+- Architecture: https://llm-abi.pages.dev/docs/architecture/
+- Guide (日本語): https://llm-abi.pages.dev/docs/ja/
+- API (日本語): https://llm-abi.pages.dev/docs/ja/api/
+- Source: https://github.com/jammaru/llm-abi
 
 ## Install
 
