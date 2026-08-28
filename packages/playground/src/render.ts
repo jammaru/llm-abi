@@ -1,6 +1,8 @@
 import type { Diagnostic } from "llm-abi";
 import { diagnosticMatrix, diffSchemas } from "./compare.ts";
 import type { InstanceCheck, PlaygroundResult, PlaygroundTargetView } from "./compile.ts";
+import { toSchemaInput } from "./compile.ts";
+import { importLocalDoctor } from "./local-import.ts";
 import { localizePlaygroundError, type Copy } from "./copy.ts";
 import { EXAMPLES, localizedText } from "./examples.ts";
 import type { Locale } from "./locale.ts";
@@ -35,6 +37,8 @@ export interface PlaygroundElements {
   readonly validateOut: HTMLElement;
   readonly shareStatus: HTMLElement;
   readonly fingerprint: HTMLElement;
+  readonly localDoctor: HTMLTextAreaElement;
+  readonly localImport: HTMLElement;
 }
 
 export function fillExampleSelect(select: HTMLSelectElement, locale: Locale): void {
@@ -104,6 +108,7 @@ export function renderResult(
     els.matrix.replaceChildren();
     els.diff.replaceChildren();
     els.fingerprint.textContent = "";
+    els.localImport.replaceChildren();
     return;
   }
   els.error.hidden = true;
@@ -115,6 +120,41 @@ export function renderResult(
   fillCompareSelects(els.compareLeft, els.compareRight, result.targets, state);
   renderMatrix(els.matrix, result.targets, copy);
   renderDiff(els.diff, result.targets, state.compareLeft, state.compareRight, copy);
+  renderLocalImport(els, state);
+}
+
+function renderLocalImport(els: PlaygroundElements, state: PlaygroundState): void {
+  els.localImport.replaceChildren();
+  let schema;
+  try {
+    schema = toSchemaInput(state.source, {
+      kind: state.kind,
+      typeName: state.typeName,
+      optimize: state.optimize,
+      constraintFallback: state.constraintFallback,
+    });
+  } catch {
+    return;
+  }
+  const imported = importLocalDoctor(els.localDoctor.value, schema, state.typeName || undefined);
+  if (!imported.ok) {
+    const p = document.createElement("p");
+    p.className = "status status-error";
+    p.textContent = imported.message;
+    els.localImport.append(p);
+    return;
+  }
+  if (imported.rows.length === 0) {
+    return;
+  }
+  const list = document.createElement("ul");
+  list.className = "local-import";
+  for (const row of imported.rows) {
+    const item = document.createElement("li");
+    item.textContent = `${row.model}  ${row.runtime}  ${row.compatibility}  ${row.coverage}`;
+    list.append(item);
+  }
+  els.localImport.append(list);
 }
 
 export function renderValidation(els: PlaygroundElements, value: InstanceCheck, copy: Copy): void {

@@ -53,6 +53,41 @@ export type CliArgs =
       readonly model?: string;
       readonly schema?: string;
       readonly suite: "smoke" | "full";
+    }
+  | {
+      readonly kind: "local-check";
+      readonly json: boolean;
+      readonly url?: string;
+      readonly runtime?: string;
+      readonly model?: string;
+      readonly file?: string;
+    }
+  | {
+      readonly kind: "local-matrix";
+      readonly json: boolean;
+      readonly url?: string;
+      readonly runtime?: string;
+      readonly file?: string;
+      readonly probe: boolean;
+    }
+  | {
+      readonly kind: "local-lock";
+      readonly json: boolean;
+      readonly url?: string;
+      readonly runtime?: string;
+      readonly model?: string;
+      readonly file?: string;
+      readonly out?: string;
+      readonly probe: boolean;
+    }
+  | {
+      readonly kind: "local-diff";
+      readonly json: boolean;
+      readonly url?: string;
+      readonly runtime?: string;
+      readonly model?: string;
+      readonly file?: string;
+      readonly file2?: string;
     };
 
 const ROOT_COMMANDS = new Set([
@@ -84,6 +119,9 @@ export function parseArgs(argv: readonly string[]): CliArgs {
   let runtime: string | undefined;
   let model: string | undefined;
   let suite: "smoke" | "full" = "smoke";
+  let probe = false;
+  let out: string | undefined;
+  let file2: string | undefined;
 
   for (let index = 0; index < rest.length; index += 1) {
     const token = rest[index]!;
@@ -165,8 +203,22 @@ export function parseArgs(argv: readonly string[]): CliArgs {
       suite = readSuite(token.slice("--suite=".length));
       continue;
     }
+    if (token === "--probe") {
+      probe = true;
+      continue;
+    }
+    if (token === "--out") {
+      out = rest[index + 1];
+      index += 1;
+      continue;
+    }
+    if (token.startsWith("--out=")) {
+      out = token.slice("--out=".length);
+      continue;
+    }
     if (token === "--") {
       file = rest[index + 1];
+      file2 = rest[index + 2];
       break;
     }
     if (token.startsWith("-")) {
@@ -177,13 +229,26 @@ export function parseArgs(argv: readonly string[]): CliArgs {
       continue;
     }
     if (command === "local" && localSub === undefined) {
-      if (token !== "doctor" && token !== "probe") {
-        throw new Error(`Unknown local command ${token}. Use: local doctor, local probe.`);
+      if (
+        token !== "doctor" &&
+        token !== "probe" &&
+        token !== "check" &&
+        token !== "matrix" &&
+        token !== "lock" &&
+        token !== "diff"
+      ) {
+        throw new Error(
+          `Unknown local command ${token}. Use: local doctor, probe, check, matrix, lock, diff.`,
+        );
       }
       localSub = token;
       continue;
     }
-    file = token;
+    if (file === undefined) {
+      file = token;
+    } else if (file2 === undefined) {
+      file2 = token;
+    }
   }
 
   if (version) {
@@ -196,10 +261,22 @@ export function parseArgs(argv: readonly string[]): CliArgs {
     if (localSub === "probe") {
       return { kind: "local-probe", json, url, runtime, model, schema: file, suite };
     }
+    if (localSub === "check") {
+      return { kind: "local-check", json, url, runtime, model, file };
+    }
+    if (localSub === "matrix") {
+      return { kind: "local-matrix", json, url, runtime, file, probe };
+    }
+    if (localSub === "lock") {
+      return { kind: "local-lock", json, url, runtime, model, file, out, probe };
+    }
+    if (localSub === "diff") {
+      return { kind: "local-diff", json, url, runtime, model, file, file2 };
+    }
     if (localSub === "doctor") {
       return { kind: "local-doctor", json, url };
     }
-    throw new Error("Missing local command. Use: local doctor, local probe.");
+    throw new Error("Missing local command. Use: local doctor, probe, check, matrix, lock, diff.");
   }
   if (command === "doctor") {
     return { kind: "doctor", json };

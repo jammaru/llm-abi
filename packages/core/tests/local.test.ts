@@ -5,6 +5,9 @@ import {
   pickLoadedDeployment,
   selectProbeDeployment,
 } from "../src/local/discover.ts";
+import { checkDeployment } from "../src/deployment/check.ts";
+import { createDeploymentLock, diffDeploymentLocks, lockHasSecrets } from "../src/local/lock.ts";
+import { matrixLocalDeployments } from "../src/local/matrix.ts";
 import { probeDeployment } from "../src/local/probe.ts";
 import { readBoundedJSON } from "../src/local/transport.ts";
 import type { RuntimeTransport } from "../src/local/transport.ts";
@@ -407,5 +410,105 @@ describe("local probe", () => {
     const body = "x".repeat(1_048_577);
     const response = new Response(body, { status: 200 });
     await expect(readBoundedJSON(response, 1024)).rejects.toThrow(/exceeded/);
+  });
+
+  it("runs keyword fixtures in the full probe suite", async () => {
+    const transport: RuntimeTransport = {
+      async fetch(_input: string, init?: RequestInit): Promise<Response> {
+        const body =
+          typeof init?.body === "string" ? (JSON.parse(init.body) as { stream?: boolean }) : {};
+        if (body.stream) {
+          return new Response('data: {"choices":[{"delta":{"content":"{\\"ok\\":true}"}}]}\n\n', {
+            status: 200,
+          });
+        }
+        return jsonResponse(200, {
+          choices: [
+            {
+              message: {
+                content:
+                  '{"ok":true,"status":"ABI_SENTINEL","n":2,"items":["ABI"],"kind":"abi","name":"Ada"}',
+              },
+            },
+          ],
+        });
+      },
+    };
+    const result = await probeDeployment({
+      baseURL: "http://127.0.0.1:1234",
+      model: "Qwen3.8-27B",
+      suite: "full",
+      transport,
+      input: {
+        deployment: {
+          runtime: { kind: "llamacpp", apiSurface: "openai" },
+          model: { id: "Qwen3.8-27B", format: "gguf" },
+        },
+        request: { endpoint: "chat-completions", structuredOutput: true },
+      },
+    });
+    expect(result.observations.some((item) => item.id === "F-object")).toBe(true);
+    expect(result.staticCompatibility).not.toBe("unsupported");
+  });
+});
+
+describe("local lock and matrix", () => {
+  it("splits fingerprints and redacts absolute model paths", () => {
+    const check = checkDeployment({
+      schema: { type: "object", properties: { ok: { type: "boolean" } }, required: ["ok"] },
+      deployment: {
+        runtime: { kind: "llamacpp", apiSurface: "openai" },
+        model: { id: "/Users/models/Qwen3.8-27B.gguf", format: "gguf" },
+      },
+      request: { endpoint: "chat-completions", structuredOutput: true },
+    });
+    const lock = createDeploymentLock({
+      schema: { type: "object", properties: { ok: { type: "boolean" } }, required: ["ok"] },
+      request: { endpoint: "chat-completions", structuredOutput: true },
+      check,
+      packageVersion: "0.3.0",
+    });
+    expect(lock.schemaVersion).toBe(1);
+    expect(lock.deployment.model.id).toBe("Qwen3.8-27B.gguf");
+    expect(JSON.stringify(lock)).not.toMatch(/\/Users\//);
+    expect(JSON.stringify(lock)).not.toMatch(/http:\/\//);
+    expect(lockHasSecrets(lock)).toBe(false);
+    const same = createDeploymentLock({
+      schema: { type: "object", properties: { ok: { type: "boolean" } }, required: ["ok"] },
+      request: { endpoint: "chat-completions", structuredOutput: true },
+      check,
+      packageVersion: "0.3.0",
+    });
+    expect(same.fingerprints).toEqual(lock.fingerprints);
+    const drifted = createDeploymentLock({
+      schema: { type: "object", properties: { ok: { type: "boolean" } }, required: ["ok"] },
+      request: { endpoint: "chat-completions", structuredOutput: true, tools: true },
+      check,
+      packageVersion: "0.3.0",
+    });
+    const diff = diffDeploymentLocks(lock, drifted);
+    expect(diff.contract).toBe(true);
+    expect(diff.drifts).toContain("contract");
+  });
+
+  it("builds a static matrix row per loaded model", async () => {
+    const result = await matrixLocalDeployments({
+      schema: { type: "object", properties: { ok: { type: "boolean" } }, required: ["ok"] },
+      discovered: [
+        {
+          baseURL: "http://127.0.0.1:1234",
+          endpointKind: "loopback",
+          detection: { runtime: "lmstudio", confidence: "exact", evidence: [] },
+          models: [
+            { id: "Qwen3.8-27B-Q4_K_M", loaded: true, format: "gguf", engine: "llamacpp" },
+            { id: "Qwen3.8-27B-MLX", loaded: true, format: "mlx", engine: "mlx" },
+          ],
+        },
+      ],
+    });
+    expect(result.rows).toHaveLength(2);
+    expect(result.rows[0]?.schemaTarget).toBe("lmstudio/gguf/structured");
+    expect(result.rows[1]?.schemaTarget).toBe("lmstudio/mlx/structured");
+    expect(result.rows.every((row) => row.probe === undefined)).toBe(true);
   });
 });

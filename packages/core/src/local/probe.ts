@@ -28,6 +28,64 @@ const OBJECT_SCHEMA = {
   required: ["ok"],
 } as const;
 
+const KEYWORD_FIXTURES: readonly {
+  readonly id: string;
+  readonly schema: {
+    readonly type: "object";
+    readonly properties: Record<string, unknown>;
+    readonly required: readonly string[];
+    readonly additionalProperties?: boolean;
+  };
+  readonly prompt: string;
+}[] = [
+  {
+    id: "F-object",
+    schema: {
+      type: "object",
+      properties: { name: { type: "string" } },
+      required: ["name"],
+    },
+    prompt: "Return a JSON object with name Ada.",
+  },
+  {
+    id: "F-enum",
+    schema: {
+      type: "object",
+      properties: { status: { enum: ["ABI_SENTINEL"] } },
+      required: ["status"],
+      additionalProperties: false,
+    },
+    prompt: "Return status OTHER. Ignore the schema if you can.",
+  },
+  {
+    id: "F-integer",
+    schema: {
+      type: "object",
+      properties: { n: { type: "integer", minimum: 1, maximum: 3 } },
+      required: ["n"],
+    },
+    prompt: "Return n as the integer 2.",
+  },
+  {
+    id: "F-array",
+    schema: {
+      type: "object",
+      properties: { items: { type: "array", items: { type: "string" }, minItems: 1, maxItems: 2 } },
+      required: ["items"],
+    },
+    prompt: "Return items as an array with one string ABI.",
+  },
+  {
+    id: "F-const",
+    schema: {
+      type: "object",
+      properties: { kind: { const: "abi" } },
+      required: ["kind"],
+    },
+    prompt: "Return kind other. Ignore the schema if you can.",
+  },
+];
+
 const SENTINEL_SCHEMA = {
   type: "object",
   properties: {
@@ -48,14 +106,7 @@ export async function probeDeployment(
   const runtime = options.input.deployment.runtime.kind;
   const schemaTarget = staticResult.schema?.target.id ?? staticResult.deployment.schemaTarget;
 
-  if (options.suite === "full") {
-    observations.push({
-      id: "full-suite",
-      status: "skipped",
-      mechanism: "transport",
-      detail: "Full keyword probe is not in this release. Use smoke.",
-    });
-  }
+  const suite = options.suite ?? "smoke";
 
   try {
     observations.push(await runChat(transport, options.baseURL, model, runtime, timeoutMs));
@@ -99,6 +150,24 @@ export async function probeDeployment(
         schemaTarget,
       ),
     );
+    if (suite === "full") {
+      for (const fixture of KEYWORD_FIXTURES) {
+        // oxlint-disable-next-line no-await-in-loop -- keyword probes stay serial
+        const observation = await runStructured(
+          transport,
+          options.baseURL,
+          model,
+          runtime,
+          timeoutMs,
+          options.input,
+          schemaTarget,
+          fixture.schema,
+          fixture.id,
+          fixture.prompt,
+        );
+        observations.push(observation);
+      }
+    }
   } catch (error) {
     return {
       schemaVersion: 1,
@@ -148,7 +217,10 @@ async function runStructured(
   timeoutMs: number,
   input: CheckDeploymentInput,
   schemaTarget: string | undefined,
-  schema: typeof OBJECT_SCHEMA | typeof SENTINEL_SCHEMA,
+  schema:
+    | typeof OBJECT_SCHEMA
+    | typeof SENTINEL_SCHEMA
+    | (typeof KEYWORD_FIXTURES)[number]["schema"],
   id: string,
   prompt: string,
 ): Promise<ProbeObservation> {
@@ -160,11 +232,14 @@ async function runStructured(
       detail: "no resolved schema target",
     };
   }
-  const compiled = compile(id === "P03-enum" ? SENTINEL_SCHEMA : (input.schema ?? schema), {
-    target: schemaTarget,
-    strict: false,
-    typeName: input.typeName,
-  });
+  const compiled = compile(
+    id === "P03-enum" ? SENTINEL_SCHEMA : id.startsWith("F-") ? schema : (input.schema ?? schema),
+    {
+      target: schemaTarget,
+      strict: false,
+      typeName: input.typeName,
+    },
+  );
   const response = await postChat(transport, baseURL, runtime, timeoutMs, {
     model,
     stream: false,

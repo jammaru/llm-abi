@@ -56,6 +56,8 @@ function elements(): PlaygroundElements {
     validateOut: requiredElement("validate-out"),
     shareStatus: requiredElement("share-status"),
     fingerprint: requiredElement("fingerprint"),
+    localDoctor: requiredElement("local-doctor"),
+    localImport: requiredElement("local-import"),
   };
 }
 
@@ -231,6 +233,7 @@ function main(): void {
   };
 
   els.source.addEventListener("input", schedule);
+  els.localDoctor.addEventListener("input", schedule);
   els.typeName.addEventListener("input", schedule);
   els.optimize.addEventListener("change", schedule);
   els.fallback.addEventListener("change", schedule);

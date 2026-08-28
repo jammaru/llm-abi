@@ -216,5 +216,24 @@ describe("cli", () => {
       schema: "schema.json",
       suite: "smoke",
     });
+    expect(parseArgs(["node", "llm-abi", "local", "matrix", "schema.json", "--probe"])).toEqual({
+      kind: "local-matrix",
+      json: false,
+      url: undefined,
+      runtime: undefined,
+      file: "schema.json",
+      probe: true,
+    });
+    expect(
+      parseArgs(["node", "llm-abi", "local", "diff", "old.lock.json", "new.lock.json"]),
+    ).toEqual({
+      kind: "local-diff",
+      json: false,
+      url: undefined,
+      runtime: undefined,
+      model: undefined,
+      file: "old.lock.json",
+      file2: "new.lock.json",
+    });
   });
 });

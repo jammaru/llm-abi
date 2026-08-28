@@ -15,6 +15,8 @@ export type UiKey =
   | "optimize"
   | "fallback"
   | "privacy"
+  | "localDoctor"
+  | "localDoctorHelp"
   | "resultsHeading"
   | "resultsLeadBefore"
   | "resultsLeadAfter"
@@ -101,6 +103,9 @@ const EN: Copy = {
     fallback: "Constraint fallback",
     privacy:
       "Compilation uses profiles shipped in llm-abi. Tokens are ceil(UTF-8 bytes / 3), a conservative overhead hint, not billing and not a score.",
+    localDoctor: "Paste local doctor --json",
+    localDoctorHelp:
+      "The browser never calls localhost. Paste llm-abi local doctor --json from your machine.",
     resultsHeading: "Results",
     resultsLeadBefore: "Each provider is ",
     resultsLeadAfter: ". There is no compatibility percentage.",
@@ -197,6 +202,9 @@ const JA: Copy = {
     fallback: "制約のフォールバック",
     privacy:
       "コンパイルは llm-abi に同梱されたプロファイルを使います。トークン数は ceil(UTF-8 バイト数 / 3) で、請求用ではなく余裕を見た目安であり、スコアではありません。",
+    localDoctor: "local doctor --json を貼る",
+    localDoctorHelp:
+      "ブラウザから localhost には接続しません。手元の llm-abi local doctor --json を貼ってください。",
     resultsHeading: "結果",
     resultsLeadBefore: "各プロバイダは ",
     resultsLeadAfter: " のいずれかです。互換性のパーセントはありません。",

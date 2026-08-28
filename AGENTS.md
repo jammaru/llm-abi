@@ -29,7 +29,7 @@ Keep it small:
 
 Named exports only. No default export.
 
-`compile()` is the schema ABI. `checkRequest()` is the request ABI. `checkDeployment()` is the runtime ABI. Do not fold model, endpoint, or `reasoning_effort` rules into `compile()`. Do not change the `qwen` alias; it is Alibaba Model Studio, not local Qwen. Discovery and probe belong in `llm-abi/local`, not the neutral entry.
+`compile()` is the schema ABI. `checkRequest()` is the request ABI. `checkDeployment()` is the runtime ABI. Do not fold model, endpoint, or `reasoning_effort` rules into `compile()`. Do not change the `qwen` alias; it is Alibaba Model Studio, not local Qwen. Discovery, probe, matrix, and lock belong in `llm-abi/local`, not the neutral entry.
 
 ## Architecture
 

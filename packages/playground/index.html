@@ -163,6 +163,15 @@
           Compilation uses profiles shipped in llm-abi. Tokens are ceil(UTF-8 bytes / 3), a
           conservative overhead hint, not billing and not a score.
         </p>
+        <details class="advanced" id="local-doctor-input">
+          <summary data-i18n="localDoctor">Paste local doctor --json</summary>
+          <p class="privacy" data-i18n="localDoctorHelp">
+            The browser never calls localhost. Paste llm-abi local doctor --json from your machine.
+          </p>
+          <label>
+            <textarea id="local-doctor" spellcheck="false" rows="6" autocomplete="off"></textarea>
+          </label>
+        </details>
       </section>
       <section class="panel panel-results" id="results" aria-labelledby="results-heading">
         <h2 id="results-heading" data-i18n="resultsHeading">Results</h2>
@@ -193,6 +202,7 @@
         <p id="error" class="error" hidden></p>
         <p id="lesson" class="lesson" hidden></p>
         <div id="targets" class="targets"></div>
+        <div id="local-import"></div>
         <div id="analysis"></div>
         <p class="fingerprint-row">
           <span data-i18n="fingerprint">Input fingerprint</span>
