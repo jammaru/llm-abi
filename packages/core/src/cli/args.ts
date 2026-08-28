@@ -44,6 +44,7 @@ export type CliArgs =
       readonly kind: "local-doctor";
       readonly json: boolean;
       readonly url?: string;
+      readonly runtime?: string;
     }
   | {
       readonly kind: "local-probe";
@@ -279,7 +280,7 @@ export function parseArgs(argv: readonly string[]): CliArgs {
       return { kind: "local-diff", json, url, runtime, model, file, file2, typeName };
     }
     if (localSub === "doctor") {
-      return { kind: "local-doctor", json, url };
+      return { kind: "local-doctor", json, url, runtime };
     }
     throw new Error("Missing local command. Use: local doctor, probe, check, matrix, lock, diff.");
   }
