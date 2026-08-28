@@ -110,7 +110,14 @@ function engineFromDoctor(
   engine: string | undefined,
   fallback: DeploymentDescriptor["runtime"]["engine"],
 ): DeploymentDescriptor["runtime"]["engine"] {
-  if (engine === "llamacpp" || engine === "mlx" || engine === "outlines" || engine === "ollama") {
+  if (
+    engine === "llamacpp" ||
+    engine === "mlx" ||
+    engine === "outlines" ||
+    engine === "ollama" ||
+    engine === "vllm" ||
+    engine === "sglang"
+  ) {
     return { kind: engine };
   }
   return fallback;

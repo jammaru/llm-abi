@@ -204,6 +204,24 @@ describe("cli", () => {
       kind: "local-doctor",
       json: true,
       url: undefined,
+      runtime: undefined,
+    });
+    expect(
+      parseArgs([
+        "node",
+        "llm-abi",
+        "local",
+        "doctor",
+        "--url",
+        "http://127.0.0.1:8000",
+        "--runtime",
+        "sglang",
+      ]),
+    ).toEqual({
+      kind: "local-doctor",
+      json: false,
+      url: "http://127.0.0.1:8000",
+      runtime: "sglang",
     });
     expect(
       parseArgs(["node", "llm-abi", "local", "probe", "schema.json", "--suite", "smoke"]),

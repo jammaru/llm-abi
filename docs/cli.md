@@ -34,17 +34,17 @@ npx llm-abi local diff llm-abi.local.lock.json schema.json
 | `local lock`   | Snapshot fingerprints without secrets or absolute paths                     |
 | `local diff`   | Compare two locks, or a lock against the current loaded deployment          |
 
-| Flag        | Meaning                                                                                                                                               |
-| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `--target`  | Profile id or alias (`openai`, `anthropic`, `gemini`, `deepseek`, `xai`, `qwen` = Model Studio, `mistral`, `openrouter`, `mcp`, `llamacpp`, `ollama`) |
-| `--strict`  | Fail when the schema is unsupported                                                                                                                   |
-| `--type`    | Type or interface name when the input is TypeScript. Also used by `local check`, `probe`, `matrix`, `lock`, and `diff`                                |
-| `--json`    | Machine-readable output                                                                                                                               |
-| `--ci`      | Exit 1 when any target is `unsupported`                                                                                                               |
-| `--url`     | Explicit runtime base URL for `local doctor` / `local probe`. Non-loopback is labeled `remote`                                                        |
-| `--runtime` | Hint for local discovery: `lmstudio`, `ollama`, `llamacpp`                                                                                            |
-| `--model`   | Model id for `local probe`. May cause the runtime to load that model                                                                                  |
-| `--suite`   | `local probe` suite: `smoke` (default) or `full`                                                                                                      |
+| Flag        | Meaning                                                                                                                                                                 |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--target`  | Profile id or alias (`openai`, `anthropic`, `gemini`, `deepseek`, `xai`, `qwen` = Model Studio, `mistral`, `openrouter`, `mcp`, `llamacpp`, `ollama`, `vllm`, `sglang`) |
+| `--strict`  | Fail when the schema is unsupported                                                                                                                                     |
+| `--type`    | Type or interface name when the input is TypeScript. Also used by `local check`, `probe`, `matrix`, `lock`, and `diff`                                                  |
+| `--json`    | Machine-readable output                                                                                                                                                 |
+| `--ci`      | Exit 1 when any target is `unsupported`                                                                                                                                 |
+| `--url`     | Explicit runtime base URL for `local doctor` / `local probe`. Non-loopback is labeled `remote`                                                                          |
+| `--runtime` | Hint for local discovery: `lmstudio`, `ollama`, `llamacpp`, `vllm`, `sglang`                                                                                            |
+| `--model`   | Model id for `local probe`. May cause the runtime to load that model                                                                                                    |
+| `--suite`   | `local probe` suite: `smoke` (default) or `full`                                                                                                                        |
 
 `llm-abi request` reads a JSON object:
 
@@ -61,7 +61,7 @@ npx llm-abi local diff llm-abi.local.lock.json schema.json
 
 `llm-abi doctor --json` is intended for bug reports. Doctor also lists request, runtime, and model profiles. It does not talk to localhost.
 
-`llm-abi local doctor --json` starts with `schemaVersion: 1`. Non-loopback `--url` is labeled `remote`. Default discovery does not leave `127.0.0.1`. `local probe` without `--url` uses the same loopback list as `local doctor`. `--model` may cause the runtime to load that model; omit it to probe only what is already loaded. `local matrix` and `local lock` are loaded-models-only unless `--model` is set. Probe success does not upgrade static compatibility. Locks omit URLs, secrets, and absolute paths.
+`llm-abi local doctor --json` starts with `schemaVersion: 1`. Non-loopback `--url` is labeled `remote`. Default discovery does not leave `127.0.0.1`. `local probe` without `--url` uses the same loopback list as `local doctor`. `--model` may cause the runtime to load that model; omit it to probe only what is already loaded. `local matrix` and `local lock` are loaded-models-only unless `--model` is set. Probe success does not upgrade static compatibility. Locks omit URLs, secrets, and absolute paths. vLLM and SGLang need `--url` and usually `--runtime vllm` or `--runtime sglang`; they are not scanned on the default loopback ports.
 
 ## GitHub Action
 

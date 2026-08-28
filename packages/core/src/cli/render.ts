@@ -236,6 +236,8 @@ Runtime schema targets (compile by id; not in default check):
   ollama            ollama/chat/structured
   lmstudio/gguf     lmstudio/gguf/structured
   lmstudio/mlx      lmstudio/mlx/structured
+  vllm              vllm/openai/structured
+  sglang            sglang/openai/structured
 
 Options:
   --target, -t      Target profile id or alias
@@ -245,7 +247,7 @@ Options:
   --json            Machine-readable output
   --ci              Exit 1 when a target or request is unsupported
   --url             Explicit runtime base URL (non-loopback is labeled remote)
-  --runtime         Hint for local doctor/probe: lmstudio, ollama, llamacpp
+  --runtime         Hint for local doctor/probe: lmstudio, ollama, llamacpp, vllm, sglang
   --model           Model id for local probe. May cause the runtime to load it
   --suite           local probe suite: smoke (default) or full
   --probe           Run smoke inference during local matrix/lock

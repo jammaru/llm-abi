@@ -64,7 +64,7 @@ function runInner(argv: readonly string[]): number | Promise<number> {
     return doctor(args.json);
   }
   if (args.kind === "local-doctor") {
-    return runLocalDoctor(args.json, args.url);
+    return runLocalDoctor(args);
   }
   if (args.kind === "local-probe") {
     return runLocalProbe(args);
@@ -232,17 +232,19 @@ function doctor(json: boolean): number {
   return 0;
 }
 
-async function runLocalDoctor(json: boolean, url?: string): Promise<number> {
+async function runLocalDoctor(args: {
+  readonly json: boolean;
+  readonly url?: string;
+  readonly runtime?: string;
+}): Promise<number> {
   try {
-    const discovered = await discoverLocalDeployments(
-      url ? { endpoints: [{ baseURL: url }] } : undefined,
-    );
+    const discovered = await discoverForLocal(args.url, args.runtime);
     const payload = {
       schemaVersion: 1 as const,
       command: "local-doctor",
       deployments: discovered,
     };
-    if (json) {
+    if (args.json) {
       process.stdout.write(`${JSON.stringify(payload, null, 2)}\n`);
     } else {
       process.stdout.write(`${renderLocalDoctor(discovered)}\n`);

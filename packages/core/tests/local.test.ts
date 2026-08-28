@@ -60,6 +60,58 @@ describe("local discovery", () => {
     expect(found[0]?.deployment?.model.format).toBe("gguf");
   });
 
+  it("detects vLLM only from an explicit URL or --runtime hint", async () => {
+    const transport: RuntimeTransport = {
+      async fetch(input: string): Promise<Response> {
+        if (input.includes("/v1/models")) {
+          return jsonResponse(200, {
+            data: [{ id: "Qwen/Qwen3.8-27B", owned_by: "vllm" }],
+          });
+        }
+        return jsonResponse(404, {});
+      },
+    };
+    const hinted = await discoverLocalDeployments({
+      endpoints: [{ runtime: "vllm", baseURL: "http://127.0.0.1:8000" }],
+      transport,
+    });
+    expect(hinted[0]?.detection.runtime).toBe("vllm");
+    expect(hinted[0]?.detection.confidence).toBe("exact");
+    expect(hinted[0]?.models[0]?.id).toBe("Qwen/Qwen3.8-27B");
+    expect(hinted[0]?.deployment?.runtime.engine?.kind).toBe("vllm");
+
+    const unhintedCustom = await discoverLocalDeployments({
+      endpoints: [{ baseURL: "http://127.0.0.1:8000" }],
+      transport,
+    });
+    expect(unhintedCustom[0]?.detection.runtime).toBe("vllm");
+
+    const defaultPort = await discoverLocalDeployments({
+      endpoints: [{ baseURL: "http://127.0.0.1:8080" }],
+      transport,
+    });
+    expect(defaultPort).toEqual([]);
+  });
+
+  it("accepts an explicit SGLang hint without owned_by sglang", async () => {
+    const transport: RuntimeTransport = {
+      async fetch(input: string): Promise<Response> {
+        if (input.includes("/v1/models")) {
+          return jsonResponse(200, {
+            data: [{ id: "meta-llama/Meta-Llama-3.1-8B-Instruct", owned_by: "organization" }],
+          });
+        }
+        return jsonResponse(404, {});
+      },
+    };
+    const found = await discoverLocalDeployments({
+      endpoints: [{ runtime: "sglang", baseURL: "http://127.0.0.1:30000" }],
+      transport,
+    });
+    expect(found[0]?.detection.runtime).toBe("sglang");
+    expect(found[0]?.detection.confidence).toBe("strong");
+  });
+
   it("does not treat a loading llama.cpp catalog as loaded models", async () => {
     const transport: RuntimeTransport = {
       async fetch(input: string): Promise<Response> {

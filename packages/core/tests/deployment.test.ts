@@ -26,8 +26,12 @@ describe("target scope", () => {
       "lmstudio/gguf/structured",
       "lmstudio/mlx/structured",
       "ollama/chat/structured",
+      "vllm/openai/structured",
+      "sglang/openai/structured",
     ]);
     expect(resolveTarget("qwen").id).toBe("alibaba/qwen/tools");
+    expect(resolveTarget("vllm").id).toBe("vllm/openai/structured");
+    expect(resolveTarget("sglang").scope).toBe("runtime");
     expect(resolveTarget("llamacpp").id).toBe("llamacpp/server/structured");
     expect(resolveTarget("llamacpp").scope).toBe("runtime");
   });
@@ -141,6 +145,39 @@ describe("checkDeployment", () => {
       request: { endpoint: "chat-completions", tools: true },
     };
     expect(checkDeployment(input)).toEqual(checkDeployment(input));
+  });
+
+  it("compiles vLLM through a documented schema target without OpenAI-strict required-all", () => {
+    const result = checkDeployment({
+      schema: {
+        type: "object",
+        properties: { name: { type: "string" }, nick: { type: "string" } },
+        required: ["name"],
+      },
+      deployment: {
+        runtime: { kind: "vllm", apiSurface: "openai", engine: { kind: "vllm" } },
+        model: { id: "Qwen/Qwen3.8-27B", format: "safetensors" },
+      },
+      request: { endpoint: "chat-completions", structuredOutput: true, tools: true },
+    });
+    expect(result.runtime.profile?.id).toBe("vllm/openai");
+    expect(result.schema?.target.id).toBe("vllm/openai/structured");
+    expect(result.schema?.compatibility).toBe("lossless");
+    expect(result.compatibility).toBe("lossless");
+  });
+
+  it("keeps SGLang tools unknown instead of unsupported", () => {
+    const result = checkDeployment({
+      deployment: {
+        runtime: { kind: "sglang", apiSurface: "openai" },
+        model: { id: "meta-llama/Meta-Llama-3.1-8B-Instruct" },
+      },
+      request: { endpoint: "chat-completions", structuredOutput: true, tools: true },
+    });
+    expect(result.runtime.profile?.id).toBe("sglang/openai");
+    expect(result.compatibility).toBe("lossless");
+    expect(result.coverage).toBe("partial");
+    expect(result.diagnostics.some((item) => item.code === "runtime-feature-unknown")).toBe(true);
   });
 
   it("lists and resolves shipped profiles without leaking matchers", () => {
