@@ -82,25 +82,36 @@ function descriptorsFromDoctor(item: object): readonly DeploymentDescriptor[] {
   const runtime = record.detection?.runtime ?? record.deployment?.runtime.kind;
   if (runtime && record.models && record.models.length > 0) {
     return record.models
-      .filter((model) => typeof model.id === "string" && model.id.length > 0)
-      .slice(0, 64)
-      .map((model) => ({
-        runtime: {
-          kind: runtime,
-          apiSurface: runtime === "ollama" ? "mixed" : "openai",
-          engine:
-            model.engine === "llamacpp" ||
-            model.engine === "mlx" ||
-            model.engine === "outlines" ||
-            model.engine === "ollama"
-              ? { kind: model.engine }
-              : record.deployment?.runtime.engine,
-        },
-        model: {
-          id: model.id,
-          format: model.format,
-        },
-      }));
+      .flatMap((model): readonly DeploymentDescriptor[] => {
+        const id = model.id;
+        if (typeof id !== "string" || id.length === 0) {
+          return [];
+        }
+        return [
+          {
+            runtime: {
+              kind: runtime,
+              apiSurface: runtime === "ollama" ? "mixed" : "openai",
+              engine: engineFromDoctor(model.engine, record.deployment?.runtime.engine),
+            },
+            model: {
+              id,
+              format: model.format,
+            },
+          },
+        ];
+      })
+      .slice(0, 64);
   }
   return record.deployment ? [record.deployment] : [];
+}
+
+function engineFromDoctor(
+  engine: string | undefined,
+  fallback: DeploymentDescriptor["runtime"]["engine"],
+): DeploymentDescriptor["runtime"]["engine"] {
+  if (engine === "llamacpp" || engine === "mlx" || engine === "outlines" || engine === "ollama") {
+    return { kind: engine };
+  }
+  return fallback;
 }
