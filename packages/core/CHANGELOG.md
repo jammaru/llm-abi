@@ -1,5 +1,11 @@
 # llm-abi
 
+## 0.4.0
+
+### Minor Changes
+
+- [#36](https://github.com/jammaru/llm-abi/pull/36) [`51206c2`](https://github.com/jammaru/llm-abi/commit/51206c2a962de81d4689d295f953115bb88ffa5f) Thanks [@jammaru](https://github.com/jammaru)! - Add local matrix, lock/diff, check, and a keyword probe suite so loaded runtimes can be compared and snapshotted without secrets, paths, or routing.
+
 ## 0.3.0
 
 ### Minor Changes
