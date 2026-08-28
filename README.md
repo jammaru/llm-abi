@@ -1,5 +1,9 @@
 # llm-abi
 
+<p align="center">
+  <img src="docs/assets/llm-abi-logo.png" alt="llm-abi" width="520" />
+</p>
+
 llm-abi is a schema compiler for LLM providers.
 
 Give it a TypeScript type or JSON Schema. Get back the schema that provider will accept.
