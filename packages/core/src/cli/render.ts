@@ -215,7 +215,7 @@ Usage:
   llm-abi local probe [--url <http://127.0.0.1:1234>] [--runtime <id>] [--model <id>] [--suite smoke]
   llm-abi local matrix [schema.json] [--probe]
   llm-abi local lock [schema.json] [--out llm-abi.local.lock.json]
-  llm-abi local diff <lock.json> [other.lock.json]
+  llm-abi local diff <lock.json> [other.lock.json|schema.json]
 
 Request file:
   JSON object with provider, model, endpoint, optional tools, optional reasoningEffort

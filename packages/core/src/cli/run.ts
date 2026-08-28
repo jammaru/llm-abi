@@ -8,7 +8,12 @@ import { compile } from "../compile.ts";
 import type { CheckDeploymentInput, DeploymentRequest, RuntimeKind } from "../deployment/types.ts";
 import { isPlainObject } from "../json/safe-record.ts";
 import { discoverLocalDeployments, selectProbeDeployment } from "../local/discover.ts";
-import { createDeploymentLock, diffDeploymentLocks, parseDeploymentLock } from "../local/lock.ts";
+import {
+  createDeploymentLock,
+  deploymentDiff,
+  diffDeploymentLocks,
+  parseDeploymentLock,
+} from "../local/lock.ts";
 import { matrixLocalDeployments } from "../local/matrix.ts";
 import { probeDeployment } from "../local/probe.ts";
 import { listModelProfiles } from "../deployment/model/registry.ts";
@@ -495,12 +500,17 @@ async function runLocalDiff(args: {
       process.stderr.write("Invalid lock file.\n");
       return 1;
     }
-    let right = args.file2
-      ? parseDeploymentLock(JSON.parse(readFileSync(resolve(args.file2), "utf8")))
-      : undefined;
-    if (args.file2 && !right) {
-      process.stderr.write("Invalid second lock file.\n");
-      return 1;
+    let schema: SchemaInput | undefined;
+    let right: ReturnType<typeof parseDeploymentLock>;
+    if (args.file2) {
+      try {
+        right = parseDeploymentLock(JSON.parse(readFileSync(resolve(args.file2), "utf8")));
+      } catch {
+        right = undefined;
+      }
+      if (!right) {
+        schema = readSchema(args.file2);
+      }
     }
     if (!right) {
       const discovered = await discoverForLocal(args.url, args.runtime);
@@ -513,16 +523,21 @@ async function runLocalDiff(args: {
         return 0;
       }
       const staticResult = checkDeployment({
+        schema,
         deployment: selected.descriptor,
         request: left.contract.request,
       });
       right = createDeploymentLock({
+        schema,
         request: left.contract.request,
         check: staticResult,
         packageVersion: VERSION,
       });
     }
-    const diff = diffDeploymentLocks(left, right);
+    const diff =
+      schema === undefined && !args.file2
+        ? deploymentDiff(diffDeploymentLocks(left, right))
+        : diffDeploymentLocks(left, right);
     if (args.json) {
       process.stdout.write(`${JSON.stringify(diff, null, 2)}\n`);
     } else if (diff.drifts.length === 0) {

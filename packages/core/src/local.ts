@@ -6,7 +6,12 @@ export {
 } from "./local/discover.ts";
 export type { ProbeSelection } from "./local/discover.ts";
 export { probeDeployment } from "./local/probe.ts";
-export { createDeploymentLock, diffDeploymentLocks, parseDeploymentLock } from "./local/lock.ts";
+export {
+  createDeploymentLock,
+  deploymentDiff,
+  diffDeploymentLocks,
+  parseDeploymentLock,
+} from "./local/lock.ts";
 export type { DeploymentLock, LockDiff, LockDriftKind } from "./local/lock.ts";
 export { matrixLocalDeployments } from "./local/matrix.ts";
 export type { MatrixResult, MatrixRow } from "./local/matrix.ts";

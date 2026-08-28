@@ -163,6 +163,18 @@ export function diffDeploymentLocks(left: DeploymentLock, right: DeploymentLock)
   };
 }
 
+export function deploymentDiff(diff: LockDiff): LockDiff {
+  return {
+    schemaVersion: 1,
+    drifts: diff.drifts.filter((item) => item !== "contract"),
+    contract: false,
+    deployment: diff.deployment,
+    profile: diff.profile,
+    left: diff.left,
+    right: diff.right,
+  };
+}
+
 export function parseDeploymentLock(value: unknown): DeploymentLock | undefined {
   if (typeof value !== "object" || value === null) {
     return undefined;

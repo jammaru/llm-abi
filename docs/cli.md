@@ -16,6 +16,7 @@ npx llm-abi local probe --suite smoke
 npx llm-abi local matrix schema.json
 npx llm-abi local lock schema.json
 npx llm-abi local diff llm-abi.local.lock.json
+npx llm-abi local diff llm-abi.local.lock.json schema.json
 ```
 
 | Command        | Purpose                                                                     |

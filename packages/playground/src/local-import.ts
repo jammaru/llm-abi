@@ -38,28 +38,69 @@ export function importLocalDoctor(
     return { ok: false, message: "Paste output from llm-abi local doctor --json." };
   }
   const rows: LocalImportRow[] = [];
-  for (const item of record.deployments) {
+  for (const item of record.deployments.slice(0, 64)) {
     if (typeof item !== "object" || item === null) {
       continue;
     }
-    const deployment = (item as { deployment?: DeploymentDescriptor }).deployment;
-    if (!deployment) {
-      continue;
+    for (const deployment of descriptorsFromDoctor(item)) {
+      if (rows.length >= 64) {
+        return { ok: true, rows };
+      }
+      try {
+        const result: CheckDeploymentResult = checkDeployment({
+          schema,
+          typeName,
+          deployment,
+          request: { endpoint: "chat-completions", structuredOutput: true, tools: true },
+        });
+        rows.push({
+          model: result.deployment.model.id,
+          runtime: result.deployment.runtime.kind,
+          format: result.deployment.model.format,
+          compatibility: result.compatibility,
+          coverage: result.coverage,
+          schemaTarget: result.deployment.schemaTarget,
+        });
+      } catch {
+        continue;
+      }
     }
-    const result: CheckDeploymentResult = checkDeployment({
-      schema,
-      typeName,
-      deployment,
-      request: { endpoint: "chat-completions", structuredOutput: true, tools: true },
-    });
-    rows.push({
-      model: result.deployment.model.id,
-      runtime: result.deployment.runtime.kind,
-      format: result.deployment.model.format,
-      compatibility: result.compatibility,
-      coverage: result.coverage,
-      schemaTarget: result.deployment.schemaTarget,
-    });
   }
   return { ok: true, rows };
+}
+
+function descriptorsFromDoctor(item: object): readonly DeploymentDescriptor[] {
+  const record = item as {
+    detection?: { runtime?: DeploymentDescriptor["runtime"]["kind"] };
+    models?: readonly {
+      id?: string;
+      format?: DeploymentDescriptor["model"]["format"];
+      engine?: string;
+    }[];
+    deployment?: DeploymentDescriptor;
+  };
+  const runtime = record.detection?.runtime ?? record.deployment?.runtime.kind;
+  if (runtime && record.models && record.models.length > 0) {
+    return record.models
+      .filter((model) => typeof model.id === "string" && model.id.length > 0)
+      .slice(0, 64)
+      .map((model) => ({
+        runtime: {
+          kind: runtime,
+          apiSurface: runtime === "ollama" ? "mixed" : "openai",
+          engine:
+            model.engine === "llamacpp" ||
+            model.engine === "mlx" ||
+            model.engine === "outlines" ||
+            model.engine === "ollama"
+              ? { kind: model.engine }
+              : record.deployment?.runtime.engine,
+        },
+        model: {
+          id: model.id,
+          format: model.format,
+        },
+      }));
+  }
+  return record.deployment ? [record.deployment] : [];
 }

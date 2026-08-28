@@ -40,4 +40,60 @@ describe("playground local doctor import", () => {
     expect(result.rows[0]?.schemaTarget).toBe("lmstudio/gguf/structured");
     expect(result.rows[0]?.compatibility).not.toBe("unsupported");
   });
+
+  it("expands every loaded model from doctor JSON, not only the first deployment", () => {
+    const result = importLocalDoctor(
+      JSON.stringify({
+        schemaVersion: 1,
+        command: "local-doctor",
+        deployments: [
+          {
+            detection: { runtime: "lmstudio" },
+            models: [
+              { id: "Qwen3.8-27B-Q4_K_M", format: "gguf", engine: "llamacpp" },
+              { id: "Qwen3.8-27B-MLX", format: "mlx", engine: "mlx" },
+            ],
+            deployment: {
+              runtime: { kind: "lmstudio", apiSurface: "openai", engine: { kind: "llamacpp" } },
+              model: { id: "Qwen3.8-27B-Q4_K_M", format: "gguf" },
+            },
+          },
+        ],
+      }),
+      SCHEMA,
+    );
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+    expect(result.rows.map((row) => row.schemaTarget)).toEqual([
+      "lmstudio/gguf/structured",
+      "lmstudio/mlx/structured",
+    ]);
+  });
+
+  it("skips a malformed doctor row instead of failing the whole paste", () => {
+    const result = importLocalDoctor(
+      JSON.stringify({
+        schemaVersion: 1,
+        command: "local-doctor",
+        deployments: [
+          {
+            models: [{ id: "broken" }],
+            detection: { runtime: "not-a-runtime" },
+          },
+          {
+            detection: { runtime: "lmstudio" },
+            models: [{ id: "Qwen3.8-27B-Q4_K_M", format: "gguf", engine: "llamacpp" }],
+          },
+        ],
+      }),
+      SCHEMA,
+    );
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+    expect(result.rows.map((row) => row.model)).toEqual(["Qwen3.8-27B-Q4_K_M"]);
+  });
 });

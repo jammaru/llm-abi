@@ -6,7 +6,12 @@ import {
   selectProbeDeployment,
 } from "../src/local/discover.ts";
 import { checkDeployment } from "../src/deployment/check.ts";
-import { createDeploymentLock, diffDeploymentLocks, lockHasSecrets } from "../src/local/lock.ts";
+import {
+  createDeploymentLock,
+  deploymentDiff,
+  diffDeploymentLocks,
+  lockHasSecrets,
+} from "../src/local/lock.ts";
 import { matrixLocalDeployments } from "../src/local/matrix.ts";
 import { probeDeployment } from "../src/local/probe.ts";
 import { readBoundedJSON } from "../src/local/transport.ts";
@@ -489,6 +494,8 @@ describe("local lock and matrix", () => {
     const diff = diffDeploymentLocks(lock, drifted);
     expect(diff.contract).toBe(true);
     expect(diff.drifts).toContain("contract");
+    expect(deploymentDiff(diff).contract).toBe(false);
+    expect(deploymentDiff(diff).drifts).not.toContain("contract");
   });
 
   it("builds a static matrix row per loaded model", async () => {
