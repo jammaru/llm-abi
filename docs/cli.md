@@ -74,13 +74,13 @@ each selected schema. By default it checks pull request changes matching `**/*.s
   with:
     fetch-depth: 0
     persist-credentials: false
-- uses: jammaru/llm-abi@v0.2.0
+- uses: jammaru/llm-abi@v0.5.0
   with:
     schema-files: "schemas/**/*.json"
     comment: "true"
 ```
 
-Pin the Action to `@v0.2.0` or a later release tag. Set `pull-requests: write` on the job
+Pin the Action to a release tag (current: `@v0.5.0`). Do not use `@latest`. Set `pull-requests: write` on the job
 or workflow when `comment` is enabled. The comment is optional; the Action always writes the
 compatibility table to the job summary. Repeated runs update the same bot-authored comment.
 

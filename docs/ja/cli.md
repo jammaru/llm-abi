@@ -72,12 +72,12 @@ npx llm-abi local diff llm-abi.local.lock.json schema.json
   with:
     fetch-depth: 0
     persist-credentials: false
-- uses: jammaru/llm-abi@v0.2.0
+- uses: jammaru/llm-abi@v0.5.0
   with:
     schema-files: "schemas/**/*.json"
     comment: "true"
 ```
 
-Action は `@v0.2.0` 以降のリリースタグにピンしてください。`comment` を使うジョブ／ワークフローには `pull-requests: write` を付けます。コメントは任意です。Action はいつも互換性テーブルをジョブサマリに書きます。再実行すると、同じボットコメントを更新します。
+Action はリリースタグにピンしてください（いまは `@v0.5.0`）。`@latest` は使わないでください。`comment` を使うジョブ／ワークフローには `pull-requests: write` を付けます。コメントは任意です。Action はいつも互換性テーブルをジョブサマリに書きます。再実行すると、同じボットコメントを更新します。
 
 出力は `conclusion`、`checked-files`、`unsupported-count`、`results-json`、`comment-url` です。conclusion は `passed`、`unsupported`、`skipped`、`error` です。
