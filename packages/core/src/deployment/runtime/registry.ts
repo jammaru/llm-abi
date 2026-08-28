@@ -3,6 +3,8 @@ import { llamaCppRuntime } from "./llamacpp.ts";
 import { lmStudioGgufRuntime, lmStudioMlxRuntime } from "./lmstudio.ts";
 import { mlxLmRuntime } from "./mlx-lm.ts";
 import { ollamaRuntime } from "./ollama.ts";
+import { sglangRuntime } from "./sglang.ts";
+import { vllmRuntime } from "./vllm.ts";
 import type { DeploymentDescriptor, ResolvedRuntimeProfile, RuntimeProfile } from "../types.ts";
 
 const PROFILES: readonly RuntimeProfile[] = [
@@ -11,6 +13,8 @@ const PROFILES: readonly RuntimeProfile[] = [
   ollamaRuntime,
   llamaCppRuntime,
   mlxLmRuntime,
+  vllmRuntime,
+  sglangRuntime,
 ];
 
 const BY_ID = new Map<string, RuntimeProfile>();

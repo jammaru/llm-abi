@@ -26,7 +26,7 @@ export interface DiscoveredModel {
   readonly parameters?: string;
   readonly contextLength?: number;
   readonly parallel?: number;
-  readonly engine?: "llamacpp" | "mlx" | "outlines" | "ollama" | "unknown";
+  readonly engine?: "llamacpp" | "mlx" | "outlines" | "ollama" | "vllm" | "sglang" | "unknown";
 }
 
 export interface DiscoveredDeployment {

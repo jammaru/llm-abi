@@ -26,6 +26,7 @@ OpenAI-compatible labels are not ABI-compatible. The same Qwen3.8 weights can di
 - LM Studio MLX → Outlines
 - Ollama native `format`
 - llama.cpp server
+- vLLM / SGLang OpenAI-compatible `response_format.json_schema` (opt-in `--url`, not default doctor)
 
 That is the same class of problem llm-abi already treats for cloud vendors. It does not require `generate()`, a router, or a provider SDK.
 

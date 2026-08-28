@@ -3,11 +3,16 @@ import type { DeploymentDescriptor, RuntimeKind } from "../deployment/types.ts";
 import { detectLlamaCpp } from "./adapters/llamacpp.ts";
 import { detectLmStudio } from "./adapters/lmstudio.ts";
 import { detectOllama } from "./adapters/ollama.ts";
+import { detectOpenAIOwnedRuntime } from "./adapters/openai-owned.ts";
 import { DISCOVERY_TIMEOUT_MS } from "./limits.ts";
 import { createFetchTransport } from "./transport.ts";
 import type { RuntimeTransport } from "./transport.ts";
 import { endpointKindOf, parseBaseURL } from "./url.ts";
 import type { DiscoverOptions, DiscoveredDeployment, DiscoveredModel } from "./types.ts";
+
+function isDefaultLocalEndpoint(origin: string): boolean {
+  return DEFAULT_LOCAL_ENDPOINTS.some((item) => item.baseURL === origin);
+}
 
 export const DEFAULT_LOCAL_ENDPOINTS: readonly {
   readonly runtime?: RuntimeKind;
@@ -66,6 +71,30 @@ async function discoverOne(
       }
       return undefined;
     }
+    if (hint === "vllm") {
+      const result = await detectOpenAIOwnedRuntime(transport, url.origin, {
+        runtime: "vllm",
+        ownedBy: "vllm",
+        hinted: true,
+        timeoutMs,
+      });
+      if (result.detection.runtime) {
+        return toDiscovered(url.origin, endpointKind, result.detection, result.models);
+      }
+      return undefined;
+    }
+    if (hint === "sglang") {
+      const result = await detectOpenAIOwnedRuntime(transport, url.origin, {
+        runtime: "sglang",
+        ownedBy: "sglang",
+        hinted: true,
+        timeoutMs,
+      });
+      if (result.detection.runtime) {
+        return toDiscovered(url.origin, endpointKind, result.detection, result.models);
+      }
+      return undefined;
+    }
 
     const llama = await detectLlamaCpp(transport, url.origin, timeoutMs);
     if (llama.detection.confidence === "exact") {
@@ -78,6 +107,26 @@ async function discoverOne(
     const lmstudio = await detectLmStudio(transport, url.origin, timeoutMs);
     if (lmstudio.detection.confidence === "exact") {
       return toDiscovered(url.origin, endpointKind, lmstudio.detection, lmstudio.models);
+    }
+    if (!isDefaultLocalEndpoint(url.origin)) {
+      const vllm = await detectOpenAIOwnedRuntime(transport, url.origin, {
+        runtime: "vllm",
+        ownedBy: "vllm",
+        hinted: false,
+        timeoutMs,
+      });
+      if (vllm.detection.confidence === "exact") {
+        return toDiscovered(url.origin, endpointKind, vllm.detection, vllm.models);
+      }
+      const sglang = await detectOpenAIOwnedRuntime(transport, url.origin, {
+        runtime: "sglang",
+        ownedBy: "sglang",
+        hinted: false,
+        timeoutMs,
+      });
+      if (sglang.detection.confidence === "exact") {
+        return toDiscovered(url.origin, endpointKind, sglang.detection, sglang.models);
+      }
     }
     return undefined;
   } catch {

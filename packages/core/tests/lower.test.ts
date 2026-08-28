@@ -640,4 +640,40 @@ describe("lowering", () => {
     );
     expect(gguf.compatibility).toBe("unsupported");
   });
+
+  it("does not copy OpenAI strict required-all onto vLLM or SGLang", () => {
+    const schema = {
+      type: "object",
+      properties: {
+        name: { type: "string", minLength: 1 },
+        nick: { type: "string" },
+      },
+      required: ["name"],
+      additionalProperties: true,
+    };
+    const vllm = compile(schema, "vllm");
+    const sglang = compile(schema, "sglang");
+    expect((vllm.schema as { required: string[] }).required).toEqual(["name"]);
+    expect((sglang.schema as { additionalProperties?: unknown }).additionalProperties).toBe(true);
+    expect(vllm.compatibility).toBe("runtime-safe");
+    expect(vllm.loss.removed.some((item) => item.keyword === "minLength")).toBe(true);
+    expect(sglang.compatibility).toBe("runtime-safe");
+  });
+
+  it("keeps documented string pattern on SGLang and strips it on vLLM", () => {
+    const schema = {
+      type: "object",
+      properties: { name: { type: "string", pattern: "^[\\w]+$" } },
+      required: ["name"],
+    };
+    const sglang = compile(schema, "sglang");
+    const vllm = compile(schema, "vllm");
+    expect(
+      (sglang.schema as { properties: { name: { pattern?: string } } }).properties.name.pattern,
+    ).toBe("^[\\w]+$");
+    expect(
+      (vllm.schema as { properties: { name: { pattern?: string } } }).properties.name.pattern,
+    ).toBeUndefined();
+    expect(vllm.compatibility).toBe("runtime-safe");
+  });
 });

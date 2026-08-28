@@ -11,7 +11,9 @@ import { llamaCppServerStructured } from "./llamacpp.ts";
 import { lmStudioGgufStructured, lmStudioMlxStructured } from "./lmstudio.ts";
 import { ollamaChatStructured } from "./ollama.ts";
 import { alibabaQwenTools } from "./qwen.ts";
+import { sglangOpenaiStructured } from "./sglang.ts";
 import type { TargetProfile } from "./types.ts";
+import { vllmOpenaiStructured } from "./vllm.ts";
 import { xaiGrokStructured } from "./xai.ts";
 
 const PROFILES: readonly TargetProfile[] = [
@@ -28,6 +30,8 @@ const PROFILES: readonly TargetProfile[] = [
   lmStudioGgufStructured,
   lmStudioMlxStructured,
   ollamaChatStructured,
+  vllmOpenaiStructured,
+  sglangOpenaiStructured,
 ];
 
 const BY_ID = new Map<string, TargetProfile>();
@@ -93,5 +97,7 @@ export {
   lmStudioGgufStructured,
   lmStudioMlxStructured,
   ollamaChatStructured,
+  vllmOpenaiStructured,
+  sglangOpenaiStructured,
 };
 export type { TargetProfile, TargetCapabilities } from "./types.ts";
