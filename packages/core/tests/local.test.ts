@@ -52,6 +52,59 @@ describe("local discovery", () => {
     expect(found[0]?.deployment?.model.format).toBe("gguf");
   });
 
+  it("does not treat a loading llama.cpp catalog as loaded models", async () => {
+    const transport: RuntimeTransport = {
+      async fetch(input: string): Promise<Response> {
+        if (input.endsWith("/health")) {
+          return jsonResponse(503, { error: { type: "unavailable_error" } });
+        }
+        if (input.includes("/v1/models")) {
+          return jsonResponse(200, {
+            data: [
+              { id: "Qwen3.8-27B.gguf", owned_by: "llamacpp" },
+              { id: "other.gguf", owned_by: "llamacpp" },
+            ],
+          });
+        }
+        return jsonResponse(404, {});
+      },
+    };
+    const found = await discoverLocalDeployments({
+      endpoints: [{ runtime: "llamacpp", baseURL: "http://127.0.0.1:8080" }],
+      transport,
+    });
+    expect(found[0]?.detection.runtime).toBe("llamacpp");
+    expect(found[0]?.models).toEqual([]);
+  });
+
+  it("uses llama.cpp /props to pick the resident model", async () => {
+    const transport: RuntimeTransport = {
+      async fetch(input: string): Promise<Response> {
+        if (input.endsWith("/health")) {
+          return jsonResponse(200, { status: "ok" });
+        }
+        if (input.includes("/v1/models")) {
+          return jsonResponse(200, {
+            data: [
+              { id: "Qwen3.8-27B.gguf", owned_by: "llamacpp" },
+              { id: "other.gguf", owned_by: "llamacpp" },
+            ],
+          });
+        }
+        if (input.endsWith("/props")) {
+          return jsonResponse(200, { model_alias: "/opt/models/Qwen3.8-27B.gguf" });
+        }
+        return jsonResponse(404, {});
+      },
+    };
+    const found = await discoverLocalDeployments({
+      endpoints: [{ runtime: "llamacpp", baseURL: "http://127.0.0.1:8080" }],
+      transport,
+    });
+    expect(found[0]?.models.map((model) => model.id)).toEqual(["Qwen3.8-27B.gguf"]);
+    expect(found[0]?.models[0]?.loaded).toBe(true);
+  });
+
   it("does not claim llama.cpp from /v1/models alone on port 8080", async () => {
     const transport: RuntimeTransport = {
       async fetch(input: string): Promise<Response> {
@@ -142,6 +195,42 @@ describe("local discovery", () => {
     expect(selected?.descriptor.runtime.kind).toBe("lmstudio");
     expect(selected?.descriptor.model.id).toBe("Qwen3.8-27B");
     expect(selectProbeDeployment([emptyLmStudio])).toBeUndefined();
+  });
+
+  it("does not copy another loaded model's format onto an explicit --model", () => {
+    const mixed = {
+      baseURL: "http://127.0.0.1:1234",
+      endpointKind: "loopback" as const,
+      detection: { runtime: "lmstudio" as const, confidence: "exact" as const, evidence: [] },
+      models: [
+        {
+          id: "Qwen3.8-27B-Q4_K_M",
+          loaded: true,
+          format: "gguf" as const,
+          engine: "llamacpp" as const,
+        },
+        {
+          id: "Qwen3.8-27B-MLX",
+          loaded: true,
+          format: "mlx" as const,
+          engine: "mlx" as const,
+        },
+      ],
+      deployment: {
+        runtime: {
+          kind: "lmstudio" as const,
+          apiSurface: "openai" as const,
+          engine: { kind: "llamacpp" as const },
+        },
+        model: { id: "Qwen3.8-27B-Q4_K_M", format: "gguf" as const },
+      },
+    };
+    const mlx = selectProbeDeployment([mixed], { model: "Qwen3.8-27B-MLX" });
+    expect(mlx?.descriptor.model.format).toBe("mlx");
+    expect(mlx?.descriptor.runtime.engine?.kind).toBe("mlx");
+    const unknown = selectProbeDeployment([mixed], { model: "other-unloaded" });
+    expect(unknown?.descriptor.model.format).toBeUndefined();
+    expect(unknown?.descriptor.runtime.engine).toBeUndefined();
   });
 });
 
@@ -236,6 +325,37 @@ describe("local probe", () => {
     expect(
       bodies.some((body) => typeof body === "object" && body !== null && "format" in body),
     ).toBe(true);
+  });
+
+  it("assembles Ollama newline-delimited stream chunks", async () => {
+    const transport: RuntimeTransport = {
+      async fetch(_input: string, init?: RequestInit): Promise<Response> {
+        const body =
+          typeof init?.body === "string" ? (JSON.parse(init.body) as { stream?: boolean }) : {};
+        if (body.stream) {
+          return new Response(
+            '{"message":{"content":"{\\"ok\\":"}}\n{"message":{"content":"true}"}}\n{"done":true}\n',
+            { status: 200, headers: { "content-type": "application/x-ndjson" } },
+          );
+        }
+        return jsonResponse(200, {
+          message: { content: '{"ok":true}', tool_calls: [] },
+        });
+      },
+    };
+    const result = await probeDeployment({
+      baseURL: "http://127.0.0.1:11434",
+      model: "qwen3.8:27b",
+      transport,
+      input: {
+        deployment: {
+          runtime: { kind: "ollama", apiSurface: "mixed" },
+          model: { id: "qwen3.8:27b", format: "gguf" },
+        },
+        request: { endpoint: "chat-completions", structuredOutput: true },
+      },
+    });
+    expect(result.observations.find((item) => item.id === "P05-stream")?.status).toBe("passed");
   });
 
   it("skips structured probes when no schema target can be resolved", async () => {

@@ -1,5 +1,5 @@
-import { inferQwen38Family } from "../deployment/model/identity.ts";
-import type { DeploymentDescriptor, EngineKind, RuntimeKind } from "../deployment/types.ts";
+import { inferQwen38Family, publicModelId } from "../deployment/model/identity.ts";
+import type { DeploymentDescriptor, RuntimeKind } from "../deployment/types.ts";
 import { detectLlamaCpp } from "./adapters/llamacpp.ts";
 import { detectLmStudio } from "./adapters/lmstudio.ts";
 import { detectOllama } from "./adapters/ollama.ts";
@@ -101,19 +101,6 @@ function toDiscovered(
   };
 }
 
-function discoveredEngine(kind: EngineKind | undefined): DiscoveredModel["engine"] {
-  if (
-    kind === "llamacpp" ||
-    kind === "mlx" ||
-    kind === "outlines" ||
-    kind === "ollama" ||
-    kind === "unknown"
-  ) {
-    return kind;
-  }
-  return undefined;
-}
-
 function toDescriptor(runtime: RuntimeKind, model: DiscoveredModel): DeploymentDescriptor {
   const inferred = inferQwen38Family(model.id);
   return {
@@ -162,45 +149,47 @@ export function selectProbeDeployment(
   discovered: readonly DiscoveredDeployment[],
   options: { readonly runtime?: RuntimeKind; readonly model?: string } = {},
 ): ProbeSelection | undefined {
-  const loaded = pickLoadedDeployment(discovered, options.runtime);
-  if (loaded?.deployment && loaded.detection.runtime) {
-    const modelId = options.model ?? loaded.models[0]?.id;
-    if (!modelId) {
-      return undefined;
+  const requested = options.model ? publicModelId(options.model) : undefined;
+  if (requested) {
+    for (const item of discovered) {
+      if (!item.detection.runtime) {
+        continue;
+      }
+      if (options.runtime && item.detection.runtime !== options.runtime) {
+        continue;
+      }
+      const known = item.models.find((model) => model.id === requested);
+      if (known) {
+        return {
+          discovered: item,
+          modelId: requested,
+          descriptor: toDescriptor(item.detection.runtime, known),
+        };
+      }
     }
-    return {
-      discovered: loaded,
-      modelId,
-      descriptor: options.model
-        ? toDescriptor(loaded.detection.runtime, {
-            id: options.model,
-            loaded: false,
-            format: loaded.deployment.model.format,
-            architecture: loaded.deployment.model.architecture,
-            quantization: loaded.deployment.model.quantization,
-            digest: loaded.deployment.model.digest,
-            parameters: loaded.deployment.model.parameters,
-            contextLength: loaded.deployment.model.contextLength,
-            engine: discoveredEngine(loaded.deployment.runtime.engine?.kind),
-          })
-        : loaded.deployment,
-    };
-  }
-  if (!options.model) {
+    for (const item of discovered) {
+      if (!item.detection.runtime) {
+        continue;
+      }
+      if (options.runtime && item.detection.runtime !== options.runtime) {
+        continue;
+      }
+      return {
+        discovered: item,
+        modelId: requested,
+        descriptor: toDescriptor(item.detection.runtime, { id: requested, loaded: false }),
+      };
+    }
     return undefined;
   }
-  for (const item of discovered) {
-    if (!item.detection.runtime) {
-      continue;
-    }
-    if (options.runtime && item.detection.runtime !== options.runtime) {
-      continue;
-    }
-    return {
-      discovered: item,
-      modelId: options.model,
-      descriptor: toDescriptor(item.detection.runtime, { id: options.model, loaded: false }),
-    };
+  const loaded = pickLoadedDeployment(discovered, options.runtime);
+  const modelId = loaded?.models[0]?.id;
+  if (!loaded?.deployment || !modelId) {
+    return undefined;
   }
-  return undefined;
+  return {
+    discovered: loaded,
+    modelId,
+    descriptor: loaded.deployment,
+  };
 }

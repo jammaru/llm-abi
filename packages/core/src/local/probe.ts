@@ -404,25 +404,44 @@ function extractToolCalls(body: unknown): readonly unknown[] {
 }
 
 function assembleStreamContent(text: string): string | undefined {
-  const parts: string[] = [];
-  for (const line of text.split(/\r?\n/)) {
+  const sse = collectStreamDeltas(text, (line) => {
     if (!line.startsWith("data:")) {
-      continue;
+      return undefined;
     }
     const payload = line.slice("data:".length).trim();
     if (payload === "" || payload === "[DONE]") {
-      continue;
+      return undefined;
     }
-    const json = safeJson(payload);
-    const delta = extractDelta(json);
+    return extractDelta(safeJson(payload));
+  });
+  if (sse !== undefined) {
+    return sse;
+  }
+  const ndjson = collectStreamDeltas(text, (line) => {
+    const trimmed = line.trim();
+    if (trimmed === "" || trimmed.startsWith("data:")) {
+      return undefined;
+    }
+    return extractDelta(safeJson(trimmed));
+  });
+  if (ndjson !== undefined) {
+    return ndjson;
+  }
+  return extractContent(safeJson(text));
+}
+
+function collectStreamDeltas(
+  text: string,
+  readLine: (line: string) => string | undefined,
+): string | undefined {
+  const parts: string[] = [];
+  for (const line of text.split(/\r?\n/)) {
+    const delta = readLine(line);
     if (delta !== undefined) {
       parts.push(delta);
     }
   }
-  if (parts.length > 0) {
-    return parts.join("");
-  }
-  return extractContent(safeJson(text));
+  return parts.length > 0 ? parts.join("") : undefined;
 }
 
 function extractDelta(body: unknown): string | undefined {
