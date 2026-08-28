@@ -1,49 +1,38 @@
 # llm-abi
 
-**One schema. Every model.**
+llm-abi is a schema compiler for LLM providers.
+
+Give it a TypeScript type or JSON Schema. Get back the schema that provider will accept.
 
 ![Same oneOf schema: lossy on OpenAI, unsupported on Gemini](docs/assets/playground-demo.gif)
-
-```bash
-npm i llm-abi
-```
-
-Paste a JSON Schema (or a TypeScript type) in the [playground](https://llm-abi.pages.dev/). Each provider comes back `lossless`, `runtime-safe`, `lossy`, or `unsupported`, with diagnostics for every rewrite.
-
-The schema compatibility compiler between TypeScript and LLM providers.
-
-Compile TypeScript and JSON Schema into provider-safe schemas for OpenAI, Claude, Gemini, and more.
 
 [![CI](https://github.com/jammaru/llm-abi/actions/workflows/ci.yml/badge.svg)](https://github.com/jammaru/llm-abi/actions/workflows/ci.yml)
 [![npm](https://img.shields.io/npm/v/llm-abi)](https://www.npmjs.com/package/llm-abi)
 [![license](https://img.shields.io/npm/l/llm-abi)](./LICENSE)
 
-[Playground](https://llm-abi.pages.dev/) — paste a TypeScript type or JSON Schema, then compare every built-in target, diagnostics, loss, and emitted JSON.
-
-[Docs](https://llm-abi.pages.dev/docs/) — `compile`, `checkRequest`, `checkDeployment`, CLI, profiles, and local runtimes. [日本語](https://llm-abi.pages.dev/docs/ja/).
-
-Your JSON Schema works on OpenAI.
-
-It fails on Gemini.
-
-Anthropic silently cannot enforce `minimum`.
-
-llm-abi fixes this.
+```bash
+npm i llm-abi
+```
 
 ```ts
 import { compile } from "llm-abi";
 
-const result = compile(UserSchema, {
-  target: "anthropic",
-});
+const schema = {
+  type: "object",
+  properties: {
+    name: { type: "string" },
+  },
+  required: ["name"],
+};
+
+const result = compile(schema, "anthropic");
 
 result.schema;
-result.diagnostics;
-result.loss;
-result.fingerprint;
-result.size;
-result.validate;
+result.compatibility;
+result.validate({ name: "Ada" });
 ```
+
+[Docs](https://llm-abi.pages.dev/docs/) · [Playground](https://llm-abi.pages.dev/) · [日本語](https://llm-abi.pages.dev/docs/ja/)
 
 ```bash
 npx llm-abi check schema.json
