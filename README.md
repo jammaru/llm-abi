@@ -300,13 +300,13 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
-      - uses: jammaru/llm-abi@v0.2.0
+      - uses: jammaru/llm-abi@v0.5.0
         with:
           schema-files: "schemas/**/*.json"
           comment: "true"
 ```
 
-Pin the Action to this tag (`@v0.2.0`) or a later release. The compatibility check fails only
+Pin the Action to a release tag (current: `@v0.5.0`). Do not use `@latest`. The compatibility check fails only
 when a current target is `unsupported`. Invalid input or an Action runtime failure uses exit
 status 2. Pull requests from forks still run the check, but GitHub may restrict their token to
 read-only; in that case the Action leaves the job summary and skips the comment without changing
