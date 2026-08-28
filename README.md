@@ -227,7 +227,7 @@ The MCP target is deliberately conservative for deployed hosts. The current prot
 | `lmstudio/mlx`  | `lmstudio/mlx/structured`    | Experimental | [documented](https://lmstudio.ai/docs/developer/openai-compat/structured-output)   | 2026-08-28    | —            |
 | `ollama`        | `ollama/chat/structured`     | Experimental | [documented](https://docs.ollama.com/capabilities/structured-outputs)              | 2026-08-28    | —            |
 | `vllm`          | `vllm/openai/structured`     | Experimental | [documented](https://docs.vllm.ai/en/stable/features/structured_outputs/)          | 2026-08-28    | —            |
-| `sglang`        | `sglang/openai/structured`    | Experimental | [documented](https://docs.sglang.io/docs/advanced_features/structured_outputs.md)  | 2026-08-28    | —            |
+| `sglang`        | `sglang/openai/structured`   | Experimental | [documented](https://docs.sglang.io/docs/advanced_features/structured_outputs.md)  | 2026-08-28    | —            |
 
 LM Studio GGUF shares llama.cpp grammar constants and keeps its own evidence URL. MLX uses Outlines and does not copy those limits. There is no short `lmstudio` alias: format is required. vLLM and SGLang accept documented `response_format.json_schema`; they do not copy OpenAI-strict required-all. Discovery for those servers is `--url` / `--runtime` only.
 
